@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.16
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimCycling", "SimCycling\SimCycling.csproj", "{CFF1BAAF-9059-48E7-A09E-820A07627EDF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "idea", "idea", "{726A06E5-8F02-4A69-922F-909E4321B498}"
+	ProjectSection(SolutionItems) = preProject
+		TextFile1.txt = TextFile1.txt
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CFF1BAAF-9059-48E7-A09E-820A07627EDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFF1BAAF-9059-48E7-A09E-820A07627EDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFF1BAAF-9059-48E7-A09E-820A07627EDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFF1BAAF-9059-48E7-A09E-820A07627EDF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CD938D15-2294-470E-9850-83ED358D3B37}
+	EndGlobalSection
+EndGlobal
