@@ -159,23 +159,16 @@ namespace SimCycling
 
             posFile.Close();
 
-
-            mm.close();
+            mmHr.Dispose();
+            mmCad.Dispose();
+            mm.Dispose();
         }
 
         private void initMmap()
         {
-            var mmHrFile = open(Consts.BASE_OUT_PATH + @"\hr.bin", "rb");
-            mmHr = mmap.mmap(mmHrFile.fileno(), 32, access = mmap.ACCESS_READ);
-            mmHrFile.close();
-
-            var mmCadFile = open(Consts.BASE_OUT_PATH + @"\cad.bin", "rb");
-            mmCad = mmap.mmap(mmCadFile.fileno(), 32, access = mmap.ACCESS_READ);
-            mmCadFile.close();
-
-            var mmFile = open(Consts.BASE_OUT_PATH + @"\mm.bin", "rb+");
-            mm = mmap.mmap(mmFile.fileno(), 32);
-            mmFile.close();
+            mmHr = MemoryMappedFile.CreateOrOpen(String.Format(@"{0}\hr.bin", Consts.BASE_OUT_PATH), 32, MemoryMappedFileAccess.Read);
+            mmCad = MemoryMappedFile.CreateOrOpen(String.Format(@"{0}\cad.bin", Consts.BASE_OUT_PATH), 32, MemoryMappedFileAccess.Read); 
+            mm = MemoryMappedFile.CreateOrOpen(String.Format(@"{0}\mm.bin", Consts.BASE_OUT_PATH), 32, MemoryMappedFileAccess.ReadWrite);
         }
 
         private void initVjoy()
@@ -337,19 +330,22 @@ namespace SimCycling
 
 
 
-            mmHr.seek(0);
+            var hrAccessor = mmHr.CreateViewAccessor();
+            char[] readHr = new char[32];
+            hrAccessor.ReadArray(0, readHr, 0, 32);
+            hrAccessor.Dispose();
+            var readHrUtf8 = new String(readHr);
 
-            var readHr = mmHr.read(4);
-            var readHrUtf8 = readHr.decode("utf-8");
-
-            var hr = (int)readHrUtf8.split('|')[0];
+            var hr = int.Parse(readHrUtf8.Split('|')[0]);
             myLog(String.Format("HR {0}", hr));
 
-            mmCad.seek(0);
-            var readCad = mmCad.read(4);
-            var readCadUtf8 = readCad.decode("utf-8");
+            var cadAccessor = mmCad.CreateViewAccessor();
+            char[] readCad = new char[32];
+            cadAccessor.ReadArray(0, readCad, 0, 32);
+            cadAccessor.Dispose();
+            var readCadUtf8 = new String(readCad);
 
-            var cad = (int)readCadUtf8.split('|')[0];
+            var cad = int.Parse(readCadUtf8.Split('|')[0]);
             myLog(String.Format("Cad {0}", cad));
 
 
@@ -410,11 +406,14 @@ namespace SimCycling
         private void on_page_specific_trainer(SpecificTrainerPage page, uint counter)
         {
             lastPower = page.InstantaneousPower;
-            mm.seek(0);
-            mm.write(String.Format("{0:06.2f}|{1:06.2f}|{2:06.2f}|",
+            var mmAccessor = mm.CreateViewAccessor();
+            var data = String.Format("{0:06.2f}|{1:06.2f}|{2:06.2f}|",
                 (float)page.InstantaneousPower,
                 pid.SetPoint,
-                transmittedGrade));
+                transmittedGrade).ToCharArray();
+            
+            mmAccessor.WriteArray(0, data, 0, data.Length);
+            mmAccessor.Dispose();
         }
 
         private void on_page_fe_capabilities(FeCapabilitiesPage page, uint counter)
