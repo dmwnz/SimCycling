@@ -18,8 +18,15 @@ namespace SimCycling
     {
         static void Main(string[] args)
         {
-            ANTDeviceManager manager = new ANTDeviceManager();
+            //ANTDeviceManager manager = new ANTDeviceManager();
+            //manager.Start();
+
+
+            var manager = new ANTDeviceManager();
+
             manager.Start();
+
+            Console.Read();
 
         }
     }
@@ -53,7 +60,7 @@ namespace SimCycling
             }
 
             network = new AntPlus.Types.Network(0, NETWORK_KEY, CHANNEL_FREQUENCY);
-
+            
             InitHRM(0);
             InitFEC(1);
             InitCAD(2);
@@ -78,9 +85,13 @@ namespace SimCycling
             var channelFec = usbDevice.getChannel(channelNumber);
 
             fitnessEquipmentDisplay = new FitnessEquipmentDisplay(channelFec, network);
+            var commander = new FECCommander(fitnessEquipmentDisplay);
+            commander.Start();
             fitnessEquipmentDisplay.TurnOn();
-            fitnessEquipmentDisplay.SensorFound += (a, b) => Console.WriteLine("FE Sensor Found!");
-            fitnessEquipmentDisplay.GeneralFePageReceived += (a, b) => Console.WriteLine("FE Data : " + a.Speed);
+
+            
+            //fitnessEquipmentDisplay.SensorFound += (a, b) => Console.WriteLine("FE Sensor Found!");
+            //fitnessEquipmentDisplay.GeneralFePageReceived += (a, b) => Console.WriteLine("FE Data : " + a.Speed);
         }
 
         void InitCAD(int channelNumber)
@@ -97,7 +108,7 @@ namespace SimCycling
     class FECCommander
     {
         float transmittedGrade = 0.0f;
-        long lastTransmittedGradeTime = 0l;
+        long lastTransmittedGradeTime = 0L;
         bool acquiredVJoy = false;
         Point3D lastCoordinates = new Point3D(0.0f, 0.0f, 0.0f);
         int lastPower = 0;
@@ -119,6 +130,25 @@ namespace SimCycling
         float speedKmh;
 
         FitnessEquipmentDisplay simulator;
+
+        public FECCommander(FitnessEquipmentDisplay simulator)
+        {
+            this.simulator = simulator;
+            simulator.SensorFound += found;
+            simulator.GeneralFePageReceived += on_page_general_fe;
+            simulator.SpecificTrainerPageReceived += on_page_specific_trainer;
+            simulator.FeCapabilitiesPageReceived += on_page_fe_capabilities;
+            simulator.CommandStatusPageReceived += on_page_command_status;
+        }
+
+        ~FECCommander()
+        {
+            simulator.SensorFound -= found;
+            simulator.GeneralFePageReceived -= on_page_general_fe;
+            simulator.SpecificTrainerPageReceived -= on_page_specific_trainer;
+            simulator.FeCapabilitiesPageReceived -= on_page_fe_capabilities;
+            simulator.CommandStatusPageReceived -= on_page_command_status;
+        }
 
         public static void myLog(String s, params object[] parms)
         {
@@ -166,9 +196,12 @@ namespace SimCycling
 
         private void initMmap()
         {
-            mmHr = MemoryMappedFile.CreateOrOpen(String.Format(@"{0}\hr.bin", Consts.BASE_OUT_PATH), 32, MemoryMappedFileAccess.Read);
-            mmCad = MemoryMappedFile.CreateOrOpen(String.Format(@"{0}\cad.bin", Consts.BASE_OUT_PATH), 32, MemoryMappedFileAccess.Read); 
-            mm = MemoryMappedFile.CreateOrOpen(String.Format(@"{0}\mm.bin", Consts.BASE_OUT_PATH), 32, MemoryMappedFileAccess.ReadWrite);
+            var hrFilePath = String.Format(@"{0}\hr.bin", Consts.BASE_OUT_PATH);
+            mmHr = MemoryMappedFile.CreateFromFile(hrFilePath, FileMode.Open, "hr.bin");
+            var cadFilePath = String.Format(@"{0}\cad.bin", Consts.BASE_OUT_PATH);
+            mmCad = MemoryMappedFile.CreateFromFile(cadFilePath, FileMode.Open, "cad.bin");
+            var mmFilePath = String.Format(@"{0}\mm.bin", Consts.BASE_OUT_PATH);
+            mm = MemoryMappedFile.CreateFromFile(mmFilePath, FileMode.Create, "mm.bin", 32);
         }
 
         private void initVjoy()
@@ -383,7 +416,7 @@ namespace SimCycling
             myLog("TRACK : " + track);
         }
 
-        private void found()
+        private void found(ushort a, byte b)
         {
             myLog("Bkool trouve");
             equipment_found = true;

@@ -25,7 +25,7 @@ namespace SimCycling
         float DTerm;
 
         float last_error;
-        float int_error;
+        // float int_error;
 
 
 
@@ -56,7 +56,7 @@ namespace SimCycling
             last_error = 0.0f;
 
             //# Windup Guard
-            int_error = 0.0f;
+            //int_error = 0.0f;
             windup_guard = 20.0f;
 
             output = 0.0f;
