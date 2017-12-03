@@ -8,31 +8,38 @@ namespace SimCycling
 {
     class HRMCommander
     {
-
         HeartRateDisplay simulator;
         MemoryMappedFile mm;
-
 
         public HRMCommander(HeartRateDisplay simulator)
         {
             this.simulator = simulator;
-            simulator.SensorFound += found;
-            simulator.HeartRateDataReceived += on_page_heart_rate;
         }
 
         public void Start()
         {
-            var hrFilePath = String.Format(@"{0}\hr.bin", Consts.BASE_OUT_PATH);
-            mm = MemoryMappedFile.CreateFromFile(hrFilePath, FileMode.Open, "hr.bin");
+            //var hrFilePath = String.Format(@"{0}\hr.bin", Consts.BASE_OUT_PATH);
+            mm = MemoryMappedFile.CreateNew("hr.bin", 32);
+
+            simulator.SensorFound += Found;
+            simulator.HeartRateDataReceived += OnPageHeartRate;
+            simulator.TurnOn();
         }
 
-        private void found(ushort a, byte b)
+        public void Stop()
+        {
+            simulator.SensorFound -= Found;
+            simulator.HeartRateDataReceived -= OnPageHeartRate;
+            simulator.TurnOff();
+        }
+
+        private void Found(ushort a, byte b)
         {
             Console.WriteLine("HRM Found !");
         } 
 
 
-        private void on_page_heart_rate(HeartRateData page, uint a)
+        private void OnPageHeartRate(HeartRateData page, uint a)
         {
             var hr = page.HeartRate;
 

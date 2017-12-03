@@ -13,9 +13,9 @@ namespace SimCycling
 
         ANT_Device usbDevice;
 
-        HeartRateDisplay heartRateDisplay;
-        FitnessEquipmentDisplay fitnessEquipmentDisplay;
-        BikeCadenceDisplay bikeCadenceDisplay;
+        HRMCommander hrmCommander;
+        FECCommander fecCommander;
+        CADCommander cadCommander;
 
         AntPlus.Types.Network network;
 
@@ -37,50 +37,39 @@ namespace SimCycling
             network = new AntPlus.Types.Network(0, NETWORK_KEY, CHANNEL_FREQUENCY);
 
             InitHRM(0);
-            InitFEC(1);
-            InitCAD(2);
+            InitCAD(1);
+            InitFEC(2);
+        }
 
-
-
-            Console.Read();
-            heartRateDisplay.TurnOff();
+        public void Stop()
+        {
+            hrmCommander.Stop();
+            cadCommander.Stop();
+            fecCommander.Stop();
         }
 
         void InitHRM(int channelNumber)
         {
             var channelHrm = usbDevice.getChannel(channelNumber);
-            heartRateDisplay = new HeartRateDisplay(channelHrm, network);
-            heartRateDisplay.TurnOn();
-            heartRateDisplay.SensorFound += (a, b) => Console.WriteLine("Heart Rate Sensor Found!");
-            heartRateDisplay.HeartRateDataReceived += (a, b) => Console.WriteLine("HR Data : " + a.HeartRate);
+            var heartRateDisplay = new HeartRateDisplay(channelHrm, network);
+            hrmCommander = new HRMCommander(heartRateDisplay);
+            hrmCommander.Start();
         }
 
         void InitFEC(int channelNumber)
         {
             var channelFec = usbDevice.getChannel(channelNumber);
-
-            fitnessEquipmentDisplay = new FitnessEquipmentDisplay(channelFec, network);
-            var commander = new FECCommander(fitnessEquipmentDisplay);
-            commander.Start();
-            fitnessEquipmentDisplay.TurnOn();
-
-            Console.Read();
-            fitnessEquipmentDisplay.TurnOff();
-
-            commander.Finish();
-
-            //fitnessEquipmentDisplay.SensorFound += (a, b) => Console.WriteLine("FE Sensor Found!");
-            //fitnessEquipmentDisplay.GeneralFePageReceived += (a, b) => Console.WriteLine("FE Data : " + a.Speed);
+            var fitnessEquipmentDisplay = new FitnessEquipmentDisplay(channelFec, network);
+            fecCommander = new FECCommander(fitnessEquipmentDisplay);
+            fecCommander.Start();
         }
 
         void InitCAD(int channelNumber)
         {
             var channelCad = usbDevice.getChannel(channelNumber);
-
-            bikeCadenceDisplay = new BikeCadenceDisplay(channelCad, network);
-            bikeCadenceDisplay.TurnOn();
-            bikeCadenceDisplay.SensorFound += (a, b) => Console.WriteLine("FE Sensor Found!");
-            bikeCadenceDisplay.BikeCadenceDataReceived += (a, b) => Console.WriteLine("CAD Data : " + a.Cadence);
+            var bikeCadenceDisplay = new BikeCadenceDisplay(channelCad, network);
+            cadCommander = new CADCommander(bikeCadenceDisplay);
+            cadCommander.Start();
         }
     }
 }

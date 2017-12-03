@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 
-namespace SimCycling.src
+namespace SimCycling
 {
     class CADCommander
     {
@@ -14,22 +14,31 @@ namespace SimCycling.src
         public CADCommander(BikeCadenceDisplay simulator)
         {
             this.simulator = simulator;
-            simulator.SensorFound += found;
-            simulator.BikeCadenceDataReceived += Simulator_BikeCadenceDataReceived;
         }
 
         public void Start()
         {
-            var hrFilePath = String.Format(@"{0}\cad.bin", Consts.BASE_OUT_PATH);
-            mm = MemoryMappedFile.CreateFromFile(hrFilePath, FileMode.Open, "cad.bin");
+            //var hrFilePath = String.Format(@"{0}\cad.bin", Consts.BASE_OUT_PATH);
+            mm = MemoryMappedFile.CreateNew("cad.bin", 32);
+
+            simulator.SensorFound += Found;
+            simulator.BikeCadenceDataReceived += OnPageBikeCadence;
+            simulator.TurnOn();
         }
 
-        private void found(ushort a, byte b)
+        public void Stop()
+        {
+            simulator.SensorFound -= Found;
+            simulator.BikeCadenceDataReceived -= OnPageBikeCadence;
+            simulator.TurnOff();
+        }
+
+        private void Found(ushort a, byte b)
         {
             Console.WriteLine("Cadence sensor Found !");
         }
 
-        private void Simulator_BikeCadenceDataReceived(BikeCadenceData page, uint a)
+        private void OnPageBikeCadence(BikeCadenceData page, uint a)
         {
             var cad = page.Cadence;
 
