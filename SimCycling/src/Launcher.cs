@@ -16,6 +16,7 @@ namespace SimCycling
             manager.Start();
 
             Console.Read();
+            
 
         }
     }

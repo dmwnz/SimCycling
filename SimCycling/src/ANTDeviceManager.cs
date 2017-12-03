@@ -64,6 +64,10 @@ namespace SimCycling
             commander.Start();
             fitnessEquipmentDisplay.TurnOn();
 
+            Console.Read();
+            fitnessEquipmentDisplay.TurnOff();
+
+            commander.Finish();
 
             //fitnessEquipmentDisplay.SensorFound += (a, b) => Console.WriteLine("FE Sensor Found!");
             //fitnessEquipmentDisplay.GeneralFePageReceived += (a, b) => Console.WriteLine("FE Data : " + a.Speed);

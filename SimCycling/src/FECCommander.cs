@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using SimCycling.Utils;
 using AssettoCorsaSharedMemory;
 using vJoyInterfaceWrap;
@@ -91,7 +88,7 @@ namespace SimCycling
 
 
 
-            gpxFile.Write(@"  </trkseg>
+            gpxFile.WriteLine(@"  </trkseg>
     </trk>
 </gpx> ");
             gpxFile.Close();
@@ -192,20 +189,20 @@ namespace SimCycling
         private void initGPX()
         {
             var title = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            var posFile = new StreamWriter(String.Format(@"{0}\bkool-{1}.csv", Consts.BASE_OUT_PATH, title), false, System.Text.Encoding.UTF8, 1024);
-            var gpxFile = new StreamWriter(String.Format(@"{0}\bkool-{1}.gpx", Consts.BASE_OUT_PATH, title), false, System.Text.Encoding.UTF8, 1024);
+            posFile = new StreamWriter(String.Format(@"{0}\bkool-{1}.csv", Consts.BASE_OUT_PATH, title), false, Encoding.UTF8, 1024);
+            gpxFile = new StreamWriter(String.Format(@"{0}\bkool-{1}.gpx", Consts.BASE_OUT_PATH, title), false, Encoding.UTF8, 1024);
 
-            gpxFile.Write(String.Format(@"<?xml version=""1.0"" encoding=""UTF-8""?>
-    <gpx
-    xmlns=""http://www.topografix.com/GPX/1/1""
-    xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
-    xsi:schemaLocation=""http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd""
-    xmlns:gpxtpx=""http://www.garmin.com/xmlschemas/TrackPointExtension/v1""
-    xmlns:gpxx=""http://www.garmin.com/xmlschemas/GpxExtensions/v3""
-    creator=""AssettoStrada"" version=""1.1"">
-    <trk>
+            gpxFile.WriteLine(String.Format(@"<?xml version=""1.0"" encoding=""UTF-8""?>
+<gpx xmlns=""http://www.topografix.com/GPX/1/1""
+  xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+  xsi:schemaLocation=""http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd""
+  xmlns:gpxtpx=""http://www.garmin.com/xmlschemas/TrackPointExtension/v1""
+  xmlns:gpxx=""http://www.garmin.com/xmlschemas/GpxExtensions/v3""
+  creator=""AssettoStrada"" version=""1.1"">
+  <trk>
     <name>{0}</name>
-    <trkseg>\n", title));
+    <trkseg>", title));
+
         }
 
         private void on_ac_physics(object sender, PhysicsEventArgs e)
@@ -307,11 +304,11 @@ namespace SimCycling
                 extensions += "     </gpxtpx:TrackPointExtension>\n";
                 extensions += "    </extensions>";
             }
-            gpxFile.Write(String.Format(@"   <trkpt lon=""{0:.6f}"" lat=""{1:.6f}"" >
+            gpxFile.WriteLine(String.Format(@"   <trkpt lon=""{0:.6f}"" lat=""{1:.6f}"" >
     <ele>{2:.2f}</ele>
     <time>{3:s}</time>
 {4}
-   </trkpt>\n",
+   </trkpt>",
             wgsCoord.Longitude,
             wgsCoord.Latitude,
             wgsCoord.Elevation),
