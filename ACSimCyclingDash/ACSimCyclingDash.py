@@ -19,8 +19,6 @@ mmCad=0
 
 km=0.0
 
-BASE_OUT_PATH = r"E:\Damien\Downloads\SimulANT+_2.1.0\out"
-
 
 # This function gets called by AC when the Plugin is initialised
 # The function has to return a string with the plugin name
@@ -74,17 +72,9 @@ def acMain(ac_version):
     ac.setPosition(trackLenIndicator, 265, 290)
     ac.setPosition(ac.addLabel(appWindow, "km (lap)"), 270, 310)
     
-    #ac.addRenderCallback(appWindow, onFormRender)
-    
-    mmFile = open(BASE_OUT_PATH + r"\mm.bin", "rb")
-    mm = mmap.mmap(mmFile.fileno(), 32, access=mmap.ACCESS_READ)
-    mmFile.close()
-    mmFile = open(BASE_OUT_PATH + r"\hr.bin", "rb")
-    mmHr = mmap.mmap(mmFile.fileno(), 32, access=mmap.ACCESS_READ)
-    mmFile.close()
-    mmFile = open(BASE_OUT_PATH + r"\cad.bin", "rb")
-    mmCad = mmap.mmap(mmFile.fileno(), 32, access=mmap.ACCESS_READ)
-    mmFile.close()
+    mm = mmap.mmap(0, 64, "mm.bin")
+    mmHr = mmap.mmap(0, 32, "hr.bin")
+    mmCad = mmap.mmap(0, 32, "cad.bin")
     
     return "BikeDash"
 	
@@ -104,19 +94,19 @@ def acUpdate(deltaT):
     mm.seek(0)
     readVal = mm.read()
     #ac.log("BIKEDASH readVal " + str(readVal))
-    readValString = readVal.decode('utf-8')
+    readValString = readVal.decode('utf-16')
     #ac.log("BIKEDASH readValString " + readValString)
     
     mmHr.seek(0)
     readHr = mmHr.read()
     #ac.log("BIKEDASH readHr " + str(readHr))
-    readHrString = readHr.decode('utf-8')
+    readHrString = readHr.decode('utf-16')
     #ac.log("BIKEDASH readHrString " + readHrString)
     
     mmCad.seek(0)
     readCad = mmCad.read()
     #ac.log("BIKEDASH readCad " + str(readCad))
-    readCadString = readCad.decode('utf-8')
+    readCadString = readCad.decode('utf-16')
     #ac.log("BIKEDASH readCadString " + readCadString)
     
     data = readValString.split('|')
@@ -139,6 +129,3 @@ def acUpdate(deltaT):
 def acShutdown():
     ac.log("BIKEDASH acShutdown")
     mm.close()
-
-    #lateralGIndicator.setCurrentValue(x)
-	

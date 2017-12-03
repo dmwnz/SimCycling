@@ -22,12 +22,14 @@ namespace SimCycling.Utils
         public Point3D XyzPoint { get; }
         public PointGeo WgsPoint { get; }
         public float Angle { get; }
+        public float AltitudeFactor { get; }
 
-        public ReferencePoint(Point3D xyz, PointGeo wgs, float angle)
+        public ReferencePoint(Point3D xyz, PointGeo wgs, float angle, float altitudeFactor = 1.0f)
         {
             this.XyzPoint = xyz;
             this.WgsPoint = wgs;
             this.Angle = angle;
+            this.AltitudeFactor = altitudeFactor;
         }
     }
 
@@ -72,17 +74,24 @@ namespace SimCycling.Utils
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
 
         static readonly float R = 6378137.0f;
+        static readonly float WTF_FACTOR = 0.9875f;
 
         static readonly Dictionary<String, PointPair> trackOrigins = new Dictionary<string, PointPair> {
-                { "imola", new PointPair(
-                    new ReferencePoint(new Point3D(163.0779f, -406.1667f, -84.8346f), new PointGeo(44.34423f, 11.71605f, 40.0f), 1.1f)) },
-                { "ks_nordschleife", new PointPair(
-                    new ReferencePoint(new Point3D(645.9265f, 1431.3629f, 88.9466f), new PointGeo(50.346426f, 6.966673f, 570.0f), -1.63f)) },
-                { "trento-bondone", new PointPair(
-                    new ReferencePoint(new Point3D(2184.2517f, -2467.7197f, 73.1256f), new PointGeo(46.07667f, 11.09802f, 315.0f), -6.25f),
-                    new ReferencePoint(new Point3D(-1108.7559f, 1298.8573f, 1457.8204f), new PointGeo(46.04035f, 11.06093f, 1620.0f), -5.65f)) },
-                { "simtraxx_transfagarasan_v0.8", new PointPair(
-                    new ReferencePoint(new Point3D(-1461.8225f, -3900.5601f, 1.1499f), new PointGeo(45.6752f, 24.57861f, 625.0f), 0.0f)) } };
+            { "imola", new PointPair(
+                new ReferencePoint(new Point3D(163.0779f, -406.1667f, -84.8346f), new PointGeo(44.34423f, 11.71605f, 40.0f), 1.1f)) },
+            { "ks_nordschleife", new PointPair(
+                new ReferencePoint(new Point3D(645.9265f, 1431.3629f, 88.9466f), new PointGeo(50.346426f, 6.966673f, 570.0f), -1.63f)) },
+            { "trento-bondone", new PointPair(
+                new ReferencePoint(new Point3D(2184.2517f, -2467.7197f, 73.1256f), new PointGeo(46.076604f, 11.098074f, 315.0f), -5.75f, 0.939351f)) },
+            { "simtraxx_transfagarasan_v0.8", new PointPair(
+                new ReferencePoint(new Point3D(-1461.8225f, -3900.5601f, 1.1499f), new PointGeo(45.6752f, 24.57861f, 625.0f), 0.0f)) },
+            { "saintroch", new PointPair(
+                new ReferencePoint(new Point3D(1579.9989f, 3691.002f, -233.8722f), new PointGeo(43.883496f, 7.360775f, 655.0f), 0.0f)) },
+            { "simtraxx_peyre_0.96", new PointPair(
+                new ReferencePoint(new Point3D(-761.2817f, 761.537f, -39.8738f), new PointGeo(44.03069f, 3.67904f, 245.0f), 180.2f)) },
+            { "simtraxx_pikes_peak_0.81", new PointPair(
+                new ReferencePoint(new Point3D(3510.4993f, -3431.7925f, 139.0046f), new PointGeo(38.921214f, -105.037467f, 2866.0f), -27.81f)) }
+        };
 
         public static float DegToRad(float angle)
         {
@@ -114,7 +123,7 @@ namespace SimCycling.Utils
         }
 
 
-        private static PointGeo SXYZWGS(float x, float y, float z, Point3D trackOriginXYZ, PointGeo trackOriginWGS)
+        private static PointGeo SXYZWGS(float x, float y, float z, Point3D trackOriginXYZ, PointGeo trackOriginWGS, float altitudeFactor)
         {
             var x0 = trackOriginXYZ.X;
             var y0 = trackOriginXYZ.Y;
@@ -125,13 +134,13 @@ namespace SimCycling.Utils
             var ele0 = trackOriginWGS.Elevation;
 
 
-            var mPerDegree = 2 * (float)Math.PI * R / 360.0f;
+            var mPerDegree = 2 * (float)Math.PI * R / (360.0f * WTF_FACTOR) ;
 
 
             var latitude = lat0 - (y - y0) / mPerDegree;
             var longitude = lon0 + (x - x0) / (mPerDegree * (float)Math.Cos(DegToRad(latitude)));
 
-            var deltaElevation = z - z0;
+            var deltaElevation = (z - z0) * altitudeFactor;
             var elevation = ele0 + deltaElevation;
 
             return new PointGeo(latitude, longitude, elevation);
@@ -154,7 +163,9 @@ namespace SimCycling.Utils
             var startTrackOriginXYZ = trackOrigins[track].Start.XyzPoint;
             var startTrackOriginWGS = trackOrigins[track].Start.WgsPoint;
 
-            var wgsPoint = SXYZWGS(x, y, z, startTrackOriginXYZ, startTrackOriginWGS);
+            var altitudeFactor = trackOrigins[track].Start.AltitudeFactor;
+
+            var wgsPoint = SXYZWGS(x, y, z, startTrackOriginXYZ, startTrackOriginWGS, altitudeFactor);
 
             if (trackOrigins[track].End != null)
             {
@@ -164,7 +175,7 @@ namespace SimCycling.Utils
                 var ze = xyzPointEnd.Z;
                 var endTrackOriginXYZ = trackOrigins[track].End.XyzPoint;
                 var endTrackOriginWGS = trackOrigins[track].End.WgsPoint;
-                var wgsPointEnd = SXYZWGS(xe, ye, ze, endTrackOriginXYZ, endTrackOriginWGS);
+                var wgsPointEnd = SXYZWGS(xe, ye, ze, endTrackOriginXYZ, endTrackOriginWGS, altitudeFactor);
                 var distanceFromStart = CalcDistance(startTrackOriginXYZ, xyzPoint);
                 var distanceToEnd = CalcDistance(endTrackOriginXYZ, xyzPoint);
 

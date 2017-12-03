@@ -19,7 +19,12 @@ namespace SimCycling
         public void Start()
         {
             //var hrFilePath = String.Format(@"{0}\hr.bin", Consts.BASE_OUT_PATH);
-            mm = MemoryMappedFile.CreateNew("hr.bin", 32);
+            mm = MemoryMappedFile.CreateOrOpen("hr.bin", 32);
+
+            using (var mmAccessor = mm.CreateViewAccessor())
+            {
+                mmAccessor.WriteArray(0, new char[]{ '0', '|' }, 0, 2);
+            }
 
             simulator.SensorFound += Found;
             simulator.HeartRateDataReceived += OnPageHeartRate;
@@ -42,12 +47,13 @@ namespace SimCycling
         private void OnPageHeartRate(HeartRateData page, uint a)
         {
             var hr = page.HeartRate;
-
-            var mmAccessor = mm.CreateViewAccessor();
+            Console.WriteLine("HRM : " + hr);
             var data = String.Format("{0}|", hr).ToCharArray();
 
-            mmAccessor.WriteArray(0, data, 0, data.Length);
-            mmAccessor.Dispose();
+            using (var mmAccessor = mm.CreateViewAccessor())
+            {
+                mmAccessor.WriteArray(0, data, 0, data.Length);
+            }
         }
 
     }

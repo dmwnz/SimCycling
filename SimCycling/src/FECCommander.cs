@@ -8,6 +8,7 @@ using System.IO;
 using AntPlus.Profiles.Common;
 using System.Globalization;
 using AntPlus.Profiles.FitnessEquipment;
+using System.Configuration;
 
 namespace SimCycling
 {
@@ -107,7 +108,7 @@ namespace SimCycling
             //var cadFilePath = String.Format(@"{0}\cad.bin", Consts.BASE_OUT_PATH);
             mmCad = MemoryMappedFile.OpenExisting("cad.bin");
             //var mmFilePath = String.Format(@"{0}\mm.bin", Consts.BASE_OUT_PATH);
-            mm = MemoryMappedFile.CreateNew("mm.bin", 32);
+            mm = MemoryMappedFile.CreateOrOpen("mm.bin", 32);
         }
         
         private void InitVJoy()
@@ -192,8 +193,8 @@ namespace SimCycling
         private void InitGPXFile()
         {
             var title = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            posFile = new StreamWriter(String.Format(@"{0}\bkool-{1}.csv", Consts.BASE_OUT_PATH, title), false, Encoding.UTF8, 1024);
-            gpxFile = new StreamWriter(String.Format(@"{0}\bkool-{1}.gpx", Consts.BASE_OUT_PATH, title), false, Encoding.UTF8, 1024);
+            posFile = new StreamWriter(String.Format(@"{0}\out-{1}.csv", Consts.BASE_OUT_PATH, title), false, Encoding.UTF8, 1024);
+            gpxFile = new StreamWriter(String.Format(@"{0}\out-{1}.gpx", Consts.BASE_OUT_PATH, title), false, Encoding.UTF8, 1024);
 
             gpxFile.WriteLine(String.Format(@"<?xml version=""1.0"" encoding=""UTF-8""?>
 <gpx xmlns=""http://www.topografix.com/GPX/1/1""
@@ -265,6 +266,8 @@ namespace SimCycling
 
         private void WriteGPXLine()
         {
+            System.Threading.Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
             posFile.Write(String.Format("{0};{1};{2}\n", lastCoordinates.X, lastCoordinates.Y, lastCoordinates.Z).Replace(".", ","));
 
             var wgsCoord = Consts.XYZToWGS(lastCoordinates, track);
@@ -277,7 +280,8 @@ namespace SimCycling
             hrAccessor.Dispose();
             var readHrUtf8 = new String(readHr);
 
-            var hr = int.Parse(readHrUtf8.Split('|')[0]);
+            var hr = 0;
+            int.TryParse(readHrUtf8.Split('|')[0], out hr);
             Log(String.Format("HR {0}", hr));
 
             var cadAccessor = mmCad.CreateViewAccessor();
@@ -286,7 +290,8 @@ namespace SimCycling
             cadAccessor.Dispose();
             var readCadUtf8 = new String(readCad);
 
-            var cad = int.Parse(readCadUtf8.Split('|')[0]);
+            var cad = 0;
+            int.TryParse(readCadUtf8.Split('|')[0], out cad);
             Log(String.Format("Cad {0}", cad));
 
 
@@ -306,16 +311,17 @@ namespace SimCycling
                 extensions += "          </gpxtpx:TrackPointExtension>\n";
                 extensions += "        </extensions>";
             }
-            gpxFile.WriteLine(String.Format(@"      <trkpt lon=""{0:.6f}"" lat=""{1:.6f}"" >
-        <ele>{2:.2f}</ele>
+            var toWrite = String.Format(@"      <trkpt lon=""{0:0.000000}"" lat=""{1:0.000000}"" >
+        <ele>{2:0.00}</ele>
         <time>{3:s}</time>
 {4}
       </trkpt>",
             wgsCoord.Longitude,
             wgsCoord.Latitude,
-            wgsCoord.Elevation),
+            wgsCoord.Elevation,
             DateTime.Now,
             extensions);
+            gpxFile.WriteLine(toWrite);
         }
 
         private void OnACInfo(object sender, StaticInfoEventArgs e)
@@ -333,9 +339,7 @@ namespace SimCycling
         }
 
         private void OnPageGeneralFE(GeneralFePage page, uint counter)
-        {
-            System.Threading.Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            
+        {            
             speedKmh = page.Speed * 0.0036f;
 
             pid.SetPoint = speedKmh;
@@ -377,10 +381,15 @@ namespace SimCycling
 
         private void SendUserConfiguration()
         {
+            var bikeWeight = float.Parse(ConfigurationManager.AppSettings["bikeweight"]);
+            var riderWeight = float.Parse(ConfigurationManager.AppSettings["riderweight"]);
+
+            // 170//8.5kg
+            // 6250//62.5kg
             var command = new UserConfigurationPage
             {
-                BikeWeight = 170, //8.5kg
-                UserWeight = 6250, //62.5kg
+                BikeWeight = (ushort)(bikeWeight*20), 
+                UserWeight = (ushort)(riderWeight*100), 
                 WheelDiameter = 62
             };
             simulator.SendUserConfiguration(command);

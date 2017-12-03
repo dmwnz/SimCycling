@@ -19,7 +19,12 @@ namespace SimCycling
         public void Start()
         {
             //var hrFilePath = String.Format(@"{0}\cad.bin", Consts.BASE_OUT_PATH);
-            mm = MemoryMappedFile.CreateNew("cad.bin", 32);
+            mm = MemoryMappedFile.CreateOrOpen("cad.bin", 32);
+
+            using (var mmAccessor = mm.CreateViewAccessor())
+            {
+                mmAccessor.WriteArray(0, new char[] { '0', '|' }, 0, 2);
+            }
 
             simulator.SensorFound += Found;
             simulator.BikeCadenceDataReceived += OnPageBikeCadence;
@@ -41,12 +46,13 @@ namespace SimCycling
         private void OnPageBikeCadence(BikeCadenceData page, uint a)
         {
             var cad = page.Cadence;
-
-            var mmAccessor = mm.CreateViewAccessor();
+            Console.WriteLine("CAD : " + cad);
             var data = String.Format("{0}|", cad).ToCharArray();
 
-            mmAccessor.WriteArray(0, data, 0, data.Length);
-            mmAccessor.Dispose();
+            using (var mmAccessor = mm.CreateViewAccessor())
+            {
+                mmAccessor.WriteArray(0, data, 0, data.Length);
+            }
         }
     }
 }
