@@ -280,8 +280,7 @@ namespace SimCycling
             hrAccessor.Dispose();
             var readHrUtf8 = new String(readHr);
 
-            var hr = 0;
-            int.TryParse(readHrUtf8.Split('|')[0], out hr);
+            int.TryParse(readHrUtf8.Split('|')[0], out int hr);
             Log(String.Format("HR {0}", hr));
 
             var cadAccessor = mmCad.CreateViewAccessor();
@@ -290,8 +289,7 @@ namespace SimCycling
             cadAccessor.Dispose();
             var readCadUtf8 = new String(readCad);
 
-            var cad = 0;
-            int.TryParse(readCadUtf8.Split('|')[0], out cad);
+            int.TryParse(readCadUtf8.Split('|')[0], out int cad);
             Log(String.Format("Cad {0}", cad));
 
 
@@ -309,8 +307,9 @@ namespace SimCycling
                     extensions += String.Format("            <gpxtpx:cad>{0}</gpxtpx:hr>\n", cad);
                 }
                 extensions += "          </gpxtpx:TrackPointExtension>\n";
-                extensions += "        </extensions>";
             }
+            extensions += "        </extensions>";
+
             var toWrite = String.Format(@"      <trkpt lon=""{0:0.000000}"" lat=""{1:0.000000}"" >
         <ele>{2:0.00}</ele>
         <time>{3:s}</time>
