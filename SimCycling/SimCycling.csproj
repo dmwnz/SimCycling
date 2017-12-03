@@ -55,6 +55,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\ANTDeviceManager.cs" />
+    <Compile Include="src\FECCommander.cs" />
     <Compile Include="src\Utils.cs" />
     <Compile Include="src\Launcher.cs" />
     <Compile Include="src\PID.cs" />
