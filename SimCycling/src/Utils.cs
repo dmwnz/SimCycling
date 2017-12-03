@@ -23,13 +23,18 @@ namespace SimCycling.Utils
         public PointGeo WgsPoint { get; }
         public float Angle { get; }
         public float AltitudeFactor { get; }
+        public float LongitudeFactor { get; }
+        public float LatitudeFactor { get; }
 
-        public ReferencePoint(Point3D xyz, PointGeo wgs, float angle, float altitudeFactor = 1.0f)
+        public ReferencePoint(Point3D xyz, PointGeo wgs, float angle,
+            float altitudeFactor = 1.0f, float longitudeFactor = 0.9875f, float latitudeFactor = 0.9875f)
         {
             this.XyzPoint = xyz;
             this.WgsPoint = wgs;
             this.Angle = angle;
             this.AltitudeFactor = altitudeFactor;
+            this.LongitudeFactor = longitudeFactor;
+            this.LatitudeFactor = latitudeFactor;
         }
     }
 
@@ -74,7 +79,6 @@ namespace SimCycling.Utils
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
 
         static readonly float R = 6378137.0f;
-        static readonly float WTF_FACTOR = 0.9875f;
 
         static readonly Dictionary<String, PointPair> trackOrigins = new Dictionary<string, PointPair> {
             { "imola", new PointPair(
@@ -84,7 +88,7 @@ namespace SimCycling.Utils
             { "trento-bondone", new PointPair(
                 new ReferencePoint(new Point3D(2184.2517f, -2467.7197f, 73.1256f), new PointGeo(46.076604f, 11.098074f, 315.0f), -5.75f, 0.939351f)) },
             { "simtraxx_transfagarasan_v0.8", new PointPair(
-                new ReferencePoint(new Point3D(-1461.8225f, -3900.5601f, 1.1499f), new PointGeo(45.6752f, 24.57861f, 625.0f), 0.0f)) },
+                new ReferencePoint(new Point3D(-1461.8225f, -3900.5601f, 1.1499f), new PointGeo(45.675077f,24.57853f, 625.0f), -0.15f, longitudeFactor: 0.943f, latitudeFactor: 1.005f)) },
             { "saintroch", new PointPair(
                 new ReferencePoint(new Point3D(1579.9989f, 3691.002f, -233.8722f), new PointGeo(43.883496f, 7.360775f, 655.0f), 0.0f)) },
             { "simtraxx_peyre_0.96", new PointPair(
@@ -123,7 +127,7 @@ namespace SimCycling.Utils
         }
 
 
-        private static PointGeo SXYZWGS(float x, float y, float z, Point3D trackOriginXYZ, PointGeo trackOriginWGS, float altitudeFactor)
+        private static PointGeo SXYZWGS(float x, float y, float z, Point3D trackOriginXYZ, PointGeo trackOriginWGS, float altitudeFactor, float longitudeFactor, float latitudeFactor)
         {
             var x0 = trackOriginXYZ.X;
             var y0 = trackOriginXYZ.Y;
@@ -134,11 +138,11 @@ namespace SimCycling.Utils
             var ele0 = trackOriginWGS.Elevation;
 
 
-            var mPerDegree = 2 * (float)Math.PI * R / (360.0f * WTF_FACTOR) ;
+            var mPerDegree = 2 * (float)Math.PI * R / 360.0f ;
 
 
-            var latitude = lat0 - (y - y0) / mPerDegree;
-            var longitude = lon0 + (x - x0) / (mPerDegree * (float)Math.Cos(DegToRad(latitude)));
+            var latitude = lat0 - (y - y0) / (latitudeFactor * mPerDegree);
+            var longitude = lon0 + (x - x0) / (longitudeFactor * mPerDegree * (float)Math.Cos(DegToRad(latitude)));
 
             var deltaElevation = (z - z0) * altitudeFactor;
             var elevation = ele0 + deltaElevation;
@@ -164,8 +168,10 @@ namespace SimCycling.Utils
             var startTrackOriginWGS = trackOrigins[track].Start.WgsPoint;
 
             var altitudeFactor = trackOrigins[track].Start.AltitudeFactor;
+            var longitudeFactor = trackOrigins[track].Start.LongitudeFactor;
+            var latitudeFactor = trackOrigins[track].Start.LatitudeFactor;
 
-            var wgsPoint = SXYZWGS(x, y, z, startTrackOriginXYZ, startTrackOriginWGS, altitudeFactor);
+            var wgsPoint = SXYZWGS(x, y, z, startTrackOriginXYZ, startTrackOriginWGS, altitudeFactor, longitudeFactor, latitudeFactor);
 
             if (trackOrigins[track].End != null)
             {
@@ -175,7 +181,7 @@ namespace SimCycling.Utils
                 var ze = xyzPointEnd.Z;
                 var endTrackOriginXYZ = trackOrigins[track].End.XyzPoint;
                 var endTrackOriginWGS = trackOrigins[track].End.WgsPoint;
-                var wgsPointEnd = SXYZWGS(xe, ye, ze, endTrackOriginXYZ, endTrackOriginWGS, altitudeFactor);
+                var wgsPointEnd = SXYZWGS(xe, ye, ze, endTrackOriginXYZ, endTrackOriginWGS, altitudeFactor, longitudeFactor, latitudeFactor);
                 var distanceFromStart = CalcDistance(startTrackOriginXYZ, xyzPoint);
                 var distanceToEnd = CalcDistance(endTrackOriginXYZ, xyzPoint);
 
