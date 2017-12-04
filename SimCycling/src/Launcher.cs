@@ -7,10 +7,6 @@ namespace SimCycling
     {
         static void Main(string[] args)
         {
-            //ANTDeviceManager manager = new ANTDeviceManager();
-            //manager.Start();
-
-
             var manager = new ANTDeviceManager();
 
             manager.Start();
@@ -18,8 +14,6 @@ namespace SimCycling
             Console.Read();
 
             manager.Stop();
-            
-
         }
     }
 }

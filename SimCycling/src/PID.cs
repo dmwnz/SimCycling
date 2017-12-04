@@ -12,19 +12,19 @@ namespace SimCycling
         public float Ki { get; set; }
         public float Kd { get; set; }
 
-        public float sample_time { get; set; }
-        public float windup_guard { get; set; }
+        public float SampleTime { get; set; }
+        public float WindupGuard { get; set; }
 
-        public float output { get; private set; }
+        public float Output { get; private set; }
 
-        long current_time;
-        long last_time;
+        long currentTime;
+        long lastTime;
 
         float PTerm;
         float ITerm;
         float DTerm;
 
-        float last_error;
+        float lastError;
         // float int_error;
 
 
@@ -38,14 +38,14 @@ namespace SimCycling
             Ki = I;
             Kd = D;
 
-            sample_time = 0.00f;
-            current_time = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            last_time = current_time;
+            SampleTime = 0.00f;
+            currentTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            lastTime = currentTime;
 
-            clear();
+            Clear();
         }
 
-        public void clear()
+        public void Clear()
         {
             //"""Clears PID computations and coefficients"""
             SetPoint = 0.0f;
@@ -53,16 +53,16 @@ namespace SimCycling
             PTerm = 0.0f;
             ITerm = 0.0f;
             DTerm = 0.0f;
-            last_error = 0.0f;
+            lastError = 0.0f;
 
             //# Windup Guard
             //int_error = 0.0f;
-            windup_guard = 20.0f;
+            WindupGuard = 20.0f;
 
-            output = 0.0f;
+            Output = 0.0f;
         }
 
-        public void update(float feedback_value)
+        public void Update(float feedbackValue)
         {
             /*"""Calculates PID value for given reference feedback
 
@@ -77,37 +77,37 @@ namespace SimCycling
                        Test PID with Kp=1.2, Ki=1, Kd=0.001 (test_pid.py)
 
                     """*/
-            var error = SetPoint - feedback_value;
+            var error = SetPoint - feedbackValue;
 
-            current_time = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            var delta_time = current_time - last_time;
-            var delta_error = error - last_error;
+            currentTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            var deltaTime = currentTime - lastTime;
+            var deltaError = error - lastError;
 
-            if (delta_time >= sample_time)
+            if (deltaTime >= SampleTime)
             {
                 PTerm = Kp * error;
-                ITerm += error * delta_time;
+                ITerm += error * deltaTime;
 
-                if (ITerm < -windup_guard)
+                if (ITerm < -WindupGuard)
                 {
-                    ITerm = -windup_guard;
+                    ITerm = -WindupGuard;
                 }
-                else if (ITerm > windup_guard)
+                else if (ITerm > WindupGuard)
                 {
-                    ITerm = windup_guard;
+                    ITerm = WindupGuard;
                 }
 
                 DTerm = 0.0f;
-                if (delta_time > 0)
+                if (deltaTime > 0)
                 {
-                    DTerm = delta_error / delta_time;
+                    DTerm = deltaError / deltaTime;
                 }
 
                 //# Remember last time and last error for next calculation
-                last_time = current_time;
-                last_error = error;
+                lastTime = currentTime;
+                lastError = error;
 
-                output = PTerm + (Ki * ITerm) + (Kd * DTerm);
+                Output = PTerm + (Ki * ITerm) + (Kd * DTerm);
             }
         }
     }

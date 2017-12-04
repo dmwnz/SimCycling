@@ -32,7 +32,7 @@ namespace SimCycling
         StreamWriter gpxFile;
         StreamWriter posFile;
 
-        bool equipment_found;
+        bool equipmentFound;
         string track;
 
         float speedKmh;
@@ -174,6 +174,7 @@ namespace SimCycling
             ac.PhysicsUpdated += OnACPhysics;
             ac.GraphicsUpdated += OnACGraphics;
             ac.StaticInfoUpdated += OnACInfo;
+            
 
             ac.Start();
             transmittedGrade = 999f;
@@ -187,7 +188,7 @@ namespace SimCycling
             var D = 0.0f;
 
             pid = new PID(P, I, D);
-            pid.clear();
+            pid.Clear();
         }
 
         private void InitGPXFile()
@@ -215,8 +216,8 @@ namespace SimCycling
 
             //#myLog("AC Speed : {0}".format(e.Physics.SpeedKmh))
             var acSpeed = e.Physics.SpeedKmh;
-            pid.update(acSpeed);
-            var coeff = pid.output;
+            pid.Update(acSpeed);
+            var coeff = pid.Output;
 
 
             if (acquired)
@@ -252,7 +253,7 @@ namespace SimCycling
             WriteGPXLine();
             Log(String.Format("newPitch : {0}", newPitch));
 
-            if (equipment_found)
+            if (equipmentFound)
             {
                 if (DateTimeOffset.Now.ToUnixTimeMilliseconds() > lastTransmittedGradeTime + 2)
                 {
@@ -332,7 +333,7 @@ namespace SimCycling
         private void Found(ushort a, byte b)
         {
             Log("Bkool found !");
-            equipment_found = true;
+            equipmentFound = true;
 
             RequestCommandStatus();
         }
