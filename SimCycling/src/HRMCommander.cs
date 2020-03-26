@@ -1,15 +1,11 @@
 ﻿using AntPlus.Profiles.HeartRate;
-using SimCycling.Utils;
 using System;
-using System.IO;
-using System.IO.MemoryMappedFiles;
 
 namespace SimCycling
 {
     class HRMCommander
     {
-        HeartRateDisplay simulator;
-        MemoryMappedFile mm;
+        readonly HeartRateDisplay simulator;
 
         public HRMCommander(HeartRateDisplay simulator)
         {
@@ -18,14 +14,6 @@ namespace SimCycling
 
         public void Start()
         {
-            //var hrFilePath = String.Format(@"{0}\hr.bin", Consts.BASE_OUT_PATH);
-            mm = MemoryMappedFile.CreateOrOpen("hr.bin", 32);
-
-            using (var mmAccessor = mm.CreateViewAccessor())
-            {
-                mmAccessor.WriteArray(0, new char[]{ '0', '|' }, 0, 2);
-            }
-
             simulator.SensorFound += Found;
             simulator.HeartRateDataReceived += OnPageHeartRate;
             simulator.TurnOn();
@@ -48,12 +36,8 @@ namespace SimCycling
         {
             var hr = page.HeartRate;
             Console.WriteLine("HRM : " + hr);
-            var data = String.Format("{0}|", hr).ToCharArray();
-
-            using (var mmAccessor = mm.CreateViewAccessor())
-            {
-                mmAccessor.WriteArray(0, data, 0, data.Length);
-            }
+            AntManagerState.GetInstance().CyclistHeartRate = hr;
+            AntManagerState.WriteToMemory();
         }
 
     }

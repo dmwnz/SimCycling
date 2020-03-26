@@ -3,7 +3,6 @@ using System.Text;
 using SimCycling.Utils;
 using AssettoCorsaSharedMemory;
 using vJoyInterfaceWrap;
-using System.IO.MemoryMappedFiles;
 using System.IO;
 using AntPlus.Profiles.Common;
 using System.Globalization;
@@ -25,10 +24,6 @@ namespace SimCycling
         vJoy joystick;
         bool acquired;
 
-        MemoryMappedFile mm;
-        MemoryMappedFile mmHr;
-        MemoryMappedFile mmCad;
-
         StreamWriter gpxFile;
         StreamWriter posFile;
 
@@ -36,8 +31,7 @@ namespace SimCycling
         string track;
 
         float speedKmh;
-
-        FitnessEquipmentDisplay simulator;
+        readonly FitnessEquipmentDisplay simulator;
 
         public FECCommander(FitnessEquipmentDisplay simulator)
         {
@@ -60,10 +54,8 @@ namespace SimCycling
 
             simulator.TurnOn();
 
-            InitMmap();
             InitVJoy();
             InitAC();
-            InitGPXFile();
         }
 
         public void Stop()
@@ -87,29 +79,16 @@ namespace SimCycling
 
 
 
-            gpxFile.WriteLine(@"    </trkseg>
-  </trk>
-</gpx> ");
-            gpxFile.Close();
+//            gpxFile.WriteLine(@"    </trkseg>
+//  </trk>
+//</gpx> ");
+//            gpxFile.Close();
 
-            posFile.Close();
-
-            mmHr.Dispose();
-            mmCad.Dispose();
-            mm.Dispose();
+//            posFile.Close();
 
             simulator.TurnOff();
         }
 
-        private void InitMmap()
-        {
-            //var hrFilePath = String.Format(@"{0}\hr.bin", Consts.BASE_OUT_PATH);
-            mmHr = MemoryMappedFile.OpenExisting("hr.bin");
-            //var cadFilePath = String.Format(@"{0}\cad.bin", Consts.BASE_OUT_PATH);
-            mmCad = MemoryMappedFile.OpenExisting("cad.bin");
-            //var mmFilePath = String.Format(@"{0}\mm.bin", Consts.BASE_OUT_PATH);
-            mm = MemoryMappedFile.CreateOrOpen("mm.bin", 32);
-        }
         
         private void InitVJoy()
         {
@@ -250,7 +229,7 @@ namespace SimCycling
             }
 
             lastCoordinates = coordinates;
-            WriteGPXLine();
+            //WriteGPXLine();
             Log(String.Format("newPitch : {0}", newPitch));
 
             if (equipmentFound)
@@ -274,24 +253,10 @@ namespace SimCycling
             var wgsCoord = Consts.XYZToWGS(lastCoordinates, track);
             Log(String.Format("WGS : {0}, {1}, {2}", wgsCoord.Latitude, wgsCoord.Longitude, wgsCoord.Elevation));
 
-            
-            var hrAccessor = mmHr.CreateViewAccessor();
-            char[] readHr = new char[32];
-            hrAccessor.ReadArray(0, readHr, 0, 32);
-            hrAccessor.Dispose();
-            var readHrUtf8 = new String(readHr);
 
-            int.TryParse(readHrUtf8.Split('|')[0], out int hr);
-            Log(String.Format("HR {0}", hr));
+            int hr = AntManagerState.GetInstance().CyclistHeartRate;
 
-            var cadAccessor = mmCad.CreateViewAccessor();
-            char[] readCad = new char[32];
-            cadAccessor.ReadArray(0, readCad, 0, 32);
-            cadAccessor.Dispose();
-            var readCadUtf8 = new String(readCad);
-
-            int.TryParse(readCadUtf8.Split('|')[0], out int cad);
-            Log(String.Format("Cad {0}", cad));
+            int cad = AntManagerState.GetInstance().BikeCadence;
 
 
             var extensions = "        <extensions>\n";
@@ -351,15 +316,11 @@ namespace SimCycling
 
 
             lastPower = page.InstantaneousPower;
-            var mmAccessor = mm.CreateViewAccessor();
-            var data = String.Format("{0:0000.00}|{1:0000.00}|{2:0000.00}|",
-                page.InstantaneousPower,
-                pid.SetPoint,
-                transmittedGrade).ToCharArray();
 
-            mmAccessor.WriteArray(0, data, 0, data.Length);
-            mmAccessor.Dispose();
-
+            AntManagerState.GetInstance().CyclistPower = page.InstantaneousPower;
+            AntManagerState.GetInstance().BikeSpeedKmh = pid.SetPoint;
+            AntManagerState.GetInstance().BikeIncline = transmittedGrade;
+            AntManagerState.WriteToMemory();
             
         }
 

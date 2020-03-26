@@ -10,6 +10,7 @@
     <OutputPath>.</OutputPath>
     <Name>ACSimCyclingDash</Name>
     <RootNamespace>ACSimCyclingDash</RootNamespace>
+    <PublishUrl>C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\apps\python\ACSimCyclingDash</PublishUrl>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,7 +21,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ACSimCyclingDash.py" />
+    <None Include="ACSimCyclingDash.py">
+      <Publish>True</Publish>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="simCycling.ini" />
