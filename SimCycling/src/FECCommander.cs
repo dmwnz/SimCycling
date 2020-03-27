@@ -16,13 +16,14 @@ namespace SimCycling
         float transmittedGrade = 0.0f;
         long lastTransmittedGradeTime = 0L;
         // bool acquiredVJoy = false;
-        Point3D lastCoordinates = new Point3D(0.0f, 0.0f, 0.0f);
         int lastPower = 0;
         AssettoCorsa ac;
         PID pid;
         uint idVJoy;
         vJoy joystick;
         bool acquired;
+
+        float airdensity;
 
         StreamWriter gpxFile;
         StreamWriter posFile;
@@ -31,6 +32,9 @@ namespace SimCycling
         string track;
 
         float speedKmh;
+        Point3D frontCoordinates = new Point3D(0, 0, 0);
+        Point3D rearCoordinates = new Point3D(0, 0, 0);
+
         readonly FitnessEquipmentDisplay simulator;
 
         public FECCommander(FitnessEquipmentDisplay simulator)
@@ -194,10 +198,23 @@ namespace SimCycling
             //#myLog("On Ac Physics")
 
             //#myLog("AC Speed : {0}".format(e.Physics.SpeedKmh))
+            airdensity = e.Physics.AirDensity;
+
+            var frontX = (e.Physics.TyreContactPoint[0].X + e.Physics.TyreContactPoint[1].X) / 2.0;
+            var frontY = (e.Physics.TyreContactPoint[0].Y + e.Physics.TyreContactPoint[1].Y) / 2.0;
+            var frontZ = (e.Physics.TyreContactPoint[0].Z + e.Physics.TyreContactPoint[1].Z) / 2.0;
+
+            var rearX = (e.Physics.TyreContactPoint[2].X + e.Physics.TyreContactPoint[3].X) / 2.0;
+            var rearY = (e.Physics.TyreContactPoint[2].Y + e.Physics.TyreContactPoint[3].Y) / 2.0;
+            var rearZ = (e.Physics.TyreContactPoint[2].Z + e.Physics.TyreContactPoint[3].Z) / 2.0;
+
+
+            frontCoordinates = new Point3D(frontX, frontY, frontZ);
+            rearCoordinates = new Point3D(rearX, rearY, rearZ);
+
             var acSpeed = e.Physics.SpeedKmh;
             pid.Update(acSpeed);
             var coeff = pid.Output;
-
 
             if (acquired)
             {
@@ -210,25 +227,14 @@ namespace SimCycling
         private void OnACGraphics(object sender, GraphicsEventArgs e)
         {
             Log("On AC Graphics");
-            var xCoord = e.Graphics.CarCoordinates[0];
-            var zCoord = e.Graphics.CarCoordinates[1];
-            var yCoord = e.Graphics.CarCoordinates[2];
-            Log(String.Format("Car coordinates : {0}, {1}, {2}", xCoord, yCoord, zCoord));
-            var coordinates = new Point3D(xCoord, yCoord, zCoord);
+
+            var altitudeDiff = frontCoordinates.Y - rearCoordinates.Y;
+            var distance = Consts.CalcDistance(rearCoordinates, frontCoordinates);
 
 
-            var altitudeDiff = coordinates.Z - lastCoordinates.Z;
+            var newPitch = (float)Math.Round(altitudeDiff * 1000.0f / distance) / 10.0f;
+            
 
-
-            var distance = Consts.CalcDistance(lastCoordinates, coordinates);
-
-            var newPitch = transmittedGrade;
-            if (distance > 0.01)
-            {
-                newPitch = (float)Math.Round(altitudeDiff * 1000.0f / distance) / 10.0f;
-            }
-
-            lastCoordinates = coordinates;
             //WriteGPXLine();
             Log(String.Format("newPitch : {0}", newPitch));
 
@@ -248,9 +254,9 @@ namespace SimCycling
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
-            posFile.Write(String.Format("{0};{1};{2}\n", lastCoordinates.X, lastCoordinates.Y, lastCoordinates.Z).Replace(".", ","));
+            posFile.Write(String.Format("{0};{1};{2}\n", rearCoordinates.X, rearCoordinates.Y, rearCoordinates.Z).Replace(".", ","));
 
-            var wgsCoord = Consts.XYZToWGS(lastCoordinates, track);
+            var wgsCoord = Consts.XYZToWGS(rearCoordinates, track);
             Log(String.Format("WGS : {0}, {1}, {2}", wgsCoord.Latitude, wgsCoord.Longitude, wgsCoord.Elevation));
 
 

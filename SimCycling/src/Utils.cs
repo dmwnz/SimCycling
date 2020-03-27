@@ -21,10 +21,10 @@ namespace SimCycling.Utils
     {
         public Point3D XyzPoint { get; }
         public PointGeo WgsPoint { get; }
-        public float Angle { get; }
-        public float AltitudeFactor { get; }
-        public float LongitudeFactor { get; }
-        public float LatitudeFactor { get; }
+        public double Angle { get; }
+        public double AltitudeFactor { get; }
+        public double LongitudeFactor { get; }
+        public double LatitudeFactor { get; }
 
         public ReferencePoint(Point3D xyz, PointGeo wgs, float angle,
             float altitudeFactor = 1.0f, float longitudeFactor = 0.9875f, float latitudeFactor = 0.9875f)
@@ -40,10 +40,10 @@ namespace SimCycling.Utils
 
     public class Point3D
     {
-        public float X { get; }
-        public float Y { get; }
-        public float Z { get; }
-        public Point3D(float x, float y, float z)
+        public double X { get; }
+        public double Y { get; }
+        public double Z { get; }
+        public Point3D(double x, double y, double z)
         {
             this.X = x;
             this.Y = y;
@@ -54,17 +54,17 @@ namespace SimCycling.Utils
 
     public class PointGeo
     {
-        public float Latitude { get; private set; }
-        public float Longitude { get; private set; }
-        public float Elevation { get; private set; }
+        public double Latitude { get; private set; }
+        public double Longitude { get; private set; }
+        public double Elevation { get; private set; }
 
-        public PointGeo(float latitude, float longitude, float elevation)
+        public PointGeo(double latitude, double longitude, double elevation)
         {
             this.Latitude = latitude;
             this.Longitude = longitude;
             this.Elevation = elevation;
         }
-        public void AverageWith(PointGeo otherPoint, float coeffSelf, float coeffOther)
+        public void AverageWith(PointGeo otherPoint, double coeffSelf, double coeffOther)
         {
             Latitude = (coeffSelf * Latitude + coeffOther * otherPoint.Latitude) / (coeffSelf + coeffOther);
             Longitude = (coeffSelf * Longitude + coeffOther * otherPoint.Longitude) / (coeffSelf + coeffOther);
@@ -97,12 +97,12 @@ namespace SimCycling.Utils
                 new ReferencePoint(new Point3D(3510.4993f, -3431.7925f, 139.0046f), new PointGeo(38.921214f, -105.037467f, 2866.0f), -27.81f)) }
         };
 
-        public static float DegToRad(float angle)
+        public static double DegToRad(double angle)
         {
-            return angle * (float)Math.PI / 180.0f;
+            return angle * Math.PI / 180.0f;
         }
 
-        public static Point3D RotatePoint(Point3D point, Point3D reference, float angle)
+        public static Point3D RotatePoint(Point3D point, Point3D reference, double angle)
         {
             var theta = DegToRad(angle);
             var ox = reference.X;
@@ -112,22 +112,22 @@ namespace SimCycling.Utils
             var py = point.Y;
 
 
-            var x = (float)Math.Cos(theta) * (px - ox) - (float)Math.Sin(theta) * (py - oy) + ox;
-            var y = (float)Math.Sin(theta) * (px - ox) + (float)Math.Cos(theta) * (py - oy) + oy;
+            var x = Math.Cos(theta) * (px - ox) - Math.Sin(theta) * (py - oy) + ox;
+            var y = Math.Sin(theta) * (px - ox) + Math.Cos(theta) * (py - oy) + oy;
 
             return new Point3D(x, y, point.Z);
         }
 
-        public static float CalcDistance(Point3D pointA, Point3D pointB)
+        public static double CalcDistance(Point3D pointA, Point3D pointB)
         {
             var dx = pointA.X - pointB.X;
             var dy = pointA.Y - pointB.Y;
             var dz = pointA.Z - pointB.Z;
-            return (float)Math.Sqrt(dx * dx + dy * dy + dz * dz);
+            return Math.Sqrt(dx * dx + dy * dy + dz * dz);
         }
 
 
-        private static PointGeo SXYZWGS(float x, float y, float z, Point3D trackOriginXYZ, PointGeo trackOriginWGS, float altitudeFactor, float longitudeFactor, float latitudeFactor)
+        private static PointGeo SXYZWGS(double x, double y, double z, Point3D trackOriginXYZ, PointGeo trackOriginWGS, double altitudeFactor, double longitudeFactor, double latitudeFactor)
         {
             var x0 = trackOriginXYZ.X;
             var y0 = trackOriginXYZ.Y;
@@ -138,11 +138,11 @@ namespace SimCycling.Utils
             var ele0 = trackOriginWGS.Elevation;
 
 
-            var mPerDegree = 2 * (float)Math.PI * R / 360.0f ;
+            var mPerDegree = 2 * Math.PI * R / 360.0f ;
 
 
             var latitude = lat0 - (y - y0) / (latitudeFactor * mPerDegree);
-            var longitude = lon0 + (x - x0) / (longitudeFactor * mPerDegree * (float)Math.Cos(DegToRad(latitude)));
+            var longitude = lon0 + (x - x0) / (longitudeFactor * mPerDegree * Math.Cos(DegToRad(latitude)));
 
             var deltaElevation = (z - z0) * altitudeFactor;
             var elevation = ele0 + deltaElevation;

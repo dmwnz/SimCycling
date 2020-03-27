@@ -54,7 +54,8 @@
     <Reference Include="ANT_NET">
       <HintPath>.\ANT_NET.dll</HintPath>
     </Reference>
-    <Reference Include="AssettoCorsaSharedMemory">
+    <Reference Include="AssettoCorsaSharedMemory, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>.\AssettoCorsaSharedMemory.dll</HintPath>
     </Reference>
     <Reference Include="System" />
