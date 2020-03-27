@@ -14,8 +14,9 @@ Use your bike and your home trainer as a controller in racing simulation games.
 ## How it works
 In-Game Python App launches a compiled executable whose job is
 - to take care of the communication with Ant+ devices (i.e home trainer, cadence sensor and heart rate sensor)
-- to send throttle command to the Game to make the repliacte the home trainer speed onto the ingame car
+- to send throttle command to the Game to replicate the home trainer speed onto the ingame car
 - to convert in-game X,Y,Z position to WGS (GPS) positions - eventually create a GPX track
+
 Python App UI : displays read data from the executable (heart rate, speed, power...)
 
 Communication protocols
