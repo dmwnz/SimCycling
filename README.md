@@ -19,7 +19,7 @@ In-Game Python App launches a compiled executable whose job is
 
 Python App UI : displays read data from the executable (heart rate, speed, power...)
 
-Communication protocols
+### Communication protocols
 - between Assetto Corsa and Executable (car position, incline, etc) : Assetto Corsa Shared Memory Library
 - between Executable and Assetto Corsa (throttle) : VJOY virtual joystick
 - between Executable and Python App (power, heart rate, speed, etc) : memory mapped JSON object (AntManagerState)
