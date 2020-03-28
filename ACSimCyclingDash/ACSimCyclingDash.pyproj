@@ -5,12 +5,12 @@
     <ProjectGuid>9c56c234-e736-4528-a63d-1833df6e970d</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>ACSimCyclingDash.py</StartupFile>
-    <SearchPath>D:\SteamLibrary\SteamApps\common\assettocorsa\apps\python\system</SearchPath>
+    <SearchPath>D:\Jeux\Steam\steamapps\common\assettocorsa\apps\python;D:\Jeux\Steam\steamapps\common\assettocorsa\apps\python\system</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>ACSimCyclingDash</Name>
     <RootNamespace>ACSimCyclingDash</RootNamespace>
-    <PublishUrl>C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\apps\python\ACSimCyclingDash</PublishUrl>
+    <PublishUrl>D:\Jeux\Steam\steamapps\common\assettocorsa\apps\python\ACSimCyclingDash</PublishUrl>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>

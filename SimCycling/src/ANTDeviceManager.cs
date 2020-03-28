@@ -3,14 +3,24 @@ using ANT_Managed_Library;
 using AntPlus.Profiles.HeartRate;
 using AntPlus.Profiles.FitnessEquipment;
 using AntPlus.Profiles.BikeCadence;
+using AntPlus.Profiles.BikePower;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.Serialization.Json;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Linq;
+using System.Collections.Generic;
+using System.Configuration;
+
 
 namespace SimCycling
 {
+    enum BikeModel : ushort
+    {
+        FEC = 0,
+        BikePhysics = 1,
+    }
+
     [DataContract]
     class AntManagerState
     {
@@ -35,6 +45,7 @@ namespace SimCycling
 
         [DataMember()]
         public float TripTotalKm { get; set; }
+
 
         public static AntManagerState GetInstance()
         {
@@ -66,8 +77,12 @@ namespace SimCycling
         HRMCommander hrmCommander;
         FECCommander fecCommander;
         CADCommander cadCommander;
+        BPCommander bpCommander;
+
+        ACInterface acInterface;
 
         AntPlus.Types.Network network;
+        BikeModel bikeModel = BikeModel.BikePhysics;
 
         public void Start()
         {
@@ -85,10 +100,23 @@ namespace SimCycling
             }
 
             network = new AntPlus.Types.Network(0, NETWORK_KEY, CHANNEL_FREQUENCY);
+            Console.WriteLine(ConfigurationManager.AppSettings["model"]);
+            if (ConfigurationManager.AppSettings["ridermodel"] == "fec")
+            {
+                Console.WriteLine("Using FEC for physical model.");
+                bikeModel = BikeModel.FEC;
+            }
+            else if (ConfigurationManager.AppSettings["ridermodel"] == "physics")
+            {
+                Console.WriteLine("Using integrated model for physical model.");
+                bikeModel = BikeModel.BikePhysics;
+            }
 
             InitHRM(0);
             InitCAD(1);
             InitFEC(2);
+            InitBP(3);
+            InitAC();
         }
 
         public void Stop()
@@ -96,6 +124,7 @@ namespace SimCycling
             hrmCommander.Stop();
             cadCommander.Stop();
             fecCommander.Stop();
+            bpCommander.Stop();
         }
 
         void InitHRM(int channelNumber)
@@ -110,7 +139,12 @@ namespace SimCycling
         {
             var channelFec = usbDevice.getChannel(channelNumber);
             var fitnessEquipmentDisplay = new FitnessEquipmentDisplay(channelFec, network);
-            fecCommander = new FECCommander(fitnessEquipmentDisplay);
+            var useAsModel = false;
+            if (bikeModel == BikeModel.FEC)
+            {
+                useAsModel = true;
+            }
+            fecCommander = new FECCommander(fitnessEquipmentDisplay, useAsModel);
             fecCommander.Start();
         }
 
@@ -120,6 +154,34 @@ namespace SimCycling
             var bikeCadenceDisplay = new BikeCadenceDisplay(channelCad, network);
             cadCommander = new CADCommander(bikeCadenceDisplay);
             cadCommander.Start();
+        }
+
+        void InitBP(int channelNumber)
+        {
+            var channelCad = usbDevice.getChannel(channelNumber);
+            var bikePowerDisplay = new BikePowerDisplay(channelCad, network);
+            bpCommander = new BPCommander(bikePowerDisplay);
+            bpCommander.Start();
+        }
+
+        void InitAC()
+        {
+            List<Updateable> updateables = new List<Updateable>();
+            updateables.Add(fecCommander);
+            if (bikeModel == BikeModel.BikePhysics)
+            {
+                var CdA = float.Parse(ConfigurationManager.AppSettings["cda"]);
+                var Cxx = float.Parse(ConfigurationManager.AppSettings["cxx"]);
+                var airdensity = float.Parse(ConfigurationManager.AppSettings["airdensity"]);
+                var bikeweight = float.Parse(ConfigurationManager.AppSettings["bikeweight"]);
+                var riderweight = float.Parse(ConfigurationManager.AppSettings["riderweight"]);
+                var bikePhysics = new BikePhysics(CdA, Cxx, airdensity, bikeweight + riderweight);
+                updateables.Add(bikePhysics);
+            }
+            
+           
+            acInterface = new ACInterface(updateables);
+            bpCommander.Start();
         }
     }
 }

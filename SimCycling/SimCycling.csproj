@@ -77,6 +77,9 @@
   <ItemGroup>
     <Compile Include="src\ANTDeviceManager.cs" />
     <Compile Include="src\CADCommander.cs" />
+    <Compile Include="src\BikePhysics.cs" />
+    <Compile Include="src\BPCommander.cs" />
+    <Compile Include="src\ACInterface.cs" />
     <Compile Include="src\FECCommander.cs" />
     <Compile Include="src\HRMCommander.cs" />
     <Compile Include="src\Utils.cs" />
@@ -127,6 +130,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy.exe "$(ProjectDir)\bin\$(ConfigurationName)" "C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\apps\python\ACSimCyclingDash\bin" /s /e /y</PostBuildEvent>
+    <PostBuildEvent>xcopy.exe "$(ProjectDir)\bin\$(ConfigurationName)" "D:\Jeux\Steam\steamapps\common\assettocorsa\apps\python\ACSimCyclingDash\bin" /s /e /y</PostBuildEvent>
   </PropertyGroup>
 </Project>
