@@ -2,6 +2,9 @@ import ac
 import acsys
 k=0
 f_loc=""
+started=False
+passed_half=False
+finished=False
 import os
 
 class UIElements:
@@ -39,12 +42,26 @@ def acMain(ac_version):
     return "AIGPXRecorder"
 
 def onRender(*args):
-    global k, f_loc
+    global k, f_loc, started, passed_half, finished
     if (k == 60):
         x,y,z = ac.getCarState(ac.getCarsCount() - 1,acsys.CS.WorldPosition)
-        uiElements.update(x,y,z)
-        f = open(f_loc, "a")
-        f.write("{0:.3f}, {1:.3f}, {2:.3f}\n".format(x,y,z))
-        f.close()
+        p = ac.getCarState(ac.getCarsCount() - 1,acsys.CS.NormalizedSplinePosition)
+        if not started:
+            if p < 0.5:
+                started = True
+            return
+        else:
+            if not passed_half:
+                if p > 0.5:
+                    passed_half = True
+            else:
+                if p < 0.5:
+                    finished = True
+                    return
+        if started and not finished:
+            uiElements.update(x,y,z)
+            f = open(f_loc, "a")
+            f.write("{0:.3f}, {1:.3f}, {2:.3f}, {3: .3f}\n".format(x,y,z,p))
+            f.close()
         k=0
     k +=1
