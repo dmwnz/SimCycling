@@ -9,7 +9,6 @@ using System.Configuration;
 using SimCycling.Utils;
 using AssettoCorsaSharedMemory;
 using vJoyInterfaceWrap;
-using System.Collections.Generic;
 
 namespace SimCycling
 {
@@ -17,19 +16,19 @@ namespace SimCycling
     {
         AssettoCorsa ac;
         PID pid;
-        uint idVJoy;
-        vJoy joystick;
-        bool acquired;
+
         Point3D frontCoordinates = new Point3D(0, 0, 0);
         Point3D rearCoordinates = new Point3D(0, 0, 0);
         string track;
         bool isSpeedInit;
 
         List<Updateable> updateables;
+        JoyControl joyControl;
 
-        public ACInterface(List<Updateable> updateables)
+        public ACInterface(List<Updateable> updateables, JoyControl joyControl)
         {
             this.updateables = updateables;
+            this.joyControl = joyControl;
             Start();
         }
 
@@ -38,73 +37,17 @@ namespace SimCycling
             Console.WriteLine(s, parms);
         }
 
-        public void Start()
-        {
-            InitVJoy();
-            InitAC();
-        }
         public void Stop()
         {
-            if (acquired)
-            {
-                joystick.RelinquishVJD(idVJoy);
-            }
+
 
             ac.PhysicsUpdated -= OnACPhysics;
             ac.GraphicsUpdated -= OnACGraphics;
             ac.StaticInfoUpdated -= OnACInfo;
             ac.Stop();
         }
-        private void InitVJoy()
-        {
-            //myLog("Init vJoy")
-
-            idVJoy = 1u;
-            joystick = new vJoy();
-
-            var enabled = joystick.vJoyEnabled();
-            if (!enabled)
-            {
-                Log("vJoy driver not enabled: Failed Getting vJoy attributes.");
-                return;
-            }
-
-            //myLog("Vendor: {0}\nProduct :{1}\nVersion Number:{2}\n".format(\
-            //self._joystick.GetvJoyManufacturerString(), \
-            //self._joystick.GetvJoyProductString(), \
-            //self._joystick.GetvJoySerialNumberString()))
-
-            var vjdStatus = joystick.GetVJDStatus(idVJoy);
-            Log(vjdStatus.ToString());
-            switch (vjdStatus)
-            {
-                case VjdStat.VJD_STAT_OWN:
-                    Log("vJoy Device {0} is already owned by this feeder\n", idVJoy);
-                    break;
-                case VjdStat.VJD_STAT_FREE:
-                    Log("vJoy Device {0} is free\n", idVJoy);
-                    break;
-                case VjdStat.VJD_STAT_BUSY:
-                    Log("vJoy Device {0} is already owned by another feeder\nCannot continue\n", idVJoy);
-                    return;
-                case VjdStat.VJD_STAT_MISS:
-                    Log("vJoy Device {0} is not installed or disabled\nCannot continue\n", idVJoy);
-                    return;
-                default:
-                    Log("vJoy Device {0} general error\nCannot continue\n", idVJoy);
-                    return;
-            }
-
-
-            acquired = joystick.AcquireVJD(idVJoy);
-            if (!acquired)
-            {
-                Log("Failed to acquire vJoy device number {0}.\n", idVJoy);
-                return;
-            }
-            Log("Acquired: vJoy device number {0}.\n", idVJoy);
-        }
-        private void InitAC()
+     
+        private void Start()
         {
             Log("Init Ac");
             ac = new AssettoCorsa
@@ -204,13 +147,8 @@ namespace SimCycling
             var acSpeed = e.Physics.SpeedKmh;
             pid.Update(acSpeed);
             var coeff = pid.Output;
+            joyControl.Throttle(coeff);
 
-            if (acquired)
-            {
-                var axisVal = (int)Math.Round(coeff * 16384) + 16383;
-                //# myLog("SetAxis " + str(axisVal));
-                joystick.SetAxis(axisVal, idVJoy, HID_USAGES.HID_USAGE_X);
-            }
         }
     }
 }

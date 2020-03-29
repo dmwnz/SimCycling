@@ -75,6 +75,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\JoyControl.cs" />
+    <Compile Include="src\GameInterface.cs" />
     <Compile Include="src\ANTDeviceManager.cs" />
     <Compile Include="src\CADCommander.cs" />
     <Compile Include="src\BikePhysics.cs" />

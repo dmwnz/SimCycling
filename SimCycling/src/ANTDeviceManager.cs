@@ -178,9 +178,9 @@ namespace SimCycling
                 var bikePhysics = new BikePhysics(CdA, Cxx, airdensity, bikeweight + riderweight);
                 updateables.Add(bikePhysics);
             }
-            
-           
-            acInterface = new ACInterface(updateables);
+
+            var joyControl = new JoyControl();
+            acInterface = new ACInterface(updateables, joyControl);
             bpCommander.Start();
         }
     }
