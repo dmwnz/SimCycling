@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Configuration;
+using System.Windows.Media.Media3D;
 
 using SimCycling.Utils;
 using AssettoCorsaSharedMemory;
@@ -17,18 +18,29 @@ namespace SimCycling
         AssettoCorsa ac;
         PID pid;
 
-        Point3D frontCoordinates = new Point3D(0, 0, 0);
-        Point3D rearCoordinates = new Point3D(0, 0, 0);
+        Vector3D frontCoordinates = new Vector3D(0, 0, 0);
+        Vector3D rearCoordinates = new Vector3D(0, 0, 0);
+        Vector3D linePoint = new Vector3D(0, 0, 0);
+        Vector3D lineDirection = new Vector3D(0, 0, 0);
+
         string track;
+        string acLocation;
         bool isSpeedInit;
 
         List<Updateable> updateables;
         JoyControl joyControl;
 
-        public ACInterface(List<Updateable> updateables, JoyControl joyControl)
+        bool assistLineFound = false;
+        AssistLine assistLine;
+        float lateralDistance;
+        PID directionPid;
+        string assistLocation;
+
+        public ACInterface(List<Updateable> updateables, JoyControl joyControl, string acLocation)
         {
             this.updateables = updateables;
             this.joyControl = joyControl;
+            this.acLocation = acLocation;
             Start();
         }
 
@@ -76,8 +88,31 @@ namespace SimCycling
         }
         private void OnACInfo(object sender, StaticInfoEventArgs e)
         {
-            track = e.StaticInfo.Track;
+            if (!assistLineFound || e.StaticInfo.Track != track)
+            {
+                assistLocation = acLocation + @"\apps\python\ACSimCyclingDash\" + track + ".csv";
+                if (File.Exists(assistLocation))
+                {
+                    assistLine = new AssistLine(assistLocation);
+                    Log("Found assist line.");
+
+                    var P = 0.2f;
+                    var I = 0.0f;
+                    var D = 0.2f;
+
+                    directionPid = new PID(P, I, D);
+                    directionPid.Clear();
+                    directionPid.SetPoint = 0;
+
+                    assistLineFound = true;
+                } else
+                {
+                    assistLineFound = false;
+                }
+            }
             Log("TRACK : " + track);
+            track = e.StaticInfo.Track;
+
         }
 
         private void OnACGraphics(object sender, GraphicsEventArgs e)
@@ -110,6 +145,15 @@ namespace SimCycling
             //        lastTransmittedGradeTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             //    }
             //}
+            if (assistLineFound)
+            {
+                var p = e.Graphics.NormalizedCarPosition; 
+                Log("Normalized dist : {0}", p);
+                var pointAndDir = assistLine.GetPointAndDirection(p);
+                Log("Pt : {0}", pointAndDir.Item1);
+                linePoint = pointAndDir.Item1;
+                lineDirection = pointAndDir.Item2;  
+            }
             foreach (Updateable updateable in updateables)
             {
                 updateable.Update();
@@ -131,8 +175,8 @@ namespace SimCycling
             var rearZ = (e.Physics.TyreContactPoint[2].Z + e.Physics.TyreContactPoint[3].Z) / 2.0;
 
 
-            frontCoordinates = new Point3D(frontX, frontY, frontZ);
-            rearCoordinates = new Point3D(rearX, rearY, rearZ);
+            frontCoordinates = new Vector3D(frontX, frontY, frontZ);
+            rearCoordinates = new Vector3D(rearX, rearY, rearZ);
             if (!isSpeedInit)
             {
                 AntManagerState.GetInstance().BikeSpeedKmh = e.Physics.SpeedKmh;
@@ -148,6 +192,36 @@ namespace SimCycling
             pid.Update(acSpeed);
             var coeff = pid.Output;
             joyControl.Throttle(coeff);
+
+            if (assistLineFound)
+            {
+                var direction = (frontCoordinates - rearCoordinates);
+                direction.Normalize();
+                var vertical = new Vector3D(0, 1, 0);
+                vertical = vertical - Vector3D.DotProduct(vertical, direction) * direction;
+                var side = Vector3D.CrossProduct(vertical, direction);
+                var toLine = linePoint - frontCoordinates;
+                lateralDistance = (float)Vector3D.DotProduct(side, toLine);
+                float directionAlignment = (float) Vector3D.DotProduct(side, lineDirection);
+                //Log("signed lateral distance to assist line : {0}", lateralDistance);
+                //Log("angle with line : {0}", directionAlignment);
+
+                if (!float.IsNaN(lateralDistance))
+                {
+                    directionPid.Update(lateralDistance + 10*directionAlignment);
+                    var dir = directionPid.Output;
+                    //Log("steering: ", dir);
+                    joyControl.Direction(dir);
+                }
+                else
+                {
+                    joyControl.Direction(0);
+                }
+            }
+            else
+            {
+                joyControl.Direction(0);
+            }
 
         }
     }

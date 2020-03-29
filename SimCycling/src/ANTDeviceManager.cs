@@ -11,6 +11,7 @@ using System.Runtime.Serialization;
 using System.Linq;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Globalization;
 
 
 namespace SimCycling
@@ -168,19 +169,22 @@ namespace SimCycling
         {
             List<Updateable> updateables = new List<Updateable>();
             updateables.Add(fecCommander);
+
             if (bikeModel == BikeModel.BikePhysics)
             {
-                var CdA = float.Parse(ConfigurationManager.AppSettings["cda"]);
-                var Cxx = float.Parse(ConfigurationManager.AppSettings["cxx"]);
-                var airdensity = float.Parse(ConfigurationManager.AppSettings["airdensity"]);
-                var bikeweight = float.Parse(ConfigurationManager.AppSettings["bikeweight"]);
-                var riderweight = float.Parse(ConfigurationManager.AppSettings["riderweight"]);
+                CultureInfo cul = new CultureInfo("en-US", false);
+                var CdA = float.Parse(ConfigurationManager.AppSettings["cda"], cul.NumberFormat);
+                var Cxx = float.Parse(ConfigurationManager.AppSettings["cxx"], cul.NumberFormat);
+                var airdensity = float.Parse(ConfigurationManager.AppSettings["airdensity"], cul.NumberFormat);
+                var bikeweight = float.Parse(ConfigurationManager.AppSettings["bikeweight"], cul.NumberFormat);
+                var riderweight = float.Parse(ConfigurationManager.AppSettings["riderweight"], cul.NumberFormat);
                 var bikePhysics = new BikePhysics(CdA, Cxx, airdensity, bikeweight + riderweight);
                 updateables.Add(bikePhysics);
             }
 
             var joyControl = new JoyControl();
-            acInterface = new ACInterface(updateables, joyControl);
+            string acLocation = ConfigurationManager.AppSettings["aclocation"];
+            acInterface = new ACInterface(updateables, joyControl, acLocation);
             bpCommander.Start();
         }
     }

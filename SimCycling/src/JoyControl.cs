@@ -98,7 +98,7 @@ namespace SimCycling
             {
                 var axisVal = (int)Math.Round(value * 16384) + 16383;
                 //# myLog("SetAxis " + str(axisVal));
-                joystick.SetAxis(axisVal, idVJoy, HID_USAGES.HID_USAGE_Y);
+                joystick.SetAxis(axisVal, idVJoy, HID_USAGES.HID_USAGE_Z);
             }
         }
     }

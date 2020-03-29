@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Media3D;
 
 namespace SimCycling.Utils
 {
@@ -19,14 +20,14 @@ namespace SimCycling.Utils
 
     public class ReferencePoint
     {
-        public Point3D XyzPoint { get; }
+        public Vector3D XyzPoint { get; }
         public PointGeo WgsPoint { get; }
         public double Angle { get; }
         public double AltitudeFactor { get; }
         public double LongitudeFactor { get; }
         public double LatitudeFactor { get; }
 
-        public ReferencePoint(Point3D xyz, PointGeo wgs, float angle,
+        public ReferencePoint(Vector3D xyz, PointGeo wgs, float angle,
             float altitudeFactor = 1.0f, float longitudeFactor = 0.9875f, float latitudeFactor = 0.9875f)
         {
             this.XyzPoint = xyz;
@@ -35,19 +36,6 @@ namespace SimCycling.Utils
             this.AltitudeFactor = altitudeFactor;
             this.LongitudeFactor = longitudeFactor;
             this.LatitudeFactor = latitudeFactor;
-        }
-    }
-
-    public class Point3D
-    {
-        public double X { get; }
-        public double Y { get; }
-        public double Z { get; }
-        public Point3D(double x, double y, double z)
-        {
-            this.X = x;
-            this.Y = y;
-            this.Z = z;
         }
     }
 
@@ -82,19 +70,19 @@ namespace SimCycling.Utils
 
         static readonly Dictionary<String, PointPair> trackOrigins = new Dictionary<string, PointPair> {
             { "imola", new PointPair(
-                new ReferencePoint(new Point3D(163.0779f, -406.1667f, -84.8346f), new PointGeo(44.34423f, 11.71605f, 40.0f), 1.1f)) },
+                new ReferencePoint(new Vector3D(163.0779f, -406.1667f, -84.8346f), new PointGeo(44.34423f, 11.71605f, 40.0f), 1.1f)) },
             { "ks_nordschleife", new PointPair(
-                new ReferencePoint(new Point3D(645.9265f, 1431.3629f, 88.9466f), new PointGeo(50.346426f, 6.966673f, 570.0f), -1.63f)) },
+                new ReferencePoint(new Vector3D(645.9265f, 1431.3629f, 88.9466f), new PointGeo(50.346426f, 6.966673f, 570.0f), -1.63f)) },
             { "trento-bondone", new PointPair(
-                new ReferencePoint(new Point3D(2184.2517f, -2467.7197f, 73.1256f), new PointGeo(46.076604f, 11.098074f, 315.0f), -5.75f, 0.939351f)) },
+                new ReferencePoint(new Vector3D(2184.2517f, -2467.7197f, 73.1256f), new PointGeo(46.076604f, 11.098074f, 315.0f), -5.75f, 0.939351f)) },
             { "simtraxx_transfagarasan_v0.8", new PointPair(
-                new ReferencePoint(new Point3D(-1461.8225f, -3900.5601f, 1.1499f), new PointGeo(45.675077f,24.57853f, 625.0f), -0.15f, longitudeFactor: 0.943f, latitudeFactor: 1.005f)) },
+                new ReferencePoint(new Vector3D(-1461.8225f, -3900.5601f, 1.1499f), new PointGeo(45.675077f,24.57853f, 625.0f), -0.15f, longitudeFactor: 0.943f, latitudeFactor: 1.005f)) },
             { "saintroch", new PointPair(
-                new ReferencePoint(new Point3D(1579.9989f, 3691.002f, -233.8722f), new PointGeo(43.883496f, 7.360775f, 655.0f), 0.0f)) },
+                new ReferencePoint(new Vector3D(1579.9989f, 3691.002f, -233.8722f), new PointGeo(43.883496f, 7.360775f, 655.0f), 0.0f)) },
             { "simtraxx_peyre_0.96", new PointPair(
-                new ReferencePoint(new Point3D(-761.2817f, 761.537f, -39.8738f), new PointGeo(44.03069f, 3.67904f, 245.0f), 180.2f)) },
+                new ReferencePoint(new Vector3D(-761.2817f, 761.537f, -39.8738f), new PointGeo(44.03069f, 3.67904f, 245.0f), 180.2f)) },
             { "simtraxx_pikes_peak_0.81", new PointPair(
-                new ReferencePoint(new Point3D(3510.4993f, -3431.7925f, 139.0046f), new PointGeo(38.921214f, -105.037467f, 2866.0f), -27.81f)) }
+                new ReferencePoint(new Vector3D(3510.4993f, -3431.7925f, 139.0046f), new PointGeo(38.921214f, -105.037467f, 2866.0f), -27.81f)) }
         };
 
         public static double DegToRad(double angle)
@@ -102,7 +90,7 @@ namespace SimCycling.Utils
             return angle * Math.PI / 180.0f;
         }
 
-        public static Point3D RotatePoint(Point3D point, Point3D reference, double angle)
+        public static Vector3D RotatePoint(Vector3D point, Vector3D reference, double angle)
         {
             var theta = DegToRad(angle);
             var ox = reference.X;
@@ -115,10 +103,10 @@ namespace SimCycling.Utils
             var x = Math.Cos(theta) * (px - ox) - Math.Sin(theta) * (py - oy) + ox;
             var y = Math.Sin(theta) * (px - ox) + Math.Cos(theta) * (py - oy) + oy;
 
-            return new Point3D(x, y, point.Z);
+            return new Vector3D(x, y, point.Z);
         }
 
-        public static double CalcDistance(Point3D pointA, Point3D pointB)
+        public static double CalcDistance(Vector3D pointA, Vector3D pointB)
         {
             var dx = pointA.X - pointB.X;
             var dy = pointA.Y - pointB.Y;
@@ -127,7 +115,7 @@ namespace SimCycling.Utils
         }
 
 
-        private static PointGeo SXYZWGS(double x, double y, double z, Point3D trackOriginXYZ, PointGeo trackOriginWGS, double altitudeFactor, double longitudeFactor, double latitudeFactor)
+        private static PointGeo SXYZWGS(double x, double y, double z, Vector3D trackOriginXYZ, PointGeo trackOriginWGS, double altitudeFactor, double longitudeFactor, double latitudeFactor)
         {
             var x0 = trackOriginXYZ.X;
             var y0 = trackOriginXYZ.Y;
@@ -150,7 +138,7 @@ namespace SimCycling.Utils
             return new PointGeo(latitude, longitude, elevation);
         }
 
-        public static PointGeo XYZToWGS(Point3D xyzPoint, String track)
+        public static PointGeo XYZToWGS(Vector3D xyzPoint, String track)
         {
 
             if (!trackOrigins.ContainsKey(track))
