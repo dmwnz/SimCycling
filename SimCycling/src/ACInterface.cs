@@ -106,7 +106,7 @@ namespace SimCycling
         float anticipationTime = 1; //look 1s in advance for steering
         float normalizedCarPosition;
         float rangeThreshold = 5; // assist line to target are in this range (in m)
-        float avoidThreshold = 10; // Start doing evasion manoeuvers 
+        float avoidThreshold = 4; // Start doing evasion manoeuvers 
 
 
         public ACInterface(List<Updateable> updateables, JoyControl joyControl, string acLocation)
@@ -137,8 +137,8 @@ namespace SimCycling
             Log("Init Ac");
             ac = new AssettoCorsa
             {
-                PhysicsInterval = 50,
-                GraphicsInterval = 50,
+                PhysicsInterval = 200,
+                GraphicsInterval = 200,
                 StaticInfoInterval = 1000
             };
 
@@ -306,8 +306,10 @@ namespace SimCycling
                         opponentVelocity = state.CarVelocities[j];
                         if (Consts.Norm(opponentVelocity) <= Consts.Norm(state.CarVelocities[0])) // Avoid if going faster
                         {
-                            if (Consts.Norm(opponentPosition + opponentVelocity * anticipationTime - 
-                                    targetPoints[i] + anticipationTime * targetDirections[i] * Consts.Norm(state.CarVelocities[0])) < avoidThreshold)
+                            var dist = Consts.Norm(opponentPosition + opponentVelocity * anticipationTime -
+                                    (targetPoints[i] + anticipationTime * targetDirections[i] * Consts.Norm(state.CarVelocities[0])));
+                            Log("projected distance ={0}", dist);
+                            if (dist < avoidThreshold)
                             {
                                 remove = true;
                             }
@@ -318,6 +320,7 @@ namespace SimCycling
                         isValid.Add(i);
                     }
                 }
+                Log("n valid = {0}", isValid.Count);
                
                 foreach (var i in isValid)
                 {
@@ -341,6 +344,7 @@ namespace SimCycling
                         selectedIdx = i;
                     }
                 }
+                Log("in range = {0}", isInRange.Count);
                 if (isInRange.Count == 0) // if no assist lines are in range, take the closest
                 {
                     selectedIdx = argMin;
@@ -356,6 +360,7 @@ namespace SimCycling
                 {
                     p = p - 1;
                 }
+                Log("selected = {0}", selectedIdx);
                 targetPoint = assistLines[selectedIdx].GetPointAndDirection(p).Item1;
                 targetDirection = targetDirections[selectedIdx];
 
