@@ -3,6 +3,7 @@ import json
 import mmap
 import subprocess
 import sys
+import acsys
 
 antManagerExecutable = None
 antManagerState      = None
@@ -15,6 +16,51 @@ def startClick(*args):
 
 def stopClick(*args):
     ac.console("Hello stop")
+
+class RaceState:
+    def __init__(self):
+        pass
+
+    def _getMemoryMap(self):
+        return mmap.mmap(0, 1024, "SimCyclingRaceState")
+
+    def updateToMemory(self):
+        
+        car_positions = []
+        car_velocities = []
+        for i in range(ac.getCarsCount()):
+            x,y,z = ac.getCarState(i, acsys.CS.WorldPosition)
+            pos = {
+                "_x" : x,
+                "_y" : y,
+                "_z" : z
+            }
+            car_positions.append(pos)
+            x,y,z = ac.getCarState(i, acsys.CS.Velocity)
+            vel = {
+                "_x" : x,
+                "_y" : y,
+                "_z" : z
+            }
+            car_velocities.append(vel)
+
+        #heading = info.physics.heading
+        #pitch = info.physics.pitch
+        #roll = info.physics.roll
+       
+        dict = {
+            "car_positions" : car_positions,
+            "car_velocities" : car_velocities
+            #"heading" : heading,
+            #"pitch" : pitch,
+            #"roll" : roll
+        }
+        memoryMap = self._getMemoryMap()
+        memoryMap.seek(0)
+        memoryMap.write(1024 * b"\0")
+        memoryMap.seek(0)
+        memoryMap.write(json.dumps(dict).encode())
+        memoryMap.close()
 
 class AntManagerState:
     def __init__(self):
@@ -38,7 +84,7 @@ class AntManagerState:
         readBytes  = memoryMap.read()
         memoryMap.close()
         readString = readBytes.decode("utf-8").rstrip("\0")
-        ac.console(readString)
+        #ac.console(readString)
         dictData   = json.loads(readString)
         self._instanciateFromDict(dictData)
 
@@ -187,6 +233,7 @@ def onRender(*args):
         ac.console(repr(e))
     
     uiElements.update(antManagerState)
+    RaceState().updateToMemory()
 
 def acShutdown():
     ac.log("BIKEDASH acShutdown")

@@ -1,12 +1,14 @@
 import ac
 import acsys
+import os
 k=0
 f_loc=""
 started=False
 passed_half=False
 finished=False
 prev_p = 0
-import os
+n = 0
+
 
 class UIElements:
     def __init__(self, appWindow):
@@ -35,15 +37,14 @@ def acMain(ac_version):
     uiElements = UIElements(appWindow)
     uiElements.setup()
     uiElements.update(0,0,0)
-    track_name = ac.getTrackName(0)
-    f_loc = os.path.join(os.path.dirname(os.path.realpath(__file__)), track_name, ".csv")
-    f = open(f_loc, "w")
-    f.close()
-    
+
     return "AIGPXRecorder"
 
 def onRender(*args):
-    global prev_p, k, f_loc, started, passed_half, finished
+    global prev_p, k, f_loc, started, passed_half, finished, n
+    track_name = ac.getTrackName(0)
+    basename = "%s_%i.csv"%(track_name, n)
+    f_loc =  os.path.join(os.path.dirname(os.path.realpath(__file__)), basename)
     if (k == 20):
         x,y,z = ac.getCarState(ac.getCarsCount() - 1,acsys.CS.WorldPosition)
         p = ac.getCarState(ac.getCarsCount() - 1,acsys.CS.NormalizedSplinePosition)
@@ -53,13 +54,14 @@ def onRender(*args):
             prev_p = p
         else:
             if prev_p > 0.5 and p < 0.5:
-                finished = True
+                n += 1
+                prev_p = p
                 return
             prev_p = p
-            if not finished:
-                uiElements.update(x,y,z)
-                f = open(f_loc, "a")
-                f.write("{0:.5f}, {1:.5f}, {2:.5f}, {3: .5f}\n".format(x,y,z,p))
-                f.close()
+
+            uiElements.update(x,y,z)
+            f = open(f_loc, "a")
+            f.write("{0:.5f}, {1:.5f}, {2:.5f}, {3: .5f}\n".format(x,y,z,p))
+            f.close()
         k=0
     k +=1

@@ -30,7 +30,6 @@ namespace SimCycling
         private int GetIdx(double p)
         {
             int index = 0;
-            Console.WriteLine("{0} {1}", index, points.Count);
             if (index < 0)
             {
                 return 0;

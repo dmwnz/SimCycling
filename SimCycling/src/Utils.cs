@@ -106,11 +106,11 @@ namespace SimCycling.Utils
             return new Vector3D(x, y, point.Z);
         }
 
-        public static double CalcDistance(Vector3D pointA, Vector3D pointB)
+        public static double Norm(Vector3D point)
         {
-            var dx = pointA.X - pointB.X;
-            var dy = pointA.Y - pointB.Y;
-            var dz = pointA.Z - pointB.Z;
+            var dx = point.X;
+            var dy = point.Y;
+            var dz = point.Z;
             return Math.Sqrt(dx * dx + dy * dy + dz * dz);
         }
 
@@ -170,8 +170,8 @@ namespace SimCycling.Utils
                 var endTrackOriginXYZ = trackOrigins[track].End.XyzPoint;
                 var endTrackOriginWGS = trackOrigins[track].End.WgsPoint;
                 var wgsPointEnd = SXYZWGS(xe, ye, ze, endTrackOriginXYZ, endTrackOriginWGS, altitudeFactor, longitudeFactor, latitudeFactor);
-                var distanceFromStart = CalcDistance(startTrackOriginXYZ, xyzPoint);
-                var distanceToEnd = CalcDistance(endTrackOriginXYZ, xyzPoint);
+                var distanceFromStart = Norm(startTrackOriginXYZ - xyzPoint);
+                var distanceToEnd = Norm(endTrackOriginXYZ - xyzPoint);
 
                 wgsPoint.AverageWith(wgsPointEnd, 1.0f / distanceFromStart, 1.0f / distanceToEnd);
             }

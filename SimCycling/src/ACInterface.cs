@@ -9,10 +9,73 @@ using System.Windows.Media.Media3D;
 
 using SimCycling.Utils;
 using AssettoCorsaSharedMemory;
-using vJoyInterfaceWrap;
+using System.IO.MemoryMappedFiles;
+using System.Runtime.Serialization.Json;
+using System.Runtime.Serialization;
+using System.Runtime.InteropServices;
+
+
 
 namespace SimCycling
 {
+
+
+    [DataContract]
+    public class RaceState
+    {
+        // Singleton instance
+        private static RaceState raceState = new RaceState();
+        private static MemoryMappedFile mm;
+
+        [DataMember(Name = "car_positions")]
+        public List<Vector3D> CarPositions { get; set; } = new List<Vector3D>(); // Position of all cars in the race, 0 is the player
+
+        [DataMember(Name = "car_velocities")]
+        public List<Vector3D> CarVelocities { get; set; } = new List<Vector3D>();
+
+        public static RaceState GetInstance()
+        {
+            return raceState;
+        }
+
+
+        public static byte[] TrimEnd(byte[] array)
+        {
+            int lastIndex = Array.FindLastIndex(array, b => b != 0);
+
+            Array.Resize(ref array, lastIndex + 1);
+
+            return array;
+        }
+
+        public static void ReadFromMemory()
+        {
+            mm = MemoryMappedFile.CreateOrOpen("SimCyclingRaceState", 1024);
+
+            using (var mmAccessor = mm.CreateViewAccessor())
+            {
+                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(RaceState));
+                byte[] array = Enumerable.Repeat((byte)0x0, 1024).ToArray();
+                mmAccessor.ReadArray<byte>(0, array, 0, 1024);
+                array = TrimEnd(array);
+                string json = Encoding.UTF8.GetString(array);
+                RaceState newState;
+                if (array.Length > 0)
+                {
+                    try
+                    {
+                        newState = (RaceState)serializer.ReadObject(new MemoryStream(array));
+                        raceState = newState;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                }
+            }
+        }
+    }
+
     class ACInterface
     {
         AssettoCorsa ac;
@@ -20,21 +83,31 @@ namespace SimCycling
 
         Vector3D frontCoordinates = new Vector3D(0, 0, 0);
         Vector3D rearCoordinates = new Vector3D(0, 0, 0);
-        Vector3D linePoint = new Vector3D(0, 0, 0);
-        Vector3D lineDirection = new Vector3D(0, 0, 0);
+        Vector3D carCoordinates = new Vector3D(0, 0, 0);
+
+        Boolean lockTaken = false;
 
         string track;
+        float trackLength;
         string acLocation;
         bool isSpeedInit;
+        bool isInPit;
 
         List<Updateable> updateables;
         JoyControl joyControl;
 
         bool assistLineFound = false;
-        AssistLine assistLine;
+        List<AssistLine> assistLines;
         float lateralDistance;
         PID directionPid;
         string assistLocation;
+        Vector3D targetPoint = new Vector3D(0, 0, 0);
+        Vector3D targetDirection = new Vector3D(0, 0, 0);
+        float anticipationTime = 1; //look 1s in advance for steering
+        float normalizedCarPosition;
+        float rangeThreshold = 5; // assist line to target are in this range (in m)
+        float avoidThreshold = 10; // Start doing evasion manoeuvers 
+
 
         public ACInterface(List<Updateable> updateables, JoyControl joyControl, string acLocation)
         {
@@ -58,14 +131,14 @@ namespace SimCycling
             ac.StaticInfoUpdated -= OnACInfo;
             ac.Stop();
         }
-     
+
         private void Start()
         {
             Log("Init Ac");
             ac = new AssettoCorsa
             {
-                PhysicsInterval = 100,
-                GraphicsInterval = 1000,
+                PhysicsInterval = 50,
+                GraphicsInterval = 50,
                 StaticInfoInterval = 1000
             };
 
@@ -90,37 +163,51 @@ namespace SimCycling
         {
             if (!assistLineFound || e.StaticInfo.Track != track)
             {
-                assistLocation = acLocation + @"\apps\python\ACSimCyclingDash\" + track + ".csv";
-                if (File.Exists(assistLocation))
-                {
-                    assistLine = new AssistLine(assistLocation);
-                    Log("Found assist line.");
-
-                    var P = 0.2f;
-                    var I = 0.0f;
-                    var D = 0.2f;
-
-                    directionPid = new PID(P, I, D);
-                    directionPid.Clear();
-                    directionPid.SetPoint = 0;
-
-                    assistLineFound = true;
-                } else
-                {
-                    assistLineFound = false;
-                }
+                LoadAssistLines(e.StaticInfo.Track);
             }
-            Log("TRACK : " + track);
             track = e.StaticInfo.Track;
+            trackLength = e.StaticInfo.TrackSPlineLength;
 
+        }
+
+        private void LoadAssistLines(string track)
+        {
+            assistLines = new List<AssistLine>();
+            int i = 0;
+            while (true)
+            {
+                assistLocation = string.Format("{0}{1}{2}_{3}.csv", acLocation, @"\apps\python\ACSimCyclingDash\", track, i);
+                if (!File.Exists(assistLocation))
+                {
+                    break;
+                }
+                assistLines.Add(new AssistLine(assistLocation));
+                i = i + 1;
+            }
+            if (assistLines.Count > 0)
+            {
+                var P = 0.2f;
+                var I = 0.0f;
+                var D = 0.2f;
+
+                directionPid = new PID(P, I, D);
+                directionPid.Clear();
+                directionPid.SetPoint = 0;
+                Log("Found {0} assist lines", assistLines.Count);
+                assistLineFound = true;
+            }
+            else
+            {
+                assistLineFound = false;
+            }
         }
 
         private void OnACGraphics(object sender, GraphicsEventArgs e)
         {
-            Log("On AC Graphics");
+
 
             var altitudeDiff = frontCoordinates.Y - rearCoordinates.Y;
-            var distance = Consts.CalcDistance(rearCoordinates, frontCoordinates);
+            var distance = Consts.Norm(rearCoordinates - frontCoordinates);
 
 
             var newPitch = (float)Math.Round(altitudeDiff * 1000.0f / distance) / 10.0f;
@@ -131,40 +218,31 @@ namespace SimCycling
             AntManagerState.GetInstance().BikeIncline = newPitch;
 
 
-            //WriteGPXLine();
-            Log(String.Format("newPitch : {0}", newPitch));
-
-
-            //if (equipmentFound)
-            //{
-            //    if (DateTimeOffset.Now.ToUnixTimeMilliseconds() > lastTransmittedGradeTime + 2)
-            //    {
-            //        Log(String.Format("sending new pitch {0}", newPitch));
-            //        transmittedGrade = newPitch;
-            //        SendTrackResistance(newPitch);
-            //        lastTransmittedGradeTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            //    }
-            //}
             if (assistLineFound)
             {
-                var p = e.Graphics.NormalizedCarPosition; 
-                Log("Normalized dist : {0}", p);
-                var pointAndDir = assistLine.GetPointAndDirection(p);
-                Log("Pt : {0}", pointAndDir.Item1);
-                linePoint = pointAndDir.Item1;
-                lineDirection = pointAndDir.Item2;  
+                normalizedCarPosition = e.Graphics.NormalizedCarPosition;
+                /*
+                float vel;
+
+                */
             }
             foreach (Updateable updateable in updateables)
             {
                 updateable.Update();
             }
+            isInPit = (bool)(e.Graphics.IsInPitLane > 0);
         }
         private void OnACPhysics(object sender, PhysicsEventArgs e)
         {
-            //#myLog("On Ac Physics")
+            //try
+            //{
+            RaceState.ReadFromMemory();
 
-            //#myLog("AC Speed : {0}".format(e.Physics.SpeedKmh))
-            // airdensity = e.Physics.AirDensity;
+
+            if (RaceState.GetInstance().CarVelocities.Count == 0)
+            {
+                return;
+            }
 
             var frontX = (e.Physics.TyreContactPoint[0].X + e.Physics.TyreContactPoint[1].X) / 2.0;
             var frontY = (e.Physics.TyreContactPoint[0].Y + e.Physics.TyreContactPoint[1].Y) / 2.0;
@@ -182,35 +260,117 @@ namespace SimCycling
                 AntManagerState.GetInstance().BikeSpeedKmh = e.Physics.SpeedKmh;
                 isSpeedInit = true;
             }
-           
 
-
-
+            carCoordinates = RaceState.GetInstance().CarPositions[0];
             pid.SetPoint = AntManagerState.GetInstance().BikeSpeedKmh;
 
             var acSpeed = e.Physics.SpeedKmh;
             pid.Update(acSpeed);
             var coeff = pid.Output;
             joyControl.Throttle(coeff);
-
             if (assistLineFound)
             {
+                // Get target assist line
+                var isValid = new List<int>();
+                var isInRange = new List<int>();
+                int argMin = -1;
+                float minRange = 100000;
+                RaceState state;
+                try
+                {
+                    state = RaceState.GetInstance();
+                }
+                catch
+                {
+                    Console.WriteLine("Could not get race state.");
+                    return;
+                }
+                
+                Tuple<Vector3D, Vector3D> pointAndDir;
+                var targetPoints = new List<Vector3D>();
+                var targetDirections = new List<Vector3D>();
+                Vector3D opponentPosition;
+                Vector3D opponentVelocity;
+                for (int i = 0; i < assistLines.Count; i++)
+                {
+                    pointAndDir = assistLines[i].GetPointAndDirection(normalizedCarPosition);
+                    targetPoints.Add(pointAndDir.Item1);
+                    targetDirections.Add(pointAndDir.Item2);
+                }
+                for (int i = 0; i < assistLines.Count; i++)
+                {
+                    var remove = false;
+                    for (int j = 1; j < state.CarVelocities.Count; j++) // remove assist line if they provoke collision
+                    {
+                        opponentPosition = state.CarPositions[j];
+                        opponentVelocity = state.CarVelocities[j];
+                        if (Consts.Norm(opponentVelocity) <= Consts.Norm(state.CarVelocities[0])) // Avoid if going faster
+                        {
+                            if (Consts.Norm(opponentPosition + opponentVelocity * anticipationTime - 
+                                    targetPoints[i] + anticipationTime * targetDirections[i] * Consts.Norm(state.CarVelocities[0])) < avoidThreshold)
+                            {
+                                remove = true;
+                            }
+                        }
+                    }
+                    if (!remove)
+                    {
+                        isValid.Add(i);
+                    }
+                }
+               
+                foreach (var i in isValid)
+                {
+                    var assistLine = assistLines[i];
+                    float range = (float) Consts.Norm(targetPoints[i] - state.CarPositions[0]);
+                    if (range < minRange)
+                    {
+                        argMin = i;
+                        minRange = range;
+                    }
+                    if (range < rangeThreshold)
+                    {
+                        isInRange.Add(i);
+                    }
+                }
+                int selectedIdx = 1000;
+                foreach (var i in isInRange)
+                {
+                    if (i < selectedIdx)
+                    {
+                        selectedIdx = i;
+                    }
+                }
+                if (isInRange.Count == 0) // if no assist lines are in range, take the closest
+                {
+                    selectedIdx = argMin;
+                }
+                if (isValid.Count == 0)
+                {
+                    selectedIdx = 0;
+                }
+
+                float vel = (float) Consts.Norm(state.CarVelocities[0]);
+                var p = normalizedCarPosition + anticipationTime * vel / trackLength;
+                if (p > 1)
+                {
+                    p = p - 1;
+                }
+                targetPoint = assistLines[selectedIdx].GetPointAndDirection(p).Item1;
+                targetDirection = targetDirections[selectedIdx];
+
                 var direction = (frontCoordinates - rearCoordinates);
                 direction.Normalize();
                 var vertical = new Vector3D(0, 1, 0);
                 vertical = vertical - Vector3D.DotProduct(vertical, direction) * direction;
                 var side = Vector3D.CrossProduct(vertical, direction);
-                var toLine = linePoint - frontCoordinates;
+                var toLine = targetPoint - frontCoordinates;
                 lateralDistance = (float)Vector3D.DotProduct(side, toLine);
-                float directionAlignment = (float) Vector3D.DotProduct(side, lineDirection);
-                //Log("signed lateral distance to assist line : {0}", lateralDistance);
-                //Log("angle with line : {0}", directionAlignment);
 
                 if (!float.IsNaN(lateralDistance))
                 {
-                    directionPid.Update(lateralDistance + 10*directionAlignment);
+                    directionPid.Update(lateralDistance);
                     var dir = directionPid.Output;
-                    //Log("steering: ", dir);
                     joyControl.Direction(dir);
                 }
                 else
@@ -222,7 +382,11 @@ namespace SimCycling
             {
                 joyControl.Direction(0);
             }
-
+            // }
+            // catch (Exception ex)
+            //{
+            //  Console.WriteLine(ex.Message);
+            //}
         }
     }
 }
