@@ -16,13 +16,13 @@ namespace SimCycling
             manager = new ANTDeviceManager();
 
             manager.Start();
+            AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
 
             Console.Read();
-            manager.Stop();
         }
         static void OnProcessExit(object sender, EventArgs e)
         {
-            
+            manager.Stop();
         }
     }
 }
