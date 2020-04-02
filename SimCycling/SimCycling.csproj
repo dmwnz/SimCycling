@@ -59,6 +59,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\AssettoCorsaSharedMemory.dll</HintPath>
     </Reference>
+    <Reference Include="Dynastream.Fit.Portable, Version=21.22.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\Dynastream.Fit.Portable.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -89,6 +93,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="src\AssistLine.cs" />
+    <Compile Include="src\FITRecorder.cs" />
     <Compile Include="src\JoyControl.cs" />
     <Compile Include="src\ANTDeviceManager.cs" />
     <Compile Include="src\CADCommander.cs" />
@@ -128,6 +133,8 @@
     <Content Include="DSI_SiUSBXp_3_1.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Dynastream.Fit.Portable.dll" />
+    <Content Include="Dynastream.Fit.Portable.pdb" />
     <Content Include="vJoyInterface.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

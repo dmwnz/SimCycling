@@ -190,6 +190,7 @@ namespace SimCycling
                 lastTransmittedGradeTime = t;
             }
            
+
         }
     }
 }

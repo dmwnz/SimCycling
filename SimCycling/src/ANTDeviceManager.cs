@@ -4,6 +4,7 @@ using AntPlus.Profiles.HeartRate;
 using AntPlus.Profiles.FitnessEquipment;
 using AntPlus.Profiles.BikeCadence;
 using AntPlus.Profiles.BikePower;
+using Dynastream.Fit;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.Serialization.Json;
 using System.IO;
@@ -47,6 +48,13 @@ namespace SimCycling
         [DataMember()]
         public float TripTotalKm { get; set; }
 
+        [DataMember()]
+        public float TripTotalTime { get; set; }
+
+        [DataMember()]
+        public float AirDensity { get; set; }
+
+
 
         public static AntManagerState GetInstance()
         {
@@ -65,10 +73,11 @@ namespace SimCycling
                 serializer.WriteObject(ms, GetInstance());
                 mmAccessor.WriteArray(0, array, 0, 256);
             }
+           
         }
     }
 
-    class ANTDeviceManager
+    class ANTDeviceManager : Updateable
     {
         static readonly byte[] NETWORK_KEY = { 0xB9, 0xA5, 0x21, 0xFB, 0xBD, 0x72, 0xC3, 0x45 }; // ANT+ Managed network key
         static readonly byte CHANNEL_FREQUENCY = 0x39;
@@ -81,6 +90,7 @@ namespace SimCycling
         BPCommander bpCommander;
 
         ACInterface acInterface;
+        System.DateTime previousFrameTimestamp = System.DateTime.Now;
 
         AntPlus.Types.Network network;
         BikeModel bikeModel = BikeModel.BikePhysics;
@@ -118,10 +128,13 @@ namespace SimCycling
             InitFEC(2);
             InitBP(3);
             InitAC();
+            InitFIT();
         }
 
         public void Stop()
         {
+            acInterface.Stop();
+            FITRecorder.Stop();
             hrmCommander.Stop();
             cadCommander.Stop();
             fecCommander.Stop();
@@ -159,6 +172,7 @@ namespace SimCycling
 
         void InitBP(int channelNumber)
         {
+            AntManagerState.GetInstance().TripTotalKm = 0;
             var channelCad = usbDevice.getChannel(channelNumber);
             var bikePowerDisplay = new BikePowerDisplay(channelCad, network);
             bpCommander = new BPCommander(bikePowerDisplay);
@@ -169,6 +183,7 @@ namespace SimCycling
         {
             List<Updateable> updateables = new List<Updateable>();
             updateables.Add(fecCommander);
+            updateables.Add(this);
 
             if (bikeModel == BikeModel.BikePhysics)
             {
@@ -186,6 +201,22 @@ namespace SimCycling
             string acLocation = ConfigurationManager.AppSettings["aclocation"];
             acInterface = new ACInterface(updateables, joyControl, acLocation);
             bpCommander.Start();
+        }
+
+        override public void Update()
+        {
+            var time = System.DateTime.Now;
+            double dt = time.Subtract(previousFrameTimestamp).TotalSeconds;
+            previousFrameTimestamp = time;
+
+            FITRecorder.AddRecord();
+            AntManagerState.GetInstance().TripTotalKm += (float)(AntManagerState.GetInstance().BikeSpeedKmh / 1000 / 3.6 * dt);
+            AntManagerState.GetInstance().TripTotalTime += (float)dt;
+        }
+
+        void InitFIT()
+        {
+            FITRecorder.Start();
         }
     }
 }

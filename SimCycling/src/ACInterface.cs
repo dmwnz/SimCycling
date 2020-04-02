@@ -33,6 +33,7 @@ namespace SimCycling
         [DataMember(Name = "car_velocities")]
         public List<Vector3D> CarVelocities { get; set; } = new List<Vector3D>();
 
+
         public static RaceState GetInstance()
         {
             return raceState;
@@ -265,6 +266,8 @@ namespace SimCycling
             pid.SetPoint = AntManagerState.GetInstance().BikeSpeedKmh;
 
             var acSpeed = e.Physics.SpeedKmh;
+            AntManagerState.GetInstance().AirDensity = e.Physics.AirDensity;
+            Log("air density = {0}", AntManagerState.GetInstance().AirDensity);
             pid.Update(acSpeed);
             var coeff = pid.Output;
             joyControl.Throttle(coeff);
@@ -300,7 +303,7 @@ namespace SimCycling
                 for (int i = 0; i < assistLines.Count; i++)
                 {
                     var remove = false;
-                    for (int j = 1; j < state.CarVelocities.Count; j++) // remove assist line if they provoke collision
+                    for (int j = 1; j < state.CarVelocities.Count; j++) // remove assist line if they provoke collision. Implementation could be better..
                     {
                         opponentPosition = state.CarPositions[j];
                         opponentVelocity = state.CarVelocities[j];

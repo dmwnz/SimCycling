@@ -28,6 +28,7 @@ class RaceState:
         
         car_positions = []
         car_velocities = []
+
         for i in range(ac.getCarsCount()):
             x,y,z = ac.getCarState(i, acsys.CS.WorldPosition)
             pos = {
@@ -43,6 +44,7 @@ class RaceState:
                 "_z" : z
             }
             car_velocities.append(vel)
+
 
         #heading = info.physics.heading
         #pitch = info.physics.pitch

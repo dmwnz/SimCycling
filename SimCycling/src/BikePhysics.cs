@@ -53,7 +53,7 @@ namespace SimCycling
 
         private double BikeSpeed() => AntManagerState.GetInstance().BikeSpeedKmh / 3.6;
 
-        private double Resistance() => 0.5 * airDensity *CdA * BikeSpeed() * BikeSpeed() + riderMass * Cxx * gravitationAcceleration;
+        private double Resistance() => 0.5 * AntManagerState.GetInstance().AirDensity *CdA * BikeSpeed() * BikeSpeed() + riderMass * Cxx * gravitationAcceleration;
 
         private double DeltaV(double dt)
         {
