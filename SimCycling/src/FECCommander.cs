@@ -116,8 +116,9 @@ namespace SimCycling
 
         private void SendUserConfiguration()
         {
-            var bikeWeight = float.Parse(ConfigurationManager.AppSettings["bikeweight"]);
-            var riderWeight = float.Parse(ConfigurationManager.AppSettings["riderweight"]);
+            CultureInfo cul = new CultureInfo("en-US", false);
+            var bikeWeight = float.Parse(ConfigurationManager.AppSettings["bikeweight"], cul.NumberFormat);
+            var riderWeight = float.Parse(ConfigurationManager.AppSettings["riderweight"], cul.NumberFormat);
 
             // 170//8.5kg
             // 6250//62.5kg
@@ -144,9 +145,21 @@ namespace SimCycling
         {
             var command = new ControlWindResistancePage
             {
-                WindResistanceCoefficient = 0xFF, //# Invald
-                WindSpeed = 255, //# Invalid
-                DraftingFactor = 10 //# 0.1
+                // Product of Frontal Surface Area, Drag Coefficient and Air Density.
+                // Use default value: 0xFF
+                // Unit 0.01 kg/m
+                // Range 0.00 – 1.86kg/m
+                WindResistanceCoefficient = 0xFF,
+                // Speed of simulated wind acting on the cyclist.(+) –Head Wind(–) –Tail Wind
+                // Use default value: 0xFF
+                // Unit km/h
+                // Range -127 – +127 km/h
+                WindSpeed = 0xFF,
+                // Simulated drafting scale factor
+                // Use default value: 0xFF
+                // Unit 0.01
+                // Range 0 – 1.00
+                DraftingFactor = 0xFF //# 0.1
             };
             simulator.SendWindResistance(command);
         }
