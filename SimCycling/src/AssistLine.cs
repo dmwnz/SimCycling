@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Windows.Media.Media3D;
+using System.Numerics;
 using System.Globalization;
 
 namespace SimCycling
@@ -9,7 +9,7 @@ namespace SimCycling
     class AssistLine
     {
 
-        List<Tuple<Vector3D, float>> points = new List<Tuple<Vector3D, float>>();
+        List<Tuple<Vector3, float>> points = new List<Tuple<Vector3, float>>();
 
         public AssistLine(string csvFile)
         {
@@ -23,7 +23,7 @@ namespace SimCycling
                 var y = float.Parse(values[1], cul.NumberFormat);
                 var z = float.Parse(values[2], cul.NumberFormat);
                 var p = float.Parse(values[3], cul.NumberFormat);
-                points.Add(new Tuple<Vector3D, float>(new Vector3D(x, y, z), p));
+                points.Add(new Tuple<Vector3, float>(new Vector3(x, y, z), p));
             }
         }
 
@@ -45,17 +45,17 @@ namespace SimCycling
             return index;
         }
 
-        public Vector3D GetPoint(double p)
+        public Vector3 GetPoint(double p)
         {
             var idx = GetIdx(p);
             return points[idx].Item1;
         }
 
-        public Tuple<Vector3D, Vector3D> GetPointAndDirection(double p)
+        public Tuple<Vector3, Vector3> GetPointAndDirection(double p)
         {
             var idx = GetIdx(p);
             var point = points[idx].Item1;
-            Vector3D dir;
+            Vector3 dir;
             if (idx == 0)
             {
                 dir = points[idx + 1].Item1;
@@ -66,8 +66,8 @@ namespace SimCycling
                 dir = points[idx - 1].Item1;
                 dir = point - dir;
             }
-            dir.Normalize();
-            return new Tuple<Vector3D, Vector3D>(point, dir);
+            dir = Vector3.Normalize(dir);
+            return new Tuple<Vector3, Vector3>(point, dir);
         }
     }
 }

@@ -24,22 +24,25 @@ class RaceState:
         
         car_positions = []
         car_velocities = []
+        car_npos = []
 
         for i in range(ac.getCarsCount()):
             x,y,z = ac.getCarState(i, acsys.CS.WorldPosition)
             pos = {
-                "_x" : x,
-                "_y" : y,
-                "_z" : z
+                "X" : x,
+                "Y" : y,
+                "Z" : z
             }
             car_positions.append(pos)
             x,y,z = ac.getCarState(i, acsys.CS.Velocity)
             vel = {
-                "_x" : x,
-                "_y" : y,
-                "_z" : z
+                "X" : x,
+                "Y" : y,
+                "Z" : z
             }
             car_velocities.append(vel)
+            pos = ac.getCarState(i, acsys.CS.NormalizedSplinePosition)
+            car_npos.append(pos)
 
 
         #heading = info.physics.heading
@@ -49,6 +52,7 @@ class RaceState:
         dict = {
             "car_positions" : car_positions,
             "car_velocities" : car_velocities,
+            "normalized_car_positions" : car_npos,
             "stop" : stop
             #"heading" : heading,
             #"pitch" : pitch,
