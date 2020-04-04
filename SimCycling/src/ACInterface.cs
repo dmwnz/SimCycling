@@ -177,7 +177,7 @@ namespace SimCycling
             int i = 0;
             while (true)
             {
-                assistLocation = string.Format("{0}{1}{2}_{3}.csv", acLocation, @"\apps\python\ACSimCyclingDash\", track, i);
+                assistLocation = string.Format(@"data\{0}_{1}.csv", track, i);
                 if (!File.Exists(assistLocation))
                 {
                     break;

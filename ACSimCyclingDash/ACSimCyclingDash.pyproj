@@ -32,6 +32,7 @@
     <Content Include="ks_vallelunga_3.csv" />
     <Content Include="ks_vallelunga_4.csv" />
     <Content Include="simCycling.ini" />
+    <Content Include="whodares.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

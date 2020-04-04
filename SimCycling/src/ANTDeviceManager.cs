@@ -54,6 +54,15 @@ namespace SimCycling
         [DataMember()]
         public float AirDensity { get; set; }
 
+        [DataMember()]
+        public float TargetPower { get; set; } // TODO
+
+        [DataMember()]
+        public float CriticalPower { get; set; } // TODO
+
+        [DataMember()]
+        public string WorkoutName { get; set; }
+
 
 
         public static AntManagerState GetInstance()
@@ -94,6 +103,7 @@ namespace SimCycling
 
         AntPlus.Types.Network network;
         BikeModel bikeModel = BikeModel.BikePhysics;
+        //Workout workout;
 
         public void Start()
         {
@@ -122,13 +132,26 @@ namespace SimCycling
                 Console.WriteLine("Using integrated model for physical model.");
                 bikeModel = BikeModel.BikePhysics;
             }
-
+            try
+            {
+                AntManagerState.GetInstance().WorkoutName = ConfigurationManager.AppSettings["workout"];
+                //workout = Workout.Factory(AntManagerState.GetInstance().WorkoutName);
+            }
+            catch (Exception e)
+            {
+                //workout = null;
+                Console.WriteLine("Did not load workout." + e.Message);
+            }
+            AntManagerState.GetInstance().CriticalPower = Single.Parse(ConfigurationManager.AppSettings["cp"]);
             InitHRM(0);
             InitCAD(1);
             InitFEC(2);
             InitBP(3);
             InitAC();
             InitFIT();
+           
+
+
         }
 
         public void Stop()
@@ -212,6 +235,19 @@ namespace SimCycling
             FITRecorder.AddRecord();
             AntManagerState.GetInstance().TripTotalKm += (float)(AntManagerState.GetInstance().BikeSpeedKmh / 1000 / 3.6 * dt);
             AntManagerState.GetInstance().TripTotalTime += (float)dt;
+            Console.WriteLine("update");
+
+            /*if (workout != null)
+            {
+                foreach (var x in workout.Segments)
+                {
+                    float t = AntManagerState.GetInstance().TripTotalTime;
+                    if (x.StartTime < t && x.StartTime + 0.001 * x.DurationMs >= t)
+                    {
+                        AntManagerState.GetInstance().TargetPower = (float) x.Power.Intensity * AntManagerState.GetInstance().CriticalPower;
+                    }
+                }
+            }*/
         }
 
         void InitFIT()
