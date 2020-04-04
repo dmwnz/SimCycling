@@ -11,7 +11,6 @@ namespace SimCycling
     {
 
         List<AssistLine> assistLines;
-        PID directionPid;
         string assistLocation;
         Vector3 targetPoint = new Vector3(0, 0, 0);
 
@@ -47,13 +46,6 @@ namespace SimCycling
             }
             if (assistLines.Count > 0)
             {
-                var P = 0.3f;
-                var I = 0.0f;
-                var D = 0.6f;
-
-                directionPid = new PID(P, I, D);
-                directionPid.Clear();
-                directionPid.SetPoint = 0;
                 Console.WriteLine("Found {0} assist lines", assistLines.Count);
                 return true;
             }
@@ -170,13 +162,19 @@ namespace SimCycling
             var carOrientationAngle = (float)Math.Atan2(CarOrientation.Z, CarOrientation.X);
 
             float angle = - toLineAngle + carOrientationAngle;
+            if (angle > Math.PI)
+            {
+                angle -= 2 * (float) Math.PI;
+            }
+            if (angle < - Math.PI)
+            {
+                angle += 2 * (float)Math.PI;
+            }
             Console.WriteLine("angle = {0}", 180/(float) Math.PI * angle);
 
             if (!float.IsNaN(angle))
             {
-                //directionPid.Update(angle);
-                //Direction = directionPid.Output;// angle / (float) Math.PI;
-                Direction = - 10* angle / (float)Math.PI;
+                Direction = - angle / (float)Math.PI;
             }
             else
             {

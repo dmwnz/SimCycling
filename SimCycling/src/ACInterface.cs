@@ -258,7 +258,7 @@ namespace SimCycling
                 Console.WriteLine("car pos = {0},{1},{2}", frontCoordinates.X, frontCoordinates.Y, frontCoordinates.Z);
                 assistLineFollower.NormalizedCarPosition = RaceState.GetInstance().NormalizedCarPositions[0];
                 assistLineFollower.Update();
-                joyControl.Direction(assistLineFollower.Direction);
+                joyControl.Direction(10*assistLineFollower.Direction);
             }
             else
             {
