@@ -127,18 +127,6 @@
     <None Include="data\ks_vallelunga_4.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="data\spa_0.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="data\spa_1.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="data\spa_2.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="data\spa_3.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="data\whodares.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -178,7 +166,7 @@
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
       <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.6.1 %28x86 et x64%29</ProductName>
+      <ProductName>Microsoft .NET Framework 4.6.1 %28x86 and x64%29</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
@@ -195,6 +183,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy.exe "$(ProjectDir)\bin\$(ConfigurationName)" "C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\apps\python\ACSimCyclingDash\bin" /s /e /y</PostBuildEvent>
+    <PostBuildEvent>xcopy.exe "$(ProjectDir)\bin\$(ConfigurationName)" "D:\Jeux\Steam\steamapps\common\assettocorsa\apps\python\ACSimCyclingDash\bin" /s /e /y</PostBuildEvent>
   </PropertyGroup>
 </Project>
