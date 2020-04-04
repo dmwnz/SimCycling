@@ -10,6 +10,7 @@ import os
 antManagerExecutable = None
 antManagerState      = None
 uiElements           = None
+workoutUi            = None
 
 
 
@@ -72,16 +73,21 @@ class AntManagerState:
         self.BikeIncline = 0.0
         self.CyclistHeartRate = 0
         self.CyclistPower = 0.0
+        self.CriticalPower = 0.0
         self.TripTotalKm = 0.0
+        self.TripTotalTime  = 0.0
         self.TargetPower = 0.0
         self.TrackLength = 0.0
+        self.NextTargetPower = 0.0
+        self.RemainingIntervalTime = 0.0
+        self.RemainingTotalTime = 0.0
 
     def _instanciateFromDict(self, dictionary):
         for k, v in dictionary.items():
             setattr(self, k, v)
 
     def _getMemoryMap(self):
-        return mmap.mmap(0, 256, "SimCycling")
+        return mmap.mmap(0, 1024, "SimCycling")
 
     def updateFromMemory(self):
         memoryMap = self._getMemoryMap()
@@ -96,7 +102,7 @@ class AntManagerState:
     def eraseMemory(self):
         memoryMap = self._getMemoryMap()
         memoryMap.seek(0)
-        memoryMap.write(bytes(256))
+        memoryMap.write(bytes(1024))
         memoryMap.close()
 
 def start(*args):
@@ -145,7 +151,22 @@ class UIElement():
             ac.setText(self.label, ("{0:" + self.format + "}").format(value))
         else:
             ac.setText(self.label, "{0}".format(getattr(state, self.valueName)))
-        
+
+class TimerUIElement(UIElement):
+    def setup(self):
+        UIElement.setup(self)
+        ac.setFontAlignment(self.label, "center")
+
+    def update(self, state):
+        value = int(getattr(state, self.valueName))
+       
+        h = value // 3600
+        m = (value - 3600*h) // 60
+        s = (value - 3600*h - 60*m)
+        disp = (("{0}:{1:02d}:{2:02d}".format(h,m,s)))
+        ac.setText(self.label, disp)
+
+
 class UIElements:
     def __init__(self, appWindow):
         self.appWindow = appWindow
@@ -158,12 +179,14 @@ class UIElements:
         self.uiElements.append(UIElement("TripTotalKm", appWindow, 115, 270, 32, 'km', ".1f"))
         self.uiElements.append(UIElement("TrackLength", appWindow, 265, 270, 32, 'km', ".1f"))
 
+        self.uiElements.append(TimerUIElement("TripTotalTime", appWindow, 166, 320, 32))
+
         self.startButton   = ac.addButton(self.appWindow, "start")
         self.stopButton    = ac.addButton(self.appWindow, "stop")
 
     def setup(self):
         ac.addRenderCallback(self.appWindow, onRender)
-        ac.setSize(self.appWindow,333,343)
+        ac.setSize(self.appWindow,333,413)
         ac.drawBorder(self.appWindow,0)
         ac.drawBackground(self.appWindow, 0)
         for el in self.uiElements:
@@ -178,8 +201,8 @@ class UIElements:
         ac.setFontSize(self.stopButton , 18)
         ac.setFontAlignment(self.startButton, "center")
         ac.setFontAlignment(self.stopButton, "center")
-        ac.setPosition(self.startButton, 1  , 318)
-        ac.setPosition(self.stopButton , 168, 318)
+        ac.setPosition(self.startButton, 1  , 378)
+        ac.setPosition(self.stopButton , 168, 378)
         ac.addOnClickedListener(self.startButton, start)
         ac.addOnClickedListener(self.stopButton , stop)
 
@@ -187,16 +210,52 @@ class UIElements:
         for el in self.uiElements:
             el.update(antManagerState)
 
+class WorkoutUI:
+    def __init__(self, appWindow):
+        self.appWindow = appWindow
+        self.uiElements = []
+        self.uiElements.append(UIElement("TargetPower", appWindow, 225, 10, 96, 'W', ".0f"))
+        self.uiElements.append(UIElement("NextTargetPower", appWindow, 225, 130, 48, 'W', ".0f"))
+        self.uiElements.append(TimerUIElement("RemainingIntervalTime", appWindow, 166, 200, 48))
+        self.uiElements.append(TimerUIElement("RemainingTotalTime", appWindow, 166, 270, 48))
+
+        self.graph = ac.addGraph(appWindow, "0")
+        ac.addSerieToGraph(self.graph, 1.0, 0.0, 0.0)
+
+    def setup(self):
+        ac.addRenderCallback(self.appWindow, onRender)
+        ac.setSize(self.appWindow,333,393)
+        ac.drawBorder(self.appWindow,0)
+        ac.drawBackground(self.appWindow, 0)
+        for el in self.uiElements:
+            el.setup()
+
+        ac.setPosition(self.graph, 10, 330)
+        ac.setSize(self.graph,313,50)
+        ac.setRange(self.graph, 0.0, 500.0, 1000)
+   
+    def update(self, antManagerState: AntManagerState):
+        for el in self.uiElements:
+            el.update(antManagerState)
+        
+        x = ac.addValueToGraph(self.graph, 0, antManagerState.CyclistPower)
+
 
 def acMain(ac_version):
-    global uiElements, antManagerState
+    global uiElements, antManagerState, workoutUi
     appWindow=ac.newApp("ACSimCyclingDash")
+   
 
     antManagerState = AntManagerState()
     antManagerState.eraseMemory()
 
     uiElements = UIElements(appWindow)
     uiElements.setup()
+
+    workoutAppWindow=ac.newApp("WorkoutDash")
+    workoutUi = WorkoutUI(workoutAppWindow)
+    workoutUi.setup()
+    
 
     return "ACSimCyclingDash"
 
@@ -208,6 +267,7 @@ def onRender(*args):
         ac.console(repr(e))
     antManagerState.TrackLength = ac.getTrackLength(0) / 1000
     uiElements.update(antManagerState)
+    workoutUi.update(antManagerState)
     RaceState().updateToMemory()
     if antManagerExecutable is not None and antManagerExecutable.poll() is not None:
          antManagerExecutable = None

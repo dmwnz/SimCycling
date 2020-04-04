@@ -17,7 +17,7 @@ namespace SimCycling
         float anticipationTime = 1; //look 1s in advance for steering and collision avoidance
 
         float rangeThreshold = 6; // assist line to target are in this range (in m)
-        float avoidThreshold = 4; // Start doing evasion manoeuvers
+        float avoidThreshold = 6; // Start doing evasion manoeuvers
 
         public float NormalizedCarPosition { get; set; }
         public float TrackLength { get; set; }
@@ -81,7 +81,12 @@ namespace SimCycling
             var targetPoints = new List<Vector3>();
             var targetDirections = new List<Vector3>();
             Vector3 opponentPosition;
-            Vector3 opponentVelocity;
+            float opponentVelocity;
+            float carVelocity = Consts.Norm(state.CarVelocities[0]);
+
+
+
+
             for (int i = 0; i < assistLines.Count; i++)
             {
                 pointAndDir = assistLines[i].GetPointAndDirection(NormalizedCarPosition);
@@ -94,17 +99,29 @@ namespace SimCycling
                 for (int j = 1; j < state.CarVelocities.Count; j++) // remove assist line if they provoke collision. Implementation could be better..
                 {
                     opponentPosition = state.CarPositions[j];
-                    opponentVelocity = state.CarVelocities[j];
-                    if (Consts.Norm(opponentVelocity) <= Consts.Norm(state.CarVelocities[0])) // Avoid if going faster
+                    opponentVelocity = Consts.Norm(state.CarVelocities[j]);
+
+                    var toTarget = targetPoints[i] - CarPosition;
+                    var toTargetAngle = (float)Math.Atan2(toTarget.Z, toTarget.X);
+                    var toOpponent = opponentPosition - CarPosition;
+                    var toOpponentAngle = (float)Math.Atan2(toOpponent.Z, toOpponent.X);
+                    var angleDiff = toOpponentAngle - toTargetAngle;
+                    if (angleDiff > Math.PI)
                     {
-                        var p1 = targetPoints[i] + Vector3.Multiply(anticipationTime * Consts.Norm(state.CarVelocities[0]), targetDirections[i]);
-                        var p2 = opponentPosition + Vector3.Multiply(anticipationTime, opponentVelocity);
-                        var dist = Consts.Norm(p1 - p2);
-                        Console.WriteLine("projected distance ={0}", dist);
-                        if (dist < avoidThreshold)
-                        {
-                            remove = true;
-                        }
+                        angleDiff -= 2 * (float)Math.PI;
+                    }
+                    if (angleDiff < -Math.PI)
+                    {
+                        angleDiff += 2 * (float)Math.PI;
+                    }
+                    var dist = Consts.Norm(toOpponent);
+                    var c = (float)Math.Cos(angleDiff);
+                    Console.WriteLine("projected distance = {0}", dist);
+                    Console.WriteLine("cos = {0}", c);
+
+                    if (carVelocity - opponentVelocity > 0 && dist < avoidThreshold * c)
+                    {
+                        remove = true;
                     }
                 }
                 if (!remove)
@@ -157,9 +174,9 @@ namespace SimCycling
 
             var toLine = targetPoint - CarPosition;
             Console.WriteLine("distance = {0}", Consts.Norm(toLine));
-
-            var toLineAngle = (float)Math.Atan2(toLine.Z, toLine.X);
             var carOrientationAngle = (float)Math.Atan2(CarOrientation.Z, CarOrientation.X);
+            var toLineAngle = (float)Math.Atan2(toLine.Z, toLine.X);
+
 
             float angle = - toLineAngle + carOrientationAngle;
             if (angle > Math.PI)
