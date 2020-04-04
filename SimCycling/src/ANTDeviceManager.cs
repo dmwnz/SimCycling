@@ -55,10 +55,19 @@ namespace SimCycling
         public float AirDensity { get; set; }
 
         [DataMember()]
-        public float TargetPower { get; set; } // TODO
+        public float TargetPower { get; set; }
 
         [DataMember()]
-        public float CriticalPower { get; set; } // TODO
+        public float NextTargetPower { get; set; }
+
+        [DataMember()]
+        public float RemainingIntervalTime { get; set; } 
+
+        [DataMember()]
+        public float RemainingTotalTime { get; set; }
+
+        [DataMember()]
+        public float CriticalPower { get; set; }
 
         [DataMember()]
         public string WorkoutName { get; set; }
@@ -72,15 +81,15 @@ namespace SimCycling
 
         public static void WriteToMemory()
         {
-            mm = MemoryMappedFile.CreateOrOpen("SimCycling", 256);
+            mm = MemoryMappedFile.CreateOrOpen("SimCycling", 1024);
 
             using (var mmAccessor = mm.CreateViewAccessor())
             {
                 DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(AntManagerState));
-                byte[] array = Enumerable.Repeat((byte)0x0, 256).ToArray();
+                byte[] array = Enumerable.Repeat((byte)0x0, 1024).ToArray();
                 MemoryStream ms = new MemoryStream(array);
                 serializer.WriteObject(ms, GetInstance());
-                mmAccessor.WriteArray(0, array, 0, 256);
+                mmAccessor.WriteArray(0, array, 0, 1024);
             }
            
         }
@@ -103,7 +112,7 @@ namespace SimCycling
 
         AntPlus.Types.Network network;
         BikeModel bikeModel = BikeModel.BikePhysics;
-        //Workout workout;
+        Workout workout;
 
         public void Start()
         {
@@ -135,11 +144,11 @@ namespace SimCycling
             try
             {
                 AntManagerState.GetInstance().WorkoutName = ConfigurationManager.AppSettings["workout"];
-                //workout = Workout.Factory(AntManagerState.GetInstance().WorkoutName);
+                workout = Workout.Factory(AntManagerState.GetInstance().WorkoutName);
             }
             catch (Exception e)
             {
-                //workout = null;
+                workout = null;
                 Console.WriteLine("Did not load workout." + e.Message);
             }
             AntManagerState.GetInstance().CriticalPower = Single.Parse(ConfigurationManager.AppSettings["cp"]);
@@ -237,17 +246,10 @@ namespace SimCycling
             AntManagerState.GetInstance().TripTotalTime += (float)dt;
             Console.WriteLine("update");
 
-            /*if (workout != null)
+            if (workout != null)
             {
-                foreach (var x in workout.Segments)
-                {
-                    float t = AntManagerState.GetInstance().TripTotalTime;
-                    if (x.StartTime < t && x.StartTime + 0.001 * x.DurationMs >= t)
-                    {
-                        AntManagerState.GetInstance().TargetPower = (float) x.Power.Intensity * AntManagerState.GetInstance().CriticalPower;
-                    }
-                }
-            }*/
+                workout.Update();
+            }
         }
 
         void InitFIT()

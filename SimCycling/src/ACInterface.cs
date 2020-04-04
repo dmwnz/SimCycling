@@ -250,6 +250,10 @@ namespace SimCycling
             joyControl.Throttle(coeff);
             if (assistLineFound)
             {
+                if (RaceState.GetInstance().CarPositions.Count == 0 || RaceState.GetInstance().NormalizedCarPositions.Count == 0)
+                {
+                    return;
+                }
                 var orientation = frontCoordinates - rearCoordinates;
                 orientation = Vector3.Normalize(orientation);
                 assistLineFollower.CarOrientation = orientation;
@@ -258,7 +262,7 @@ namespace SimCycling
                 Console.WriteLine("car pos = {0},{1},{2}", frontCoordinates.X, frontCoordinates.Y, frontCoordinates.Z);
                 assistLineFollower.NormalizedCarPosition = RaceState.GetInstance().NormalizedCarPositions[0];
                 assistLineFollower.Update();
-                joyControl.Direction(10*assistLineFollower.Direction);
+                joyControl.Direction(10*assistLineFollower.Direction); // Should be ratio between steering value and angle
             }
             else
             {
