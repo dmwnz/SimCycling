@@ -1,0 +1,373 @@
+{"name": "Who Dares By GoGo - ergdb - 2020-04-02", "description" : null, "segments":[{
+    "cadence": null,
+    "duration_ms": 150000,
+    "end_time": 150,
+    "power": {
+        "max_intensity": "0.55",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 0,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 90000,
+    "end_time": 240,
+    "power": {
+        "max_intensity": "0.65",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 150,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 60000,
+    "end_time": 300,
+    "power": {
+        "max_intensity": "0.7",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 240,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 60000,
+    "end_time": 360,
+    "power": {
+        "max_intensity": "0.55",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 300,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 60000,
+    "end_time": 420,
+    "power": {
+        "max_intensity": "0.95",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 360,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 60000,
+    "end_time": 480,
+    "power": {
+        "max_intensity": "0.5",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 420,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 60000,
+    "end_time": 540,
+    "power": {
+        "max_intensity": "1.1",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 480,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 60000,
+    "end_time": 600,
+    "power": {
+        "max_intensity": "0.5",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 540,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 20000,
+    "end_time": 620,
+    "power": {
+        "max_intensity": "1.9",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 600,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 90000,
+    "end_time": 710,
+    "power": {
+        "max_intensity": "0.5",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 620,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 20000,
+    "end_time": 730,
+    "power": {
+        "max_intensity": "1.75",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 710,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 300000,
+    "end_time": 1030,
+    "power": {
+        "max_intensity": "0.98",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 730,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 10000,
+    "end_time": 1040,
+    "power": {
+        "max_intensity": "1.95",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 1030,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 180000,
+    "end_time": 1220,
+    "power": {
+        "max_intensity": "0.8",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 1040,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 60000,
+    "end_time": 1280,
+    "power": {
+        "max_intensity": "1",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 1220,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 20000,
+    "end_time": 1300,
+    "power": {
+        "max_intensity": "1.9",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 1280,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 300000,
+    "end_time": 1600,
+    "power": {
+        "max_intensity": "0.5",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 1300,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 20000,
+    "end_time": 1620,
+    "power": {
+        "max_intensity": "1.85",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 1600,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 300000,
+    "end_time": 1920,
+    "power": {
+        "max_intensity": "0.98",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 1620,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 15000,
+    "end_time": 1935,
+    "power": {
+        "max_intensity": "1.75",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 1920,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 180000,
+    "end_time": 2115,
+    "power": {
+        "max_intensity": "0.8",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 1935,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 60000,
+    "end_time": 2175,
+    "power": {
+        "max_intensity": "1",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 2115,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 20000,
+    "end_time": 2195,
+    "power": {
+        "max_intensity": "1.9",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 2175,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 300000,
+    "end_time": 2495,
+    "power": {
+        "max_intensity": "0.5",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 2195,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 20000,
+    "end_time": 2515,
+    "power": {
+        "max_intensity": "1.9",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 2495,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 300000,
+    "end_time": 2815,
+    "power": {
+        "max_intensity": "0.98",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 2515,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 10000,
+    "end_time": 2825,
+    "power": {
+        "max_intensity": "1.8",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 2815,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 160000,
+    "end_time": 2985,
+    "power": {
+        "max_intensity": "0.8",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 2825,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 60000,
+    "end_time": 3045,
+    "power": {
+        "max_intensity": "1",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 2985,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 30000,
+    "end_time": 3075,
+    "power": {
+        "max_intensity": "1.75",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 3045,
+    "textevents": [],
+    "working": false
+},{
+    "cadence": null,
+    "duration_ms": 240000,
+    "end_time": 3315,
+    "power": {
+        "max_intensity": "0.5",
+        "min_intensity": 0
+    },
+    "segment_type": "steadystate",
+    "start_time": 3075,
+    "textevents": [],
+    "working": false
+}]}
