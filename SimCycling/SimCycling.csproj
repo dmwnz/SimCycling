@@ -168,6 +168,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy.exe "$(ProjectDir)dependencies\lib" "$(ProjectDir)bin\$(ConfigurationName)" /s /e /y
-xcopy.exe "$(ProjectDir)bin\$(ConfigurationName)" "D:\Jeux\Steam\steamapps\common\assettocorsa\apps\python\ACSimCyclingDash\bin" /s /e /y</PostBuildEvent>
+echo "AC_ROOT environment variable is : %25AC_ROOT%25 (if this appears empty, please set it with the path to assettocorsa directory via Start Menu -> Environment Variables for Current User -> Add. Restart Visual Studio if still empty)"
+xcopy.exe "$(ProjectDir)bin\$(ConfigurationName)" "%25AC_ROOT%25\apps\python\ACSimCyclingDash\bin" /s /e /y</PostBuildEvent>
   </PropertyGroup>
 </Project>
