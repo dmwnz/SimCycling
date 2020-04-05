@@ -12,22 +12,12 @@ namespace SimCycling
 {
     class FECCommander : Updateable
     {
-        float transmittedGrade = 0.0f;
         DateTime lastTransmittedGradeTime;
-        // bool acquiredVJoy = false;
-        int lastPower = 0;
-
-        float airdensity;
-
-        StreamWriter gpxFile;
-        StreamWriter posFile;
-
-        bool equipmentFound;
-        bool useAsModel;
+        
+        readonly bool useAsModel;
 
 
         float speedKmh;
-
 
         readonly FitnessEquipmentDisplay simulator;
 
@@ -71,7 +61,6 @@ namespace SimCycling
         private void Found(ushort a, byte b)
         {
             Log("Bkool found !");
-            equipmentFound = true;
 
             RequestCommandStatus();
         }
@@ -89,9 +78,6 @@ namespace SimCycling
         private void OnPageSpecificTrainer(SpecificTrainerPage page, uint counter)
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-
-
-            lastPower = page.InstantaneousPower;
 
             AntManagerState.GetInstance().CyclistPower = page.InstantaneousPower;
             AntManagerState.WriteToMemory();
