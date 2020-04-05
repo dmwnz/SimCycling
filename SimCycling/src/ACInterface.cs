@@ -117,6 +117,8 @@ namespace SimCycling
         Vector3 carCoordinates = new Vector3(0, 0, 0);
 
         string track;
+        string layout;
+
         float trackLength;
         string acLocation;
         bool isSpeedInit;
@@ -179,11 +181,14 @@ namespace SimCycling
         }
         private void OnACInfo(object sender, StaticInfoEventArgs e)
         {
-            if (!assistLineFound || e.StaticInfo.Track != track)
+            if (e.StaticInfo.Track != track || e.StaticInfo.TrackConfiguration != layout)
             {
-                assistLineFound = assistLineFollower.Load(e.StaticInfo.Track);
+                track = e.StaticInfo.Track;
+                layout = e.StaticInfo.TrackConfiguration;
+                Console.WriteLine("Track = {0}, Config = {1}", track, layout);
+                assistLineFollower.Load(e.StaticInfo.Track, e.StaticInfo.TrackConfiguration);
             }
-            track = e.StaticInfo.Track;
+
             trackLength = e.StaticInfo.TrackSPlineLength;
             assistLineFollower.TrackLength = trackLength;
         }
