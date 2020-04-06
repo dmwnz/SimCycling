@@ -8,10 +8,11 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>SimCycling</RootNamespace>
     <AssemblyName>SimCycling</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -49,20 +50,27 @@
   <ItemGroup>
     <Reference Include="ANT+ProfileLib, Version=2.3.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\ANT+ProfileLib.dll</HintPath>
+      <HintPath>.\dependencies\assemblies\ANT+ProfileLib.dll</HintPath>
     </Reference>
     <Reference Include="ANT_NET">
-      <HintPath>.\ANT_NET.dll</HintPath>
+      <HintPath>.\dependencies\assemblies\ANT_NET.dll</HintPath>
     </Reference>
     <Reference Include="AssettoCorsaSharedMemory, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\AssettoCorsaSharedMemory.dll</HintPath>
+      <HintPath>.\dependencies\assemblies\AssettoCorsaSharedMemory.dll</HintPath>
     </Reference>
+    <Reference Include="Dynastream.Fit.Portable, Version=21.22.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\dependencies\assemblies\Dynastream.Fit.Portable.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -71,12 +79,32 @@
     <Reference Include="System.Xml" />
     <Reference Include="vJoyInterfaceWrap, Version=0.2.1.6, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\vJoyInterfaceWrap.dll</HintPath>
+      <HintPath>.\dependencies\assemblies\vJoyInterfaceWrap.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="src\AssistLineFollower.cs" />
+    <Compile Include="src\AssistLine.cs" />
+    <Compile Include="src\Workout\ErgWorkout.cs" />
+    <Compile Include="src\Workout\GenericWorkout.cs" />
+    <Compile Include="src\Workout\JsonWorkout.cs" />
+    <Compile Include="src\FITRecorder.cs" />
+    <Compile Include="src\JoyControl.cs" />
     <Compile Include="src\ANTDeviceManager.cs" />
     <Compile Include="src\CADCommander.cs" />
+    <Compile Include="src\BikePhysics.cs" />
+    <Compile Include="src\BPCommander.cs" />
+    <Compile Include="src\ACInterface.cs" />
     <Compile Include="src\FECCommander.cs" />
     <Compile Include="src\HRMCommander.cs" />
     <Compile Include="src\Utils.cs" />
@@ -86,37 +114,45 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="data\ks_vallelunga_0.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="data\ks_vallelunga_1.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="data\ks_vallelunga_2.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="data\ks_vallelunga_3.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="data\ks_vallelunga_4.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="data\spa_0.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="data\spa_1.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="data\spa_2.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="data\spa_3.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="data\whodares.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ANT+ProfileLib.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="ANT_NET.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="ANT_WrappedLib.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="AssettoCorsaSharedMemory.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="DSI_CP210xManufacturing_3_1.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="DSI_SiUSBXp_3_1.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="vJoyInterface.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="vJoyInterfaceWrap.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
+    <BootstrapperPackage Include=".NETFramework,Version=v4.8">
       <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.6.1 %28x86 et x64%29</ProductName>
+      <ProductName>Microsoft .NET Framework 4.8 %28x86 et x64%29</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
@@ -125,8 +161,16 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy.exe "$(ProjectDir)\bin\$(ConfigurationName)" "C:\Program Files (x86)\Steam\steamapps\common\assettocorsa\apps\python\ACSimCyclingDash\bin" /s /e /y</PostBuildEvent>
+    <PostBuildEvent>xcopy.exe "$(ProjectDir)dependencies\lib" "$(ProjectDir)bin\$(ConfigurationName)" /s /e /y
+echo "AC_ROOT environment variable is : %25AC_ROOT%25 (if this appears empty, please set it with the path to assettocorsa directory via Start Menu -&gt; Environment Variables for Current User -&gt; Add. Restart Visual Studio if still empty)"
+xcopy.exe "$(ProjectDir)bin\$(ConfigurationName)" "%25AC_ROOT%25\apps\python\ACSimCyclingDash\bin" /s /e /y</PostBuildEvent>
   </PropertyGroup>
 </Project>

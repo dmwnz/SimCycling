@@ -2,15 +2,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>9c56c234-e736-4528-a63d-1833df6e970d</ProjectGuid>
+    <ProjectGuid>17191032-2c0f-4485-97ab-5ca29fd35a08</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>ACSimCyclingDash.py</StartupFile>
-    <SearchPath>D:\Jeux\Steam\steamapps\common\assettocorsa\apps\python;D:\Jeux\Steam\steamapps\common\assettocorsa\apps\python\system</SearchPath>
+    <StartupFile>AIGPXRecorder.py</StartupFile>
+    <SearchPath>D:\Jeux\Steam\steamapps\common\assettocorsa\apps\python\system</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>ACSimCyclingDash</Name>
-    <RootNamespace>ACSimCyclingDash</RootNamespace>
-    <PublishUrl>D:\Jeux\Steam\steamapps\common\assettocorsa\apps\python\ACSimCyclingDash</PublishUrl>
+    <Name>AIGPXRecorder</Name>
+    <RootNamespace>AIGPXRecorder</RootNamespace>
+    <PublishUrl>D:\Jeux\Steam\steamapps\common\assettocorsa\apps\python\AIGPXRecorder</PublishUrl>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,12 +21,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="ACSimCyclingDash.py">
-      <Publish>True</Publish>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="simCycling.ini" />
+    <Compile Include="AIGPXRecorder.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
