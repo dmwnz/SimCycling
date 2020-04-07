@@ -63,7 +63,7 @@ namespace SimCycling.Workout
             return -1;
         }
 
-        public override void Update()
+        public new void Update()
         {
             AntManagerState state = AntManagerState.GetInstance();
             var t = state.TripTotalTime;

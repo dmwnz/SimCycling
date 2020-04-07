@@ -118,11 +118,11 @@ namespace SimCycling
         }
 
 
-        private void SendTargetPower()
+        private void SendTargetPower(float power)
         {
             var command = new ControlTargetPowerPage
             {
-                TargetPower = 30 // # 7.5 W
+                TargetPower = (ushort)(power * 4)
             };
             simulator.SendTargetPower(command);
         }
@@ -180,15 +180,19 @@ namespace SimCycling
 
         public override void Update()
         {
-            
+            var targetPower = AntManagerState.GetInstance().TargetPower;
             var t = DateTime.Now;
-            if ( t.Subtract(lastTransmittedGradeTime).TotalSeconds > 2)
+
+            if (targetPower > 0)
+            {
+                SendTargetPower(targetPower);
+            }
+            else if (t.Subtract(lastTransmittedGradeTime).TotalSeconds > 2)
             {
                 SendWindResistance();
                 SendTrackResistance(AntManagerState.GetInstance().BikeIncline);
                 lastTransmittedGradeTime = t;
             }
-           
 
         }
     }

@@ -95,9 +95,10 @@
     </Compile>
     <Compile Include="src\AssistLineFollower.cs" />
     <Compile Include="src\AssistLine.cs" />
-    <Compile Include="src\Workout\ErgWorkout.cs" />
+    <Compile Include="src\Workout\ErgMrcWorkout.cs" />
     <Compile Include="src\Workout\GenericWorkout.cs" />
     <Compile Include="src\Workout\JsonWorkout.cs" />
+    <Compile Include="src\Workout\ZwiftWorkout.cs" />
     <Compile Include="src\FITRecorder.cs" />
     <Compile Include="src\JoyControl.cs" />
     <Compile Include="src\ANTDeviceManager.cs" />
@@ -129,6 +130,8 @@
     <None Include="data\ks_vallelunga_4.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="data\New_Workout_2020_4_6_10_49_59.zwo" />
+    <None Include="data\New_Workout_2020_4_6_12_3_22.zwo" />
     <None Include="data\spa_0.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -167,9 +170,13 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="data\1 hour with 5 min intervals.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy.exe "$(ProjectDir)dependencies\lib" "$(ProjectDir)bin\$(ConfigurationName)" /s /e /y
+xcopy.exe "$(ProjectDir)data" "$(ProjectDir)bin\$(ConfigurationName)" /s /e /y
 echo "AC_ROOT environment variable is : %25AC_ROOT%25 (if this appears empty, please set it with the path to assettocorsa directory via Start Menu -&gt; Environment Variables for Current User -&gt; Add. Restart Visual Studio if still empty)"
 xcopy.exe "$(ProjectDir)bin\$(ConfigurationName)" "%25AC_ROOT%25\apps\python\ACSimCyclingDash\bin" /s /e /y</PostBuildEvent>
   </PropertyGroup>
