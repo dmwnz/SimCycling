@@ -14,6 +14,8 @@ namespace SimCycling.State
         // Singleton instance
         private static readonly AntManagerState antManagerState = new AntManagerState();
         private static MemoryMappedFile mm;
+        private static bool WriteInProgress = false;
+        private const int MEMORY_MAP_SIZE = 1024;
 
         [DataMember()]
         public int BikeCadence { get; set; }
@@ -66,16 +68,34 @@ namespace SimCycling.State
 
         public static void WriteToMemory()
         {
-            mm = MemoryMappedFile.CreateOrOpen("SimCycling", 1024);
+            if (WriteInProgress)
+            {
+                return;
+            }
+
+            WriteInProgress = true;
+
+            mm = MemoryMappedFile.CreateOrOpen("SimCycling", MEMORY_MAP_SIZE);
 
             using (var mmAccessor = mm.CreateViewAccessor())
             {
+                // Write 0xAA flag to signal readers to wait
+                mmAccessor.Write(0, (byte)0xAA);
+
                 DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(AntManagerState));
-                byte[] array = Enumerable.Repeat((byte)0x0, 1024).ToArray();
-                MemoryStream ms = new MemoryStream(array);
+
+                // Initialize MemoryStream that will store Json as binary
+                MemoryStream ms = new MemoryStream(MEMORY_MAP_SIZE - 1);
                 serializer.WriteObject(ms, GetInstance());
-                mmAccessor.WriteArray(0, array, 0, 1024);
+
+                // Write to shared memory
+                mmAccessor.WriteArray(1, ms.GetBuffer(), 0, MEMORY_MAP_SIZE - 1);
+
+                // Write 0X11 flag to signal readers they can read
+                mmAccessor.Write(0, (byte)0x11);
             }
+
+            WriteInProgress = false;
 
         }
     }
