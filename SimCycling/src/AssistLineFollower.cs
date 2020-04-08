@@ -20,9 +20,10 @@ namespace SimCycling
         float maxPitDistance = 10;
         float targetSide = 0;
         float minDistance = 1.0f;
-        float repulsionIntensity = 1.0f;
-        float attractionIntensity = 0.0f;
-        float targetVelocity = 0.1f;
+        float sideRepulsionIntensity = 1.0f;
+        float carRepulsionIntensity = 5.0f;
+        float attractionIntensity = 0.3f;
+        float targetVelocity = 0.5f;
 
         Dictionary<int, float> currentlyOvertakenCars = new Dictionary<int, float>();
 
@@ -187,25 +188,26 @@ namespace SimCycling
 
             var leftDistance = targetSide + pointExtra.SideLeft;
             leftDistance = Math.Max(leftDistance, minDistance);
-            Console.WriteLine("left force = {0}", (repulsionIntensity / leftDistance / leftDistance));
-            force += repulsionIntensity / leftDistance / leftDistance;
+            Console.WriteLine("left force = {0}", (sideRepulsionIntensity / leftDistance / leftDistance));
+            force += sideRepulsionIntensity / leftDistance / leftDistance;
 
             var rightDistance = targetSide - pointExtra.SideRight;
             rightDistance = Math.Min(rightDistance, -minDistance);
-            force += repulsionIntensity / rightDistance / Math.Abs(rightDistance);
-            Console.WriteLine("right force = {0}", repulsionIntensity / rightDistance / Math.Abs(rightDistance));
+            force += sideRepulsionIntensity / rightDistance / Math.Abs(rightDistance);
+            Console.WriteLine("right force = {0}", sideRepulsionIntensity / rightDistance / Math.Abs(rightDistance));
 
 
             for (int i = 1; i < state.CarPositions.Count; i++)
             {
-                Console.WriteLine("car {0}", i);
-                var v = state.CarPositions[i] - CarPosition;
+               
+                var v = state.CarPositions[i] + anticipationTime * (Vector3) (state.CarVelocities[i]) - position - targetSide * sideVector;
                 var d_cut = Math.Max(Consts.Norm(v), minDistance);
-                force += repulsionIntensity / d_cut / d_cut * Vector3.Dot(v, sideVector);
+                force += - carRepulsionIntensity / d_cut / d_cut * Math.Sign(Vector3.Dot(v, sideVector));
+                Console.WriteLine("car {0} force = {1}", i, -carRepulsionIntensity / d_cut / d_cut * Vector3.Dot(v, sideVector));
             }
 
             var targetSide_th = Math.Max(Math.Abs(targetSide), minDistance);
-            //force += (- attractionIntensity / targetSide_th / targetSide_th * targetSide);
+            force += (- attractionIntensity / targetSide_th / targetSide_th * targetSide);
             Console.WriteLine("force = {0}", force);
             targetSide += force * targetVelocity;
 
