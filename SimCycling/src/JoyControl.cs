@@ -82,8 +82,6 @@ namespace SimCycling
 
         public void Throttle(float value)
         {
-            if (value < 0)
-                value = 0;
             if (acquired)
             {
                 var axisVal = (int)Math.Round(value * 16384) + 16383;

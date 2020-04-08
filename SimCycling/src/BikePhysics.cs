@@ -59,6 +59,8 @@ namespace SimCycling
         {
             double acceleration = Resistance() / riderMass + GravityAcceleration();
             double a = 1; double b = BikeSpeed() - acceleration * dt;
+            double p = AntManagerState.GetInstance().CyclistPower;
+            if (p == 0) { p = -10; } // brake when power is 0;
             double c = - AntManagerState.GetInstance().CyclistPower * dt / riderMass + acceleration * BikeSpeed() * dt;
             double delta = b * b - 4 * a * c;
             if (delta < 0)

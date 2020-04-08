@@ -89,7 +89,10 @@ namespace SimCycling.Utils
         {
             return angle * (float) Math.PI / 180.0f;
         }
-
+        public static Vector3 FromArray(float[] array)
+        {
+            return new Vector3(array[0], array[1], array[2]);
+        }
         public static Vector3 RotatePoint(Vector3 point, Vector3 reference, float angle)
         {
             var theta = DegToRad(angle);

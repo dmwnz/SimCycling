@@ -127,7 +127,7 @@ namespace SimCycling
         List<Updateable> updateables;
         JoyControl joyControl;
 
-        bool assistLineFound;
+        bool useAssistLine = true;
         AssistLineFollower assistLineFollower = new AssistLineFollower();
 
         public ACInterface(List<Updateable> updateables, JoyControl joyControl, string acLocation)
@@ -157,7 +157,7 @@ namespace SimCycling
             Log("Init Ac");
             ac = new AssettoCorsa
             {
-                PhysicsInterval = 200,
+                PhysicsInterval = 100,
                 GraphicsInterval = 500,
                 StaticInfoInterval = 1000
             };
@@ -241,38 +241,43 @@ namespace SimCycling
             rearCoordinates = new Vector3(rearX, rearY, rearZ);
             if (!isSpeedInit)
             {
+                Console.WriteLine("Resetting speed.");
                 AntManagerState.GetInstance().BikeSpeedKmh = e.Physics.SpeedKmh;
                 isSpeedInit = true;
             }
 
             carCoordinates = RaceState.GetInstance().CarPositions[0];
-            pid.SetPoint = AntManagerState.GetInstance().BikeSpeedKmh;
 
-            var acSpeed = e.Physics.SpeedKmh;
+           
             AntManagerState.GetInstance().AirDensity = e.Physics.AirDensity;
-            pid.Update(acSpeed);
-            var coeff = pid.Output;
-            joyControl.Throttle(coeff);
-            if (assistLineFound)
+
+            if (useAssistLine)
             {
                 if (RaceState.GetInstance().CarPositions.Count == 0 || RaceState.GetInstance().NormalizedCarPositions.Count == 0)
                 {
+                    Console.WriteLine("No car positions..");
                     return;
                 }
                 var orientation = frontCoordinates - rearCoordinates;
                 orientation = Vector3.Normalize(orientation);
                 assistLineFollower.CarOrientation = orientation;
                 assistLineFollower.CarPosition = RaceState.GetInstance().CarPositions[0];
-                Console.WriteLine("car pos = {0},{1},{2}", assistLineFollower.CarPosition.X, assistLineFollower.CarPosition.Y, assistLineFollower.CarPosition.Z);
-                Console.WriteLine("car pos = {0},{1},{2}", frontCoordinates.X, frontCoordinates.Y, frontCoordinates.Z);
+                assistLineFollower.CarVelocity = RaceState.GetInstance().CarVelocities[0];
                 assistLineFollower.NormalizedCarPosition = RaceState.GetInstance().NormalizedCarPositions[0];
-                assistLineFollower.Update();
+                assistLineFollower.Update(RaceState.GetInstance());
+                if (AntManagerState.GetInstance().BikeSpeedKmh > assistLineFollower.SpeedLimit)
+                {
+                    AntManagerState.GetInstance().BikeSpeedKmh = assistLineFollower.SpeedLimit;
+                }
                 joyControl.Direction(10*assistLineFollower.Direction); // Should be ratio between steering value and angle
             }
             else
             {
                 joyControl.Direction(0);
             }
+            var acSpeed = e.Physics.SpeedKmh;
+
+            joyControl.Throttle(10 * (AntManagerState.GetInstance().BikeSpeedKmh - acSpeed) / (10 + AntManagerState.GetInstance().BikeSpeedKmh));
         }
     }
 }
