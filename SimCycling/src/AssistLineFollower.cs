@@ -133,7 +133,7 @@ namespace SimCycling
             return newIndex;
         }
 
-        public void Update(RaceState state)
+        public void Update(SimCycling.State.RaceState state)
         {
 
 
