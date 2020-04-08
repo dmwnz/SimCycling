@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Text;
-using SimCycling.Utils;
-using AssettoCorsaSharedMemory;
-using vJoyInterfaceWrap;
-using System.IO;
 using AntPlus.Profiles.Common;
-using System.Globalization;
 using AntPlus.Profiles.BikePower;
-using System.Configuration;
+using SimCycling.State;
 
 namespace SimCycling
 {

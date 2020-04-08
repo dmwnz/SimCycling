@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
-using System.Globalization;
 using SimCycling.Utils;
+using SimCycling.State;
 
 namespace SimCycling
 {

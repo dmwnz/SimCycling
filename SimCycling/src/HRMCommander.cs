@@ -1,4 +1,5 @@
 ﻿using AntPlus.Profiles.HeartRate;
+using SimCycling.State;
 using System;
 
 namespace SimCycling

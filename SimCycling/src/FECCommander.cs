@@ -7,6 +7,7 @@ using AntPlus.Profiles.Common;
 using System.Globalization;
 using AntPlus.Profiles.FitnessEquipment;
 using System.Configuration;
+using SimCycling.State;
 
 namespace SimCycling
 {

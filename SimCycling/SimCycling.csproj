@@ -95,6 +95,8 @@
     </Compile>
     <Compile Include="src\AssistLineFollower.cs" />
     <Compile Include="src\AssistLine.cs" />
+    <Compile Include="src\State\RaceState.cs" />
+    <Compile Include="src\State\AntManagerState.cs" />
     <Compile Include="src\Workout\ErgMrcWorkout.cs" />
     <Compile Include="src\Workout\GenericWorkout.cs" />
     <Compile Include="src\Workout\JsonWorkout.cs" />

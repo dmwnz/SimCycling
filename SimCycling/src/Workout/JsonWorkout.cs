@@ -1,16 +1,7 @@
 ﻿using System;
-using System.Text;
-using SimCycling.Utils;
-using AssettoCorsaSharedMemory;
-using vJoyInterfaceWrap;
-using System.IO;
-using AntPlus.Profiles.Common;
-using System.Globalization;
-using AntPlus.Profiles.FitnessEquipment;
-using System.Configuration;
-using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
 using System.Collections.Generic;
+using SimCycling.State;
 
 namespace SimCycling.Workout
 {
@@ -48,7 +39,7 @@ namespace SimCycling.Workout
     public class JsonWorkout : GenericWorkout
     {
         [DataMember(Name = "segments")]
-        public List<WorkoutSegment> Segments { get; set; }
+        public new List<WorkoutSegment> Segments { get; set; }
 
 
         public int SegmentIndex(float t)
