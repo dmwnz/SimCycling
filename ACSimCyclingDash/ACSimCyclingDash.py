@@ -92,6 +92,14 @@ class AntManagerState:
     def updateFromMemory(self):
         memoryMap = self._getMemoryMap()
         memoryMap.seek(0)
+        flag = memoryMap.read(1)
+        if flag == b'\xAA':
+            ac.console("Concurrent write in progress. Skip reading")
+            return
+        if flag != b'\x11':
+            ac.console("Unknown signal flag. Skip reading")
+            return
+        memoryMap.seek(1)
         readBytes  = memoryMap.read()
         memoryMap.close()
         readString = readBytes.decode("utf-8").rstrip("\0")

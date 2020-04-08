@@ -20,6 +20,7 @@ using System.Diagnostics;
 using Dynastream.Fit;
 //using System.DateTime;
 using DateTime = Dynastream.Fit.DateTime;
+using SimCycling.State;
 
 namespace SimCycling
 {

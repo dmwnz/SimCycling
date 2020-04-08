@@ -1,4 +1,5 @@
 ﻿using AntPlus.Profiles.BikeCadence;
+using SimCycling.State;
 using System;
 
 namespace SimCycling
