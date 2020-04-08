@@ -13,7 +13,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
-
+using SimCycling.Workout;
 
 namespace SimCycling
 {
@@ -112,7 +112,7 @@ namespace SimCycling
 
         AntPlus.Types.Network network;
         BikeModel bikeModel = BikeModel.BikePhysics;
-        Workout workout;
+        GenericWorkout workout;
 
         public void Start()
         {
@@ -144,7 +144,7 @@ namespace SimCycling
             try
             {
                 AntManagerState.GetInstance().WorkoutName = ConfigurationManager.AppSettings["workout"];
-                workout = Workout.Factory(AntManagerState.GetInstance().WorkoutName);
+                workout = GenericWorkout.Factory(AntManagerState.GetInstance().WorkoutName);
             }
             catch (Exception e)
             {

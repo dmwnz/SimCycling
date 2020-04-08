@@ -99,7 +99,9 @@
     </Compile>
     <Compile Include="src\AssistLineFollower.cs" />
     <Compile Include="src\AssistLine.cs" />
-    <Compile Include="src\Workout.cs" />
+    <Compile Include="src\Workout\ErgWorkout.cs" />
+    <Compile Include="src\Workout\GenericWorkout.cs" />
+    <Compile Include="src\Workout\JsonWorkout.cs" />
     <Compile Include="src\FITRecorder.cs" />
     <Compile Include="src\JoyControl.cs" />
     <Compile Include="src\ANTDeviceManager.cs" />

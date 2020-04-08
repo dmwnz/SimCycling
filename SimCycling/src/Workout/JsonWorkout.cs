@@ -12,7 +12,7 @@ using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
 using System.Collections.Generic;
 
-namespace SimCycling
+namespace SimCycling.Workout
 {
     [DataContract]
     public class Power
@@ -45,19 +45,11 @@ namespace SimCycling
     }
 
     [DataContract]
-    public class Workout
+    public class JsonWorkout : GenericWorkout
     {
         [DataMember(Name = "segments")]
         public List<WorkoutSegment> Segments { get; set; }
 
-        public static Workout Factory(string filename)
-        {
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Workout));
-            var array = File.ReadAllBytes(filename);
-            string json = Encoding.UTF8.GetString(array);
-            Console.WriteLine(json);
-            return (Workout) serializer.ReadObject(new MemoryStream(array));
-        }
 
         public int SegmentIndex(float t)
         {
@@ -71,7 +63,7 @@ namespace SimCycling
             return -1;
         }
 
-        public void Update()
+        public override void Update()
         {
             AntManagerState state = AntManagerState.GetInstance();
             var t = state.TripTotalTime;
