@@ -109,10 +109,11 @@ namespace SimCycling.Workout
 
         private static readonly int RAMP_RESOLUTION = 60; //sec
 
+        protected float StartPower => Math.Min(PowerLow, PowerHigh);
+        protected float EndPower => Math.Max(PowerLow, PowerHigh);
+
         internal override List<Segment> GetSegments(float previousSegmentEndTime)
         {
-            var low = Math.Min(PowerLow, PowerHigh);
-            var high = Math.Max(PowerLow, PowerHigh);
             Duration = Math.Max(Duration, RAMP_RESOLUTION);
 
             //  5                    300        60
@@ -120,13 +121,13 @@ namespace SimCycling.Workout
             var lastEndTime = previousSegmentEndTime;
             if (rampDiscretePoints == 1)
             {
-                return new List<Segment> { new Segment(lastEndTime, Duration, low, Cadence, GetType()) };
+                return new List<Segment> { new Segment(lastEndTime, Duration, StartPower, Cadence, GetType()) };
             }
             var res = new List<Segment>();
             for (int i = 0; i < rampDiscretePoints; i++)
             {
                 var lerpFactor = (float)i / (float)(rampDiscretePoints - 1);
-                var lerpPower = low + lerpFactor * (high - low);
+                var lerpPower = StartPower + lerpFactor * (EndPower - StartPower);
                 var segment = new Segment(lastEndTime, RAMP_RESOLUTION, lerpPower, Cadence, GetType());
                 res.Add(segment);
                 lastEndTime = segment.EndTimeSeconds;
@@ -147,7 +148,11 @@ namespace SimCycling.Workout
         }
     }
 
-    public class Cooldown : Ramp { }
+    public class Cooldown : Ramp
+    {
+        protected new float StartPower => Math.Max(PowerLow, PowerHigh);
+        protected new float EndPower => Math.Min(PowerLow, PowerHigh);
+    }
     public class Warmup : Ramp { }
 
     public class FreeRide : WorkoutItem
