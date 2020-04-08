@@ -223,7 +223,13 @@ namespace SimCycling
             RaceState.ReadFromMemory();
 
 
-            if (RaceState.GetInstance().CarVelocities.Count == 0)
+
+            if (RaceState.GetInstance().CarVelocities == null || RaceState.GetInstance().CarVelocities.Count == 0)
+            {
+                return;
+            }
+
+            if (RaceState.GetInstance().CarPositions == null || RaceState.GetInstance().CarPositions.Count == 0)
             {
                 return;
             }

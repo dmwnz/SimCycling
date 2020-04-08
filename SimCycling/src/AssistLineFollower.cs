@@ -15,15 +15,14 @@ namespace SimCycling
         AiSpline aiSpline;
         AiSpline aiSplinePits;
 
-        Vector3 targetPoint = new Vector3(0, 0, 0);
-
         float anticipationTime = 1; //look 1s in advance for steering and collision avoidance
 
-        float rangeThreshold = 6; // assist line to target are in this range (in m)
-        float passingForwardDistance = 5;
-        float passingSideDistance = 2;
         float maxPitDistance = 10;
         float targetSide = 0;
+        float minDistance = 1.0f;
+        float repulsionIntensity = 1.0f;
+        float attractionIntensity = 0.0f;
+        float targetVelocity = 0.1f;
 
         Dictionary<int, float> currentlyOvertakenCars = new Dictionary<int, float>();
 
@@ -133,24 +132,6 @@ namespace SimCycling
             return newIndex;
         }
 
-        private List<Tuple<int, float>> CollisionCheck(Vector3 position, Vector3 sideVector, List<SerializableVector3> carPositions, List<SerializableVector3> carVelocities)
-        {
-            var result = new List<Tuple<int, float>>();
-            Vector3 anticipatedPosition = CarPosition + CarVelocity * anticipationTime;
-
-            for (int j = 1; j < carPositions.Count; j++) // j=0 is our car
-            {
-                var d = Vector3.Distance(CarPosition, carPositions[j]);
-                var anticipatedD = Vector3.Distance(anticipatedPosition, carPositions[j]);
-                if (Consts.Norm(carVelocities[j]) < Consts.Norm(CarVelocity) && (d < passingForwardDistance || anticipatedD < passingForwardDistance))
-                {
-                    Console.WriteLine("Passing car {0}", j);
-                    result.Add(new Tuple<int, float>(j, Vector3.Dot(carPositions[j] - position, sideVector)));
-                }
-            }
-            return result;
-        }
-
         public void Update(RaceState state)
         {
 
@@ -184,6 +165,7 @@ namespace SimCycling
 
             var point = points[index];
             var pointExtra = pointsExtra[index];
+
             Vector3 forwardVector = Consts.FromArray(pointExtra.ForwardVector);
             if (Consts.Norm(forwardVector) == 0)
             {
@@ -197,86 +179,49 @@ namespace SimCycling
             Vector3 sideVector = new Vector3(-forwardVector.Z, 0, forwardVector.X);
             sideVector = Vector3.Normalize(sideVector);
             Vector3 position = Consts.FromArray(point.Position);
-
-            var collisionCheck = CollisionCheck(position, sideVector, state.CarPositions, state.CarVelocities);
-
-            SpeedLimit = float.MaxValue;
-            Console.Write("New car (s) to overtake !");
-            for (int i = 0; i < collisionCheck.Count; i++)
-            {
-                Console.Write(" {0} ", collisionCheck[i].Item1);
-                        
-            }
-            Console.WriteLine();
-            collisionCheck.Add(new Tuple<int, float>(-1, -pointExtra.SideLeft));
-            collisionCheck.Add(new Tuple<int, float>(-1, pointExtra.SideRight));
-            collisionCheck.Sort((x, y) => x.Item2.CompareTo(y.Item2));
-                
-
-            var admissibleIntervals = new List<Tuple<float, float>>();
-            Console.WriteLine("Obstacle : {0}", collisionCheck[0].Item2);
-            for (int i = 1; i < collisionCheck.Count; i++)
-            {
-                Console.WriteLine("Obstacle : {0}", collisionCheck[i].Item2);
-                if (collisionCheck[i].Item2 - collisionCheck[i - 1].Item2 > 2 * passingSideDistance)
-                {
-                    admissibleIntervals.Add(new Tuple<float, float>(collisionCheck[i - 1].Item2, collisionCheck[i].Item2));
-                }
-            }
-
-                
-            if (admissibleIntervals.Count == 0)
-            {
-                for (int j = 0;  j < collisionCheck.Count; j++) 
-                {
-                    var c = collisionCheck[j];
-                    if (c.Item1 >= 0)
-                    {
-                        if (Vector3.Dot(CarPosition - state.CarPositions[c.Item1], CarVelocity) < 0)
-                        {
-                            SpeedLimit = Math.Min(SpeedLimit, Consts.Norm(state.CarVelocities[c.Item1]));
-                        }
-                    }
-                }
-                targetSide = 0;
-                    
-                Console.WriteLine("Cannot overtake, limiting speed and stopping overtake.");
-            }
-            else
-            {
-
-                admissibleIntervals.Sort((x, y) => Math.Abs(x.Item2 + x.Item1).CompareTo(Math.Abs(y.Item2 + y.Item1)));
-
-                var interval = admissibleIntervals[0];
-                var leftVal = interval.Item1;
-                var rightVal = interval.Item2;
-                Console.WriteLine("Passing interval : l = {0}, r = {1}", interval.Item1, interval.Item2);
-
-
-                if (leftVal > -passingSideDistance)
-                {
-                    targetSide = leftVal + passingSideDistance;
-                }
-                else if (rightVal < passingSideDistance)
-                {
-                    targetSide = rightVal - passingSideDistance;
-                }
-                else
-                {
-                    targetSide = 0;
-                }
-            }
-
-            Vector3 anticipatedPosition = CarPosition + CarVelocity * anticipationTime;
-
-
-
-
             Console.WriteLine("forwards = {0}", forwardVector);
 
 
-          
+            SpeedLimit = float.MaxValue;
+            float force = 0.0f;
+
+            var leftDistance = targetSide + pointExtra.SideLeft;
+            leftDistance = Math.Max(leftDistance, minDistance);
+            Console.WriteLine("left force = {0}", (repulsionIntensity / leftDistance / leftDistance));
+            force += repulsionIntensity / leftDistance / leftDistance;
+
+            var rightDistance = targetSide - pointExtra.SideRight;
+            rightDistance = Math.Min(rightDistance, -minDistance);
+            force += repulsionIntensity / rightDistance / Math.Abs(rightDistance);
+            Console.WriteLine("right force = {0}", repulsionIntensity / rightDistance / Math.Abs(rightDistance));
+
+
+            for (int i = 1; i < state.CarPositions.Count; i++)
+            {
+                Console.WriteLine("car {0}", i);
+                var v = state.CarPositions[i] - CarPosition;
+                var d_cut = Math.Max(Consts.Norm(v), minDistance);
+                force += repulsionIntensity / d_cut / d_cut * Vector3.Dot(v, sideVector);
+            }
+
+            var targetSide_th = Math.Max(Math.Abs(targetSide), minDistance);
+            //force += (- attractionIntensity / targetSide_th / targetSide_th * targetSide);
+            Console.WriteLine("force = {0}", force);
+            targetSide += force * targetVelocity;
+
+            if (targetSide < -pointExtra.SideLeft)
+            {
+                targetSide = -pointExtra.SideLeft;
+            }
+
+            if (targetSide > pointExtra.SideRight)
+            {
+                targetSide = pointExtra.SideRight;
+            }
+
+
             var targetPoint = position + targetSide * sideVector;
+            Console.WriteLine("target = {0}", targetSide);
 
             var toLine = targetPoint - CarPosition;
             var carOrientationAngle = (float)Math.Atan2(CarOrientation.Z, CarOrientation.X);
