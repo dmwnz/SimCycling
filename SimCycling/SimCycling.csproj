@@ -64,6 +64,7 @@
       <HintPath>.\dependencies\assemblies\Dynastream.Fit.Portable.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -71,6 +72,7 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -177,9 +179,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy.exe "$(ProjectDir)dependencies\lib" "$(ProjectDir)bin\$(ConfigurationName)" /s /e /y
-xcopy.exe "$(ProjectDir)data" "$(ProjectDir)bin\$(ConfigurationName)" /s /e /y
-echo "AC_ROOT environment variable is : %25AC_ROOT%25 (if this appears empty, please set it with the path to assettocorsa directory via Start Menu -&gt; Environment Variables for Current User -&gt; Add. Restart Visual Studio if still empty)"
+    <PostBuildEvent>xcopy.exe "$(ProjectDir)..\ACSimCyclingDash\ACSimCyclingDash.py" "%25AC_ROOT%25\apps\python\ACSimCyclingDash\" /y
+		xcopy.exe "$(ProjectDir)dependencies\lib" "$(ProjectDir)bin\$(ConfigurationName)" /s /e /y
+		xcopy.exe "$(ProjectDir)data" "$(ProjectDir)bin\$(ConfigurationName)" /s /e /y
+		echo "AC_ROOT environment variable is : %25AC_ROOT%25 (if this appears empty, please set it with the path to assettocorsa directory via Start Menu -&gt; Environment Variables for Current User -&gt; Add. Restart Visual Studio if still empty)"
 xcopy.exe "$(ProjectDir)bin\$(ConfigurationName)" "%25AC_ROOT%25\apps\python\ACSimCyclingDash\bin" /s /e /y</PostBuildEvent>
   </PropertyGroup>
 </Project>
