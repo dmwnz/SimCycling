@@ -81,6 +81,7 @@ class AntManagerState:
         self.NextTargetPower = 0.0
         self.RemainingIntervalTime = 0.0
         self.RemainingTotalTime = 0.0
+        self.LapPosition = 0.0
 
     def _instanciateFromDict(self, dictionary):
         for k, v in dictionary.items():
@@ -135,7 +136,7 @@ def stop(*args):
 
 
 class UIElement():
-    def __init__(self, valueName, appWindow, x, y, fontSize=48, unit="", format=None):
+    def __init__(self, valueName, appWindow, x, y, fontSize=48, unit="", format=None, title=None):
         self.valueName = valueName
         self.unit = unit
         self.label = ac.addLabel(appWindow, "0")
@@ -144,6 +145,9 @@ class UIElement():
         self.x = x
         self.y = y
         self.fontSize = fontSize
+        self.title = title
+        if self.title is not None:
+            self.titleLabel = ac.addLabel(appWindow, self.title)
 
 
     def setup(self):
@@ -152,6 +156,11 @@ class UIElement():
         ac.setFontSize(self.unitLabel, self.fontSize//2)
         ac.setPosition(self.label, self.x, self.y)  
         ac.setPosition(self.unitLabel, self.x+self.fontSize//10, self.y+self.fontSize//2)
+        if self.title is not None:
+            ac.setFontAlignment(self.titleLabel, "right")
+            ac.setFontSize(self.titleLabel, self.fontSize//2)
+            ac.setPosition(self.titleLabel, self.x, self.y + self.fontSize)  
+
 
     def update(self, state):
         value = getattr(state, self.valueName)
@@ -181,20 +190,22 @@ class UIElements:
         self.uiElements = []
         self.uiElements.append(UIElement("CyclistPower", appWindow, 225, 10, 96, 'W'))
         self.uiElements.append(UIElement("BikeSpeedKmh", appWindow, 115, 130, 48, 'km/h', ".1f"))
-        self.uiElements.append(UIElement("BikeCadence", appWindow, 265, 130, 48, 'rpm', ".1f"))
+        self.uiElements.append(UIElement("BikeCadence", appWindow, 265, 130, 48, 'rpm'))
         self.uiElements.append(UIElement("BikeIncline", appWindow, 115, 200, 48, '%', ".1f"))
-        self.uiElements.append(UIElement("CyclistHeartRate", appWindow, 265, 200, 48, 'bpm', ".1f"))
-        self.uiElements.append(UIElement("TripTotalKm", appWindow, 115, 270, 32, 'km', ".1f"))
-        self.uiElements.append(UIElement("TrackLength", appWindow, 265, 270, 32, 'km', ".1f"))
+        self.uiElements.append(UIElement("CyclistHeartRate", appWindow, 265, 200, 48, 'bpm'))
+        self.uiElements.append(UIElement("LapPosition", appWindow, 115, 270, 32, 'km', ".1f"))
+        self.uiElements.append(UIElement("TrackLength", appWindow, 265, 270, 32, 'km (lap)', ".1f"))
 
-        self.uiElements.append(TimerUIElement("TripTotalTime", appWindow, 166, 320, 32))
+       
+        self.uiElements.append(TimerUIElement("TripTotalTime", appWindow, 166, 310, 32))
+        self.uiElements.append(UIElement("TripTotalKm", appWindow, 166, 350, 32, 'km (session)', ".1f"))
 
         self.startButton   = ac.addButton(self.appWindow, "start")
         self.stopButton    = ac.addButton(self.appWindow, "stop")
 
     def setup(self):
         ac.addRenderCallback(self.appWindow, onRender)
-        ac.setSize(self.appWindow,333,413)
+        ac.setSize(self.appWindow,333,424)
         ac.drawBorder(self.appWindow,0)
         ac.drawBackground(self.appWindow, 0)
         for el in self.uiElements:
@@ -209,8 +220,8 @@ class UIElements:
         ac.setFontSize(self.stopButton , 18)
         ac.setFontAlignment(self.startButton, "center")
         ac.setFontAlignment(self.stopButton, "center")
-        ac.setPosition(self.startButton, 1  , 378)
-        ac.setPosition(self.stopButton , 168, 378)
+        ac.setPosition(self.startButton, 1  , 398)
+        ac.setPosition(self.stopButton , 168, 398)
         ac.addOnClickedListener(self.startButton, start)
         ac.addOnClickedListener(self.stopButton , stop)
 
@@ -222,31 +233,33 @@ class WorkoutUI:
     def __init__(self, appWindow):
         self.appWindow = appWindow
         self.uiElements = []
-        self.uiElements.append(UIElement("TargetPower", appWindow, 225, 10, 96, 'W', ".0f"))
-        self.uiElements.append(UIElement("NextTargetPower", appWindow, 225, 130, 48, 'W', ".0f"))
-        self.uiElements.append(TimerUIElement("RemainingIntervalTime", appWindow, 166, 200, 48))
-        self.uiElements.append(TimerUIElement("RemainingTotalTime", appWindow, 166, 270, 48))
+        self.uiElements.append(UIElement("TargetPower", appWindow, 100, 10, 48, 'W', ".0f", title="Target"))
+        self.uiElements.append(UIElement("NextTargetPower", appWindow, 250, 10, 48, 'W', ".0f", title="Next"))
+        self.uiElements.append(TimerUIElement("RemainingIntervalTime", appWindow, 400, 10, 48))
+        self.uiElements.append(TimerUIElement("RemainingTotalTime", appWindow, 650 , 10, 48))
 
         self.graph = ac.addGraph(appWindow, "0")
         ac.addSerieToGraph(self.graph, 1.0, 0.0, 0.0)
+        ac.addSerieToGraph(self.graph, 0.0, 1.0, 0.0)
 
     def setup(self):
         ac.addRenderCallback(self.appWindow, onRender)
-        ac.setSize(self.appWindow,333,393)
+        ac.setSize(self.appWindow,800,100)
         ac.drawBorder(self.appWindow,0)
         ac.drawBackground(self.appWindow, 0)
         for el in self.uiElements:
             el.setup()
 
-        ac.setPosition(self.graph, 10, 330)
-        ac.setSize(self.graph,313,50)
-        ac.setRange(self.graph, 0.0, 500.0, 1000)
+        ac.setPosition(self.graph, 0, 100)
+        ac.setSize(self.graph,800,100)
+        ac.setRange(self.graph, 0.0, 600, 2000)
    
     def update(self, antManagerState: AntManagerState):
         for el in self.uiElements:
             el.update(antManagerState)
         
         x = ac.addValueToGraph(self.graph, 0, antManagerState.CyclistPower)
+        x = ac.addValueToGraph(self.graph, 1, antManagerState.TargetPower)
 
 
 def acMain(ac_version):
@@ -274,6 +287,7 @@ def onRender(*args):
     except Exception as e:
         ac.console(repr(e))
     antManagerState.TrackLength = ac.getTrackLength(0) / 1000
+    antManagerState.LapPosition = ac.getCarState(0, acsys.CS.NormalizedSplinePosition) * ac.getTrackLength(0) / 1000
     uiElements.update(antManagerState)
     workoutUi.update(antManagerState)
     RaceState().updateToMemory()

@@ -1,0 +1,48 @@
+<workout_file>
+	<author></author>
+	<name>Acrodectes - ergdb</name>
+	<description></description>
+	<sportType>bike</sportType>
+	<tags></tags>
+	<workout>
+		<SteadyState Duration="180" Power="0.5"/>
+		<SteadyState Duration="120" Power="0.65"/>
+		<SteadyState Duration="120" Power="0.9"/>
+		<SteadyState Duration="60" Power="1.15"/>
+		<SteadyState Duration="60" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.2"/>
+		<SteadyState Duration="180" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="60" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="60" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="60" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="60" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="60" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="60" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="60" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="600" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="60" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="60" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="60" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="60" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="60" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="60" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="60" Power="0.4"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="420" Power="0.4"/>
+	</workout>
+</workout_file>
