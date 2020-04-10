@@ -157,7 +157,6 @@ def stopWorkout():
     sendSignal(SIGNAL_STOP_WORKOUT)
 
 def stopExecutable():
-    global uiElements
     ac.console("Sending signal to stop")
     sendSignal(SIGNAL_EXIT)
 
@@ -279,7 +278,7 @@ class WorkoutUI:
 def acMain(ac_version):
     global uiElements, antManagerState, workoutUi
     appWindow=ac.newApp("ACSimCyclingDash")
-   
+
 
     antManagerState = AntManagerState()
     antManagerState.eraseMemory()
