@@ -64,16 +64,7 @@ namespace SimCycling
                 Console.WriteLine("Using integrated model for physical model.");
                 bikeModel = BikeModel.BikePhysics;
             }
-            try
-            {
-                AntManagerState.GetInstance().WorkoutName = ConfigurationManager.AppSettings["workout"];
-                workout = GenericWorkout.Factory(AntManagerState.GetInstance().WorkoutName);
-            }
-            catch (Exception e)
-            {
-                workout = null;
-                Console.WriteLine("Did not load workout." + e.Message);
-            }
+            
             AntManagerState.GetInstance().CriticalPower = Single.Parse(ConfigurationManager.AppSettings["cp"]);
             InitHRM(0);
             InitCAD(1);
@@ -81,9 +72,36 @@ namespace SimCycling
             InitBP(3);
             InitAC();
             InitFIT();
-           
+        }
 
+        internal void StopWorkout()
+        {
+            workout = null;
+            AntManagerState.GetInstance().WorkoutName = null;
+            AntManagerState.GetInstance().TargetPower = 0;
+            AntManagerState.GetInstance().NextTargetPower = 0;
+            AntManagerState.GetInstance().RemainingIntervalTime = 0;
+            AntManagerState.GetInstance().RemainingTotalTime = 0;
+            AntManagerState.WriteToMemory();
+        }
 
+        internal void SetWorkout(string filename)
+        {
+            try
+            {
+                if (bikeModel == BikeModel.FEC)
+                {
+                    throw new Exception("Workouts not compatible with FEC bike model");
+                }
+                AntManagerState.GetInstance().WorkoutName = filename;
+                workout = GenericWorkout.Factory(AntManagerState.GetInstance().WorkoutName);
+            }
+            catch (Exception e)
+            {
+                workout = null;
+                AntManagerState.GetInstance().WorkoutName = null;
+                Console.WriteLine("Did not load workout." + e.Message);
+            }
         }
 
         public void Stop()

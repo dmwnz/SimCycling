@@ -9,11 +9,9 @@ namespace SimCycling.Workout
     {
         public ZwiftWorkout(ZwiftWorkoutFile zwiftFile)
         {
-            this.Segments = zwiftFile.GetSegments();
+            Segments = zwiftFile.GetSegments();
         }
     }
-
-    
 
     [XmlRoot("workout_file")]
     public class ZwiftWorkoutFile
@@ -22,7 +20,9 @@ namespace SimCycling.Workout
         public string name = "";
         public string description = "";
         public string sportType = "";
-        public string tags = "";
+        
+        [XmlArray]
+        public List<Tag> tags;
 
         [XmlArray("workout")]
         [XmlArrayItem(typeof(Ramp))]
@@ -46,7 +46,13 @@ namespace SimCycling.Workout
             return res;
         }
     }
-    
+
+    public class Tag
+    {
+        [XmlAttribute]
+        public string name;
+    }
+
     public abstract class WorkoutItem
     {
         [XmlAttribute]
