@@ -122,6 +122,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="data\Acrodectes.zwo" />
+    <None Include="data\Gimenez.zwo" />
     <None Include="data\ks_vallelunga_0.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

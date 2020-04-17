@@ -1,0 +1,39 @@
+<workout_file>
+	<author></author>
+	<name>Gimenez  9x1130480 - ergdb</name>
+	<description>Famous Gimenez Workout : 9x(1min@i5 + 4min@i3)
+</description>
+	<sportType>bike</sportType>
+	<tags></tags>
+	<workout>
+		<Ramp Duration="300" PowerLow="0.5" PowerHigh="0.75"/>
+		<SteadyState Duration="18" Power="1"/>
+		<SteadyState Duration="30" Power="0.75"/>
+		<SteadyState Duration="18" Power="1.1"/>
+		<SteadyState Duration="30" Power="0.75"/>
+		<SteadyState Duration="18" Power="1.2"/>
+		<SteadyState Duration="30" Power="0.75"/>
+		<SteadyState Duration="12" Power="1.5"/>
+		<SteadyState Duration="12" Power="1.2"/>
+		<SteadyState Duration="180" Power="0.6"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="240" Power="0.8"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="240" Power="0.8"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="240" Power="0.8"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="240" Power="0.8"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="240" Power="0.8"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="240" Power="0.8"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="240" Power="0.8"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="240" Power="0.8"/>
+		<SteadyState Duration="60" Power="1.3"/>
+		<SteadyState Duration="240" Power="0.8"/>
+		<SteadyState Duration="300" Power="0.65"/>
+	</workout>
+</workout_file>
