@@ -3,15 +3,15 @@ Use your bike and your home trainer as a controller in racing simulation games.
 
 ## Prerequisites:
 - Software
--- Assetto Corsa
--- .NET Framework 4.8
--- VJoy (used to create a virtual joystick for gas and steering control)
+  - Assetto Corsa
+  - .NET Framework 4.8
+  - VJoy (used to create a virtual joystick for gas and steering control)
 - Hardware
--- ANT+ USB stick
--- Bike home trainer with ANT+ FE-C or ANT+ Power capability
--- (optional) Heart rate sensor
--- (optional) Cadence sensor
--- (optional, if you want manual steering control) Android phone mounted on your handlebars with Monect PC Remote app
+  - ANT+ USB stick
+  - Bike home trainer with ANT+ FE-C or ANT+ Power capability
+  - (optional) ANT+ heart rate sensor
+  - (optional) ANT+ cadence sensor
+  - (optional, if you want manual steering control) Android phone mounted on your handlebars with Monect PC Remote app
 
 ## Usage: 
 1. Extract archive in assettocorsa install directory
