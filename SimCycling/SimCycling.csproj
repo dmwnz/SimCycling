@@ -48,6 +48,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AcTools">
+      <HintPath>.\dependencies\assemblies\AcTools.dll</HintPath>
+    </Reference>
     <Reference Include="ANT+ProfileLib, Version=2.3.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\dependencies\assemblies\ANT+ProfileLib.dll</HintPath>
