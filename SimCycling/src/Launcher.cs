@@ -34,7 +34,6 @@ namespace SimCycling
             manager = new ANTDeviceManager();
 
             manager.Start();
-            ConsoleKeyInfo cki;
 
             while (KeepRunning)
             {
@@ -97,11 +96,6 @@ namespace SimCycling
                 }
             }
             return null;
-        }
-
-        static void OnProcessExit(object sender, EventArgs e)
-        {
-            manager.Stop();
         }
     }
 }
