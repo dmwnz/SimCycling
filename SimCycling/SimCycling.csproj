@@ -173,6 +173,6 @@
 xcopy.exe "$(ProjectDir)..\ACSimCyclingDash\ACSimCyclingDash.py" "%25AC_ROOT%25\apps\python\ACSimCyclingDash\" /y /f
 xcopy.exe "$(ProjectDir)..\ACSimCyclingDash\*.png" "%25AC_ROOT%25\content\gui\icons\" /y /f
 xcopy.exe "$(ProjectDir)dependencies\lib" "$(TargetDir)" /s /e /y /f
-xcopy.exe "$(ProjectDir)bin\$(ConfigurationName)" "%25AC_ROOT%25\apps\python\ACSimCyclingDash\bin\" /s /e /y /f</PostBuildEvent>
+xcopy.exe "$(TargetDir)"* "%25AC_ROOT%25\apps\python\ACSimCyclingDash\bin\" /s /e /y /f</PostBuildEvent>
   </PropertyGroup>
 </Project>
