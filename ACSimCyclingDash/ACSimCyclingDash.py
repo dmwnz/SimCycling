@@ -225,7 +225,6 @@ class UIElements:
        
         self.uiElements.append(TimerUIElement("TripTotalTime", appWindow, 166, 310, 32))
         self.uiElements.append(UIElement("TripTotalKm", appWindow, 166, 350, 32, 'km (session)', ".1f"))
-        self.uiElements.append(TimerUIElement("TripTotalTime", appWindow, 166, 320, 32))
 
         self.btn1   = ac.addButton(self.appWindow, "start")
         self.btn2   = ac.addButton(self.appWindow, "stop")
@@ -247,8 +246,8 @@ class UIElements:
         ac.setFontSize(self.btn2 , 18)
         ac.setFontAlignment(self.btn1, "center")
         ac.setFontAlignment(self.btn2, "center")
-        ac.setPosition(self.btn1, 1  , 378)
-        ac.setPosition(self.btn2 , 168, 378)
+        ac.setPosition(self.btn1, 1  , 398)
+        ac.setPosition(self.btn2 , 168, 398)
         ac.addOnClickedListener(self.btn1, btn1_clicked)
         ac.addOnClickedListener(self.btn2 , btn2_clicked)
 
