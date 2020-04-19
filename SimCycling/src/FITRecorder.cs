@@ -65,6 +65,7 @@ namespace SimCycling
                 
                 newRecord.SetDistance(AntManagerState.GetInstance().TripTotalKm * 1000);
                 newRecord.SetSpeed((float)(AntManagerState.GetInstance().BikeSpeedKmh / 3.6));
+                newRecord.SetAltitude(RaceState.GetInstance().CarPositions[0].Y);
                 newRecord.SetTimestamp(new DateTime(System.DateTime.Now));
                 records.Add(newRecord);
 
