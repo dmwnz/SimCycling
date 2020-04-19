@@ -10,17 +10,16 @@ namespace SimCycling
     class BikePhysics : Updateable
     {
         double gravitationAcceleration = 9.81;
-        double CdA, Cxx, airDensity, riderMass;
+        double CdA, Cxx, riderMass;
         DateTime previousFrameTimestamp;
         public static void Log(String s, params object[] parms)
         {
             Console.WriteLine(s, parms);
         }
-        public BikePhysics(double CdA, double Cxx, double airDensity, double riderMass)
+        public BikePhysics(double CdA, double Cxx, double riderMass)
         {
             this.CdA = CdA;
             this.Cxx = Cxx;
-            this.airDensity = airDensity;
             this.riderMass = riderMass;
             previousFrameTimestamp = DateTime.Now;
         }

@@ -163,10 +163,9 @@ namespace SimCycling
                 CultureInfo cul = new CultureInfo("en-US", false);
                 var CdA = float.Parse(ConfigurationManager.AppSettings["cda"], cul.NumberFormat);
                 var Cxx = float.Parse(ConfigurationManager.AppSettings["cxx"], cul.NumberFormat);
-                var airdensity = float.Parse(ConfigurationManager.AppSettings["airdensity"], cul.NumberFormat);
                 var bikeweight = float.Parse(ConfigurationManager.AppSettings["bikeweight"], cul.NumberFormat);
                 var riderweight = float.Parse(ConfigurationManager.AppSettings["riderweight"], cul.NumberFormat);
-                var bikePhysics = new BikePhysics(CdA, Cxx, airdensity, bikeweight + riderweight);
+                var bikePhysics = new BikePhysics(CdA, Cxx, bikeweight + riderweight);
                 updateables.Add(bikePhysics);
             }
 
