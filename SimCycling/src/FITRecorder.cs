@@ -28,13 +28,20 @@ namespace SimCycling
     {
         static Encode encoder;
         static FileStream fitDest;
-        static string filename;
+        static string filepath;
         static List<RecordMesg> records;
 
         static public void Start()
         {
             records = new List<RecordMesg>();
-            filename = System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".fit";
+
+            var assettoFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Assetto Corsa\\SimCyclingActivities";
+            if (!Directory.Exists(assettoFolder))
+            {
+                Directory.CreateDirectory(assettoFolder);
+            }
+
+            filepath = assettoFolder + "\\" + System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".fit";
         }
 
         public static void AddRecord()
@@ -93,8 +100,8 @@ namespace SimCycling
 
             // Create file encode object
             encoder = new Encode(ProtocolVersion.V20);
-            
-            fitDest = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+
+            fitDest = new FileStream(filepath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
             encoder.Open(fitDest);
             // Encode each message, a definition message is automatically generated and output if necessary
             encoder.Write(fileIdMesg);
