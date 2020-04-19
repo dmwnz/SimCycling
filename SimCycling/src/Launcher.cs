@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO.MemoryMappedFiles;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -72,8 +74,15 @@ namespace SimCycling
             }
         }
 
+
+        [DllImport("user32.dll")]
+        public static extern int SetForegroundWindow(int hwnd);
+        
         private static string LoadWorkoutFile()
         {
+            // put the console app window in focus , so when the file open dialog opens on top of it, it is in focus
+            SetForegroundWindow(Process.GetCurrentProcess().MainWindowHandle.ToInt32());
+
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
                 openFileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\..";
