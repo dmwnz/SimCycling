@@ -15,13 +15,15 @@ Use your bike and your home trainer as a controller in racing simulation games.
 
 ## Usage: 
 1. Extract archive in assettocorsa install directory
-2. Make sure settings in apps/python/ACSimCyclingDash/bin/SimCycling.exe.config are correct (cp = FTP)
-3. Launch Assetto Corsa 
-4. Configure controls so that vJoy controls throttle, brakes & steering
-5. Enable ACSimCyclingDash python app in the game settings
-6. Load up your favorite car & track combo
-7. Enable ACSimCyclingDash (& WorkoutDash) app on the HUD
-8. Start pedalling to make the car move. Load up a workout file if you want to follow a structured workout.
+1. Make sure settings in apps/python/ACSimCyclingDash/bin/SimCycling.exe.config are correct (cp = FTP)
+1. Launch Assetto Corsa 
+1. Configure controls to bind vJoy axis 3 to steering & axis 1 to throttle (example config supplied)
+1. Enable ACSimCyclingDash python app in the game settings
+1. Load up your favorite car & track combo
+1. Enable ACSimCyclingDash (& WorkoutDash) apps on the HUD, click "Start"  
+![ACSimCyclingDash](/ACSimCyclingDash/ACSimCyclingDash_ON.png) ![WorkoutDash](/ACSimCyclingDash/WorkoutDash_ON.png)
+1. Start pedalling to make the car move 😎  
+Load up a workout file if you want to follow a structured workout.
 
 
 ## How it works
