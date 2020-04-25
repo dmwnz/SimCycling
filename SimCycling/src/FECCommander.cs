@@ -17,6 +17,8 @@ namespace SimCycling
         
         readonly bool useAsModel;
 
+        readonly float minSimulatedGrade = float.Parse(ConfigurationManager.AppSettings["minsimulatedgrade"], CultureInfo.InvariantCulture.NumberFormat);
+        readonly float maxSimulatedGrade = float.Parse(ConfigurationManager.AppSettings["maxsimulatedgrade"], CultureInfo.InvariantCulture.NumberFormat);
 
         float speedKmh;
 
@@ -153,7 +155,9 @@ namespace SimCycling
 
         private void SendTrackResistance(float grade)
         {
-            var gradeToTransmit = Consts.ConvertGrade(grade);
+            var boundedGrade = Math.Min(Math.Max(grade, minSimulatedGrade), maxSimulatedGrade);
+
+            var gradeToTransmit = Consts.ConvertGrade(boundedGrade);
             var command = new ControlTrackResistancePage
             {
                 Grade = gradeToTransmit
