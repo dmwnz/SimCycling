@@ -14,7 +14,7 @@ namespace SimCycling.State
         // Singleton instance
         private static readonly AntManagerState antManagerState = new AntManagerState();
         private static MemoryMappedFile mm;
-        private static bool WriteInProgress = false;
+        private static volatile bool WriteInProgress = false;
         private const int MEMORY_MAP_SIZE = 1024;
 
         [DataMember()]

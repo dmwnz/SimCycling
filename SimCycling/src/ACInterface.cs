@@ -12,6 +12,7 @@ namespace SimCycling
     {
         AssettoCorsa ac;
         PID pid;
+        volatile bool updateLocked = false;
 
         Vector3 frontCoordinates = new Vector3(0, 0, 0);
         Vector3 rearCoordinates = new Vector3(0, 0, 0);
@@ -98,7 +99,12 @@ namespace SimCycling
 
         private void OnACGraphics(object sender, GraphicsEventArgs e)
         {
+            if (updateLocked)
+            {
+                return;
+            }
 
+            updateLocked = true;
 
             var altitudeDiff = frontCoordinates.Y - rearCoordinates.Y;
             var distance = Consts.Norm(rearCoordinates - frontCoordinates);
@@ -116,6 +122,7 @@ namespace SimCycling
                 updateable.Update();
             }
             isInPit = (bool)(e.Graphics.IsInPitLane > 0);
+            updateLocked = false;
         }
         private void OnACPhysics(object sender, PhysicsEventArgs e)
         {
