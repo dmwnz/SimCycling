@@ -25,6 +25,7 @@ namespace SimCycling
         [STAThread]
         static void Main(string[] args)
         {
+            ShowWindow(Process.GetCurrentProcess().MainWindowHandle.ToInt32(), 6);
             Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
             Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e) {
                 e.Cancel = true;
@@ -76,7 +77,9 @@ namespace SimCycling
 
         [DllImport("user32.dll")]
         public static extern int SetForegroundWindow(int hwnd);
-        
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(int hWnd, int nCmdShow);
+
         private static string LoadWorkoutFile()
         {
             // put the console app window in focus , so when the file open dialog opens on top of it, it is in focus
