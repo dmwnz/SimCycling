@@ -5,6 +5,8 @@ import subprocess
 import sys
 import acsys
 import os
+import threading
+import time
 
 antManagerExecutable = None
 antManagerState      = None
@@ -97,7 +99,6 @@ class AntManagerState:
             ac.console("Concurrent write in progress. Skip reading")
             return False
         if flag != b'\x11':
-            ac.console("Unknown signal flag. Skip reading")
             return False
         memoryMap.seek(1)
         readBytes  = memoryMap.read()
@@ -122,7 +123,7 @@ def sendSignal(signal):
 
 def btn1_clicked(*args):
     global antManagerExecutable
-    if antManagerExecutable is None or antManagerExecutable.poll() is not None:
+    if ac.getText(uiElements.btn1) != "starting..." and ( antManagerExecutable is None or antManagerExecutable.poll() is not None ):
         startExecutable()
     elif not workoutInProgress():
         loadWorkout()
@@ -138,16 +139,22 @@ def workoutInProgress():
     global antManagerState
     return antManagerState is not None and antManagerState.RemainingTotalTime > 0
 
-def startExecutable():
-    global antManagerExecutable, uiElements
-    ac.console("Starting executable")
-    try:
-        antManagerExecutable = subprocess.Popen(r".\apps\python\ACSimCyclingDash\bin\SimCycling.exe", cwd=os.path.join(os.path.dirname(os.path.realpath(__file__)), "bin"))
-        ac.console("Executable launched : " + str(antManagerExecutable))
+class ExecutableStarter(threading.Thread):
+    def run(self):
+        global antManagerExecutable, uiElements
+        ac.console("Starting executable")
         ac.setText(uiElements.btn1, "starting...")
-    except Exception as e:
-        ac.log(repr(e))
-        ac.console(str(antManagerExecutable))
+        time.sleep(1)
+        try:
+            antManagerExecutable = subprocess.Popen(r".\apps\python\ACSimCyclingDash\bin\SimCycling.exe", cwd=os.path.join(os.path.dirname(os.path.realpath(__file__)), "bin"))
+            ac.console("Executable launched : " + str(antManagerExecutable))
+        except Exception as e:
+            ac.log(repr(e))
+            ac.console(str(antManagerExecutable))
+            ac.setText(uiElements.btn1, "start")
+
+def startExecutable():
+    ExecutableStarter().start()
 
 def loadWorkout():
     ac.console("Sending signal to load workout")
