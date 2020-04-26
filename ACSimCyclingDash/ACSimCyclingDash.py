@@ -272,8 +272,9 @@ class WorkoutUI:
         self.uiElements.append(TimerUIElement("RemainingTotalTime", appWindow, 650 , 10, 48))
 
         self.graph = ac.addGraph(appWindow, "0")
-        ac.addSerieToGraph(self.graph, 1.0, 0.0, 0.0)
-        ac.addSerieToGraph(self.graph, 0.0, 1.0, 0.0)
+        ac.addSerieToGraph(self.graph, 0.0, 1.0, 0.0) # current power : green
+        ac.addSerieToGraph(self.graph, 1.0, 1.0, 1.0) # target power : white
+        ac.addSerieToGraph(self.graph, 1.0, 0.0, 0.0) # current heart rate : red
 
     def setup(self):
         ac.addRenderCallback(self.appWindow, onRender)
@@ -293,7 +294,7 @@ class WorkoutUI:
         
         x = ac.addValueToGraph(self.graph, 0, antManagerState.CyclistPower)
         x = ac.addValueToGraph(self.graph, 1, antManagerState.TargetPower)
-
+        x = ac.addValueToGraph(self.graph, 2, (antManagerState.CyclistHeartRate - 10) * 3)
 
 def acMain(ac_version):
     global uiElements, antManagerState, workoutUi
