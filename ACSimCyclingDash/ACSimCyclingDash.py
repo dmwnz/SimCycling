@@ -145,7 +145,7 @@ class ExecutableStarter(threading.Thread):
         global antManagerExecutable, uiElements
         ac.console("Starting executable")
         ac.setText(uiElements.btn1, "starting...")
-        time.sleep(1)
+        time.sleep(0.5)
         try:
             antManagerExecutable = subprocess.Popen(r".\apps\python\ACSimCyclingDash\bin\SimCycling.exe", cwd=os.path.join(os.path.dirname(os.path.realpath(__file__)), "bin"))
             ac.console("Executable launched : " + str(antManagerExecutable))
@@ -154,12 +154,17 @@ class ExecutableStarter(threading.Thread):
             ac.console(str(antManagerExecutable))
             ac.setText(uiElements.btn1, "start")
 
+class WorkoutLoader(threading.Thread):
+    def run(self):
+        time.sleep(0.5)
+        ac.console("Sending signal to load workout")
+        sendSignal(SIGNAL_LOAD_WORKOUT)
+
 def startExecutable():
     ExecutableStarter().start()
 
 def loadWorkout():
-    ac.console("Sending signal to load workout")
-    sendSignal(SIGNAL_LOAD_WORKOUT)
+    WorkoutLoader().start()
 
 def stopWorkout():
     ac.console("Sending signal to stop workout")
