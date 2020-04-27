@@ -82,6 +82,7 @@ class AntManagerState:
         self.NextTargetPower = 0.0
         self.RemainingIntervalTime = 0.0
         self.RemainingTotalTime = 0.0
+        self.WorkoutElapsedTime = 0.0
         self.LapPosition = 0.0
 
     def _instanciateFromDict(self, dictionary):

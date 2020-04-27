@@ -29,7 +29,30 @@ namespace SimCycling.Workout
 
     public abstract class GenericWorkout
     {
+        public bool IsFinished
+        {
+            get
+            {
+                return CurrentSegment == null;
+            }
+        }
         protected List<Segment> Segments { get; set; } = new List<Segment>();
+
+        protected Segment CurrentSegment
+        {
+            get
+            {
+                return Segments.FirstOrDefault(s => s.StartTimeSeconds <= AntManagerState.GetInstance().WorkoutElapsedTime && s.EndTimeSeconds > AntManagerState.GetInstance().WorkoutElapsedTime);
+            } 
+        }
+
+        protected Segment NextSegment
+        {
+            get
+            {
+                 return Segments.FirstOrDefault(s => s.StartTimeSeconds > AntManagerState.GetInstance().WorkoutElapsedTime);
+            }
+        }
 
         public static GenericWorkout Factory(string filename)
         {
@@ -58,10 +81,10 @@ namespace SimCycling.Workout
         public void Update()
         {
             AntManagerState state = AntManagerState.GetInstance();
-            var secondsSinceStart = state.TripTotalTime;
+            var secondsSinceStart = state.WorkoutElapsedTime;
 
-            Segment currentSegment = Segments.FirstOrDefault(s => s.StartTimeSeconds <= secondsSinceStart && s.EndTimeSeconds > secondsSinceStart);
-            Segment nextSegment = Segments.FirstOrDefault(s => s.StartTimeSeconds > secondsSinceStart);
+            var currentSegment = CurrentSegment;
+            var nextSegment = NextSegment;
 
             if (currentSegment == null)
             {

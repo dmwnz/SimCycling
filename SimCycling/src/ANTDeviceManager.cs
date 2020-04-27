@@ -94,12 +94,15 @@ namespace SimCycling
                     throw new Exception("Workouts not compatible with FEC bike model");
                 }
                 AntManagerState.GetInstance().WorkoutName = filename;
+                AntManagerState.GetInstance().WorkoutElapsedTime = 0;
+
                 workout = GenericWorkout.Factory(AntManagerState.GetInstance().WorkoutName);
             }
             catch (Exception e)
             {
                 workout = null;
                 AntManagerState.GetInstance().WorkoutName = null;
+
                 Console.WriteLine("Did not load workout." + e.Message);
             }
         }
@@ -184,11 +187,24 @@ namespace SimCycling
             FITRecorder.AddRecord();
             AntManagerState.GetInstance().TripTotalKm += (float)(AntManagerState.GetInstance().BikeSpeedKmh / 1000 / 3.6 * dt);
             AntManagerState.GetInstance().TripTotalTime += (float)dt;
+
             Console.WriteLine("update");
 
             if (workout != null)
             {
                 workout.Update();
+                if (!workout.IsFinished)
+                {
+                    AntManagerState.GetInstance().WorkoutElapsedTime += (float)dt;
+                }
+                else
+                {
+                    workout = null;
+                }
+            }
+            else
+            {
+                AntManagerState.GetInstance().WorkoutElapsedTime = 0;
             }
         }
 
