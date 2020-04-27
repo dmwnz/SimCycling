@@ -82,6 +82,7 @@ namespace SimCycling
             AntManagerState.GetInstance().NextTargetPower = 0;
             AntManagerState.GetInstance().RemainingIntervalTime = 0;
             AntManagerState.GetInstance().RemainingTotalTime = 0;
+            AntManagerState.GetInstance().WorkoutElapsedTime = 0;
             AntManagerState.WriteToMemory();
         }
 
@@ -109,12 +110,13 @@ namespace SimCycling
 
         public void Stop()
         {
+            StopWorkout();
             acInterface.Stop();
             FITRecorder.Stop();
             hrmCommander.Stop();
             cadCommander.Stop();
             fecCommander.Stop();
-            bpCommander.Stop();
+            bpCommander.Stop();            
         }
 
         void InitHRM(int channelNumber)
