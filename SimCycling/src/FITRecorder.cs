@@ -18,17 +18,15 @@ using System.Text;
 using System.IO;
 using System.Diagnostics;
 using Dynastream.Fit;
-//using System.DateTime;
 using DateTime = Dynastream.Fit.DateTime;
 using SimCycling.State;
+using System.Linq;
 
 namespace SimCycling
 {
     class FITRecorder
     {
         static Encode encoder;
-        static FileStream fitDest;
-        static string filepath;
         static List<RecordMesg> records;
 
         static public void Start()
@@ -41,30 +39,52 @@ namespace SimCycling
                 Directory.CreateDirectory(assettoFolder);
             }
 
-            filepath = assettoFolder + "\\" + System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".fit";
+            var filepath = assettoFolder + "\\" + System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".fit";
+
+
+            // Create file encode object
+            encoder = new Encode(ProtocolVersion.V20);
+
+            var fitDest = new FileStream(filepath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+            encoder.Open(fitDest);
+
+            var fileIdMesg = new FileIdMesg(); // Every FIT file MUST contain a 'File ID' message as the first message
+
+            fileIdMesg.SetType(Dynastream.Fit.File.Activity);
+            fileIdMesg.SetManufacturer(Manufacturer.Dynastream);  // Types defined in the profile are available
+            fileIdMesg.SetProduct(22);
+            fileIdMesg.SetSerialNumber(1234);
+            fileIdMesg.SetTimeCreated(new DateTime(System.DateTime.Now));
+
+            // Encode each message, a definition message is automatically generated and output if necessary
+            encoder.Write(fileIdMesg);
         }
 
         public static void AddRecord()
         {
+            var oldTimeStamp = records.Last().GetTimestamp().GetTimeStamp();
+            var newTimeStamp = new DateTime(System.DateTime.Now).GetTimeStamp();
+            if (newTimeStamp == oldTimeStamp)
+            {
+                return; // do not record twice with same timestamp ?
+            }
 
             try
             {
                 var newRecord = new RecordMesg();
                 if (AntManagerState.GetInstance().CyclistHeartRate > 0)
                 {
-                    newRecord.SetHeartRate((byte)(AntManagerState.GetInstance().CyclistHeartRate));
+                    newRecord.SetHeartRate((byte)AntManagerState.GetInstance().CyclistHeartRate);
                 }
                 if (AntManagerState.GetInstance().BikeCadence > 0)
                 {
-                    newRecord.SetCadence((byte)(AntManagerState.GetInstance().BikeCadence));
-                }
-                if (AntManagerState.GetInstance().CyclistPower > 0)
-                {
-                    newRecord.SetPower((ushort)(AntManagerState.GetInstance().CyclistPower));
+                    newRecord.SetCadence((byte)AntManagerState.GetInstance().BikeCadence);
                 }
                 
+                newRecord.SetPower((ushort)AntManagerState.GetInstance().CyclistPower);
+                newRecord.SetGrade(AntManagerState.GetInstance().BikeIncline);
                 newRecord.SetDistance(AntManagerState.GetInstance().TripTotalKm * 1000);
-                newRecord.SetSpeed((float)(AntManagerState.GetInstance().BikeSpeedKmh / 3.6));
+                newRecord.SetSpeed(AntManagerState.GetInstance().BikeSpeedKmh / 3.6f);
                 newRecord.SetAltitude(RaceState.GetInstance().CarPositions[0].Y);
                 newRecord.SetTimestamp(new DateTime(System.DateTime.Now));
                 records.Add(newRecord);
@@ -79,47 +99,23 @@ namespace SimCycling
 
         public static void Stop()
         {
-
-            // Generate some FIT messages
-            var fileIdMesg = new FileIdMesg(); // Every FIT file MUST contain a 'File ID' message as the first message
-
-            byte[] appId = {
-                1, 2, 3, 4,
-                5, 6, 7, 8,
-                9, 10, 11, 12,
-                13, 14, 15, 16
-            };
-
-            fileIdMesg.SetType(Dynastream.Fit.File.Activity);
-            fileIdMesg.SetManufacturer(Manufacturer.Dynastream);  // Types defined in the profile are available
-            fileIdMesg.SetProduct(22);
-            fileIdMesg.SetSerialNumber(1234);
-            fileIdMesg.SetTimeCreated(new DateTime(System.DateTime.Now));
-
-            // Write our header
-            Console.WriteLine("writing fit");
-
-            // Create file encode object
-            encoder = new Encode(ProtocolVersion.V20);
-
-            fitDest = new FileStream(filepath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
-            encoder.Open(fitDest);
-            // Encode each message, a definition message is automatically generated and output if necessary
-            encoder.Write(fileIdMesg);
-
-
             // Update header datasize and file CRC
             var sessionMesg = new SessionMesg();
             sessionMesg.SetSport(Sport.Cycling);
             sessionMesg.SetTotalDistance(AntManagerState.GetInstance().TripTotalKm * 1000);
             sessionMesg.SetTotalElapsedTime(AntManagerState.GetInstance().TripTotalTime);
-            encoder.Write(sessionMesg);
-            encoder.Write(records);
 
+            var activityMesg = new ActivityMesg();
+            activityMesg.SetNumSessions(1);
+            activityMesg.SetType(Activity.Manual);
+            activityMesg.SetTotalTimerTime(AntManagerState.GetInstance().TripTotalTime);
+
+            encoder.Write(records);
+            encoder.Write(sessionMesg);
+            encoder.Write(activityMesg);
 
             encoder.Close();
-            fitDest.Close();
-
+            
         }
 
     }
