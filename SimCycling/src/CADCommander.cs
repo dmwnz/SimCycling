@@ -36,7 +36,7 @@ namespace SimCycling
         {
             var cad = page.Cadence;
             Console.WriteLine("CAD : " + cad);
-            AntManagerState.GetInstance().BikeCadence = (int)Math.Round(cad);
+            AntManagerState.Instance.BikeCadence = (int)Math.Round(cad);
             AntManagerState.WriteToMemory();
         }
     }

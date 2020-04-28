@@ -37,7 +37,7 @@ namespace SimCycling
         {
             var hr = page.HeartRate;
             Console.WriteLine("HRM : " + hr);
-            AntManagerState.GetInstance().CyclistHeartRate = hr;
+            AntManagerState.Instance.CyclistHeartRate = hr;
             AntManagerState.WriteToMemory();
         }
 

@@ -47,8 +47,8 @@ namespace SimCycling
         {
             lastPower = page.InstantaneousPower;
             var cad = page.InstantaneousCadence;
-            AntManagerState.GetInstance().CyclistPower = lastPower;
-            AntManagerState.GetInstance().BikeCadence = (int)Math.Round((double) cad);
+            AntManagerState.Instance.CyclistPower = lastPower;
+            AntManagerState.Instance.BikeCadence = (int)Math.Round((double) cad);
             AntManagerState.WriteToMemory();
         }
         private void RequestCommandStatus()

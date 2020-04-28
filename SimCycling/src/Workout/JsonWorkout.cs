@@ -56,7 +56,7 @@ namespace SimCycling.Workout
 
         public new void Update()
         {
-            AntManagerState state = AntManagerState.GetInstance();
+            AntManagerState state = AntManagerState.Instance;
             var t = state.TripTotalTime;
             int idx = SegmentIndex(t);
             if (idx == -1)

@@ -122,7 +122,7 @@ namespace SimCycling
             {
                 newPitch = 0;
             }
-            AntManagerState.GetInstance().BikeIncline = newPitch;
+            AntManagerState.Instance.BikeIncline = newPitch;
 
             foreach (Updateable updateable in updateables)
             {
@@ -158,11 +158,11 @@ namespace SimCycling
             if (!isSpeedInit)
             {
                 Console.WriteLine("Resetting speed.");
-                AntManagerState.GetInstance().BikeSpeedKmh = e.Physics.SpeedKmh;
+                AntManagerState.Instance.BikeSpeedKmh = e.Physics.SpeedKmh;
                 isSpeedInit = true;
             }
            
-            AntManagerState.GetInstance().AirDensity = e.Physics.AirDensity;
+            AntManagerState.Instance.AirDensity = e.Physics.AirDensity;
 
             if (useAssistLine)
             {
@@ -178,9 +178,9 @@ namespace SimCycling
                 assistLineFollower.CarVelocity = RaceState.GetInstance().CarVelocities[0];
                 assistLineFollower.NormalizedCarPosition = RaceState.GetInstance().NormalizedCarPositions[0];
                 assistLineFollower.Update(RaceState.GetInstance());
-                if (AntManagerState.GetInstance().BikeSpeedKmh > assistLineFollower.SpeedLimit)
+                if (AntManagerState.Instance.BikeSpeedKmh > assistLineFollower.SpeedLimit)
                 {
-                    AntManagerState.GetInstance().BikeSpeedKmh = assistLineFollower.SpeedLimit;
+                    AntManagerState.Instance.BikeSpeedKmh = assistLineFollower.SpeedLimit;
                 }
                 joyControl.Direction(10*assistLineFollower.Direction); // Should be ratio between steering value and angle
             }
@@ -190,7 +190,7 @@ namespace SimCycling
             }
             var acSpeed = e.Physics.SpeedKmh;
 
-            var targetSpeed = AntManagerState.GetInstance().BikeSpeedKmh;
+            var targetSpeed = AntManagerState.Instance.BikeSpeedKmh;
 
             if (targetSpeed > 1)
             {

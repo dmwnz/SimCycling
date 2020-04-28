@@ -11,8 +11,6 @@ namespace SimCycling.State
     [DataContract]
     class AntManagerState
     {
-        // Singleton instance
-        private static readonly AntManagerState antManagerState = new AntManagerState();
         private static MemoryMappedFile mm;
         private static volatile bool WriteInProgress = false;
         private const int MEMORY_MAP_SIZE = 1024;
@@ -62,12 +60,7 @@ namespace SimCycling.State
         [DataMember()]
         public float WorkoutElapsedTime { get; set; }
 
-
-
-        public static AntManagerState GetInstance()
-        {
-            return antManagerState;
-        }
+        public static AntManagerState Instance { get; } = new AntManagerState();
 
         public static void WriteToMemory()
         {
@@ -89,7 +82,7 @@ namespace SimCycling.State
 
                 // Initialize MemoryStream that will store Json as binary
                 MemoryStream ms = new MemoryStream(MEMORY_MAP_SIZE - 1);
-                serializer.WriteObject(ms, GetInstance());
+                serializer.WriteObject(ms, Instance);
 
                 // Write to shared memory
                 mmAccessor.WriteArray(1, ms.GetBuffer(), 0, MEMORY_MAP_SIZE - 1);

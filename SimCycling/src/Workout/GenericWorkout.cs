@@ -42,7 +42,7 @@ namespace SimCycling.Workout
         {
             get
             {
-                return Segments.FirstOrDefault(s => s.StartTimeSeconds <= AntManagerState.GetInstance().WorkoutElapsedTime && s.EndTimeSeconds > AntManagerState.GetInstance().WorkoutElapsedTime);
+                return Segments.FirstOrDefault(s => s.StartTimeSeconds <= AntManagerState.Instance.WorkoutElapsedTime && s.EndTimeSeconds > AntManagerState.Instance.WorkoutElapsedTime);
             } 
         }
 
@@ -50,7 +50,7 @@ namespace SimCycling.Workout
         {
             get
             {
-                 return Segments.FirstOrDefault(s => s.StartTimeSeconds > AntManagerState.GetInstance().WorkoutElapsedTime);
+                 return Segments.FirstOrDefault(s => s.StartTimeSeconds > AntManagerState.Instance.WorkoutElapsedTime);
             }
         }
 
@@ -80,7 +80,7 @@ namespace SimCycling.Workout
 
         public void Update()
         {
-            AntManagerState state = AntManagerState.GetInstance();
+            AntManagerState state = AntManagerState.Instance;
             var secondsSinceStart = state.WorkoutElapsedTime;
 
             var currentSegment = CurrentSegment;

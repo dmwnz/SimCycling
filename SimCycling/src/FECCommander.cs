@@ -73,7 +73,7 @@ namespace SimCycling
             if (useAsModel)
             {
                 speedKmh = page.Speed * 0.0036f;
-                AntManagerState.GetInstance().BikeSpeedKmh = speedKmh;
+                AntManagerState.Instance.BikeSpeedKmh = speedKmh;
                 AntManagerState.WriteToMemory();
             }
         }
@@ -82,7 +82,7 @@ namespace SimCycling
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
-            AntManagerState.GetInstance().CyclistPower = page.InstantaneousPower;
+            AntManagerState.Instance.CyclistPower = page.InstantaneousPower;
             AntManagerState.WriteToMemory();
             
         }
@@ -188,7 +188,7 @@ namespace SimCycling
 
         public override void Update()
         {
-            var targetPower = AntManagerState.GetInstance().TargetPower;
+            var targetPower = AntManagerState.Instance.TargetPower;
             var t = DateTime.Now;
 
             if (targetPower > 0)
@@ -198,7 +198,7 @@ namespace SimCycling
             else if (t.Subtract(lastTransmittedGradeTime).TotalSeconds > 2)
             {
                 SendWindResistance();
-                SendTrackResistance(AntManagerState.GetInstance().BikeIncline);
+                SendTrackResistance(AntManagerState.Instance.BikeIncline);
                 lastTransmittedGradeTime = t;
             }
 

@@ -30,25 +30,25 @@ namespace SimCycling
             double dt = time.Subtract(previousFrameTimestamp).TotalSeconds;
             previousFrameTimestamp = time;
             var dv = DeltaV(dt);
-            AntManagerState.GetInstance().BikeSpeedKmh += (float) (dv * 3.6);
-            if (AntManagerState.GetInstance().BikeSpeedKmh < 0)
+            AntManagerState.Instance.BikeSpeedKmh += (float) (dv * 3.6);
+            if (AntManagerState.Instance.BikeSpeedKmh < 0)
             {
-                AntManagerState.GetInstance().BikeSpeedKmh = 0;
+                AntManagerState.Instance.BikeSpeedKmh = 0;
             }
         }
 
-        private double GravityAcceleration =>  AntManagerState.GetInstance().BikeIncline / 100.0 * gravitationAcceleration;
+        private double GravityAcceleration =>  AntManagerState.Instance.BikeIncline / 100.0 * gravitationAcceleration;
 
-        private double BikeSpeed => AntManagerState.GetInstance().BikeSpeedKmh / 3.6;
+        private double BikeSpeed => AntManagerState.Instance.BikeSpeedKmh / 3.6;
 
-        private double Resistance => 0.5 * AntManagerState.GetInstance().AirDensity *CdA * BikeSpeed * BikeSpeed + riderMass * Cxx * gravitationAcceleration;
+        private double Resistance => 0.5 * AntManagerState.Instance.AirDensity *CdA * BikeSpeed * BikeSpeed + riderMass * Cxx * gravitationAcceleration;
 
         private double DeltaV(double dt)
         {
             double acceleration = Resistance / riderMass + GravityAcceleration;
             double a = 1; 
             double b = BikeSpeed - acceleration * dt;
-            double p = AntManagerState.GetInstance().CyclistPower;
+            double p = AntManagerState.Instance.CyclistPower;
             if (p == 0) { p = -10; } // brake when power is 0;
             double c = - p * dt / riderMass + acceleration * BikeSpeed * dt;
             double delta = b * b - 4 * a * c;

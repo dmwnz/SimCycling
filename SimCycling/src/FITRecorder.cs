@@ -35,7 +35,7 @@ namespace SimCycling
         private static float alreadyLappedDistance = 0.0f;
         private static ushort numLaps = 0;
 
-        private static AntManagerState State => AntManagerState.GetInstance();
+        private static AntManagerState State => AntManagerState.Instance;
 
         static public void Start()
         {

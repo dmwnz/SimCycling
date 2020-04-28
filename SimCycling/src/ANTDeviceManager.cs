@@ -65,7 +65,7 @@ namespace SimCycling
                 bikeModel = BikeModel.BikePhysics;
             }
             
-            AntManagerState.GetInstance().CriticalPower = Single.Parse(ConfigurationManager.AppSettings["cp"]);
+            AntManagerState.Instance.CriticalPower = Single.Parse(ConfigurationManager.AppSettings["cp"]);
             InitHRM(0);
             InitCAD(1);
             InitFEC(2);
@@ -77,12 +77,12 @@ namespace SimCycling
         internal void StopWorkout()
         {
             workout = null;
-            AntManagerState.GetInstance().WorkoutName = null;
-            AntManagerState.GetInstance().TargetPower = 0;
-            AntManagerState.GetInstance().NextTargetPower = 0;
-            AntManagerState.GetInstance().RemainingIntervalTime = 0;
-            AntManagerState.GetInstance().RemainingTotalTime = 0;
-            AntManagerState.GetInstance().WorkoutElapsedTime = 0;
+            AntManagerState.Instance.WorkoutName = null;
+            AntManagerState.Instance.TargetPower = 0;
+            AntManagerState.Instance.NextTargetPower = 0;
+            AntManagerState.Instance.RemainingIntervalTime = 0;
+            AntManagerState.Instance.RemainingTotalTime = 0;
+            AntManagerState.Instance.WorkoutElapsedTime = 0;
             AntManagerState.WriteToMemory();
         }
 
@@ -94,15 +94,15 @@ namespace SimCycling
                 {
                     throw new Exception("Workouts not compatible with FEC bike model");
                 }
-                AntManagerState.GetInstance().WorkoutName = filename;
-                AntManagerState.GetInstance().WorkoutElapsedTime = 0;
+                AntManagerState.Instance.WorkoutName = filename;
+                AntManagerState.Instance.WorkoutElapsedTime = 0;
 
-                workout = GenericWorkout.Factory(AntManagerState.GetInstance().WorkoutName);
+                workout = GenericWorkout.Factory(AntManagerState.Instance.WorkoutName);
             }
             catch (Exception e)
             {
                 workout = null;
-                AntManagerState.GetInstance().WorkoutName = null;
+                AntManagerState.Instance.WorkoutName = null;
 
                 Console.WriteLine("Did not load workout." + e.Message);
             }
@@ -150,7 +150,7 @@ namespace SimCycling
 
         void InitBP(int channelNumber)
         {
-            AntManagerState.GetInstance().TripTotalKm = 0;
+            AntManagerState.Instance.TripTotalKm = 0;
             var channelCad = usbDevice.getChannel(channelNumber);
             var bikePowerDisplay = new BikePowerDisplay(channelCad, network);
             bpCommander = new BPCommander(bikePowerDisplay);
@@ -200,8 +200,8 @@ namespace SimCycling
             previousFrameTimestamp = time;
 
             FITRecorder.AddRecord();
-            AntManagerState.GetInstance().TripTotalKm += (float)(AntManagerState.GetInstance().BikeSpeedKmh / 1000 / 3.6 * dt);
-            AntManagerState.GetInstance().TripTotalTime += (float)dt;
+            AntManagerState.Instance.TripTotalKm += (float)(AntManagerState.Instance.BikeSpeedKmh / 1000 / 3.6 * dt);
+            AntManagerState.Instance.TripTotalTime += (float)dt;
 
             Console.WriteLine("update");
 
@@ -210,7 +210,7 @@ namespace SimCycling
                 workout.Update();
                 if (!workout.IsFinished)
                 {
-                    AntManagerState.GetInstance().WorkoutElapsedTime += (float)dt;
+                    AntManagerState.Instance.WorkoutElapsedTime += (float)dt;
                 }
                 else
                 {
@@ -219,7 +219,7 @@ namespace SimCycling
             }
             else
             {
-                AntManagerState.GetInstance().WorkoutElapsedTime = 0;
+                AntManagerState.Instance.WorkoutElapsedTime = 0;
             }
         }
 
