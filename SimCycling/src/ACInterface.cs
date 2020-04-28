@@ -191,7 +191,13 @@ namespace SimCycling
             }
             var acSpeed = e.Physics.SpeedKmh;
 
-            joyControl.Throttle(10 * (AntManagerState.GetInstance().BikeSpeedKmh - acSpeed) / (10 + AntManagerState.GetInstance().BikeSpeedKmh));
+            var targetSpeed = AntManagerState.GetInstance().BikeSpeedKmh;
+
+            if (targetSpeed > 1)
+            {
+                var throttle = 10 * (targetSpeed - acSpeed) / (10 + targetSpeed);
+                joyControl.Throttle(Math.Max(0, throttle));
+            }
         }
     }
 }
