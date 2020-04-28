@@ -14,9 +14,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using System.Diagnostics;
 using Dynastream.Fit;
 using DateTime = Dynastream.Fit.DateTime;
 using SimCycling.State;
@@ -26,9 +24,21 @@ namespace SimCycling
 {
     class FITRecorder
     {
-        static Encode encoder;
-        static FileStream fitDest;
-        static List<RecordMesg> records;
+        private static Encode encoder;
+        private static FileStream fitDest;
+        private static List<RecordMesg> records;
+
+        private static uint lastRecordTimeStamp;
+
+        private static SessionMesg sessionMesg;
+
+        private static float alreadyLappedDistance = 0.0f;
+        private static LapMesg currentLapMesg;
+
+        private static ActivityMesg activityMesg;
+        private static ushort numLaps = 1;
+
+        private static AntManagerState State => AntManagerState.GetInstance();
 
         static public void Start()
         {
@@ -59,70 +69,112 @@ namespace SimCycling
 
             // Encode each message, a definition message is automatically generated and output if necessary
             encoder.Write(fileIdMesg);
+
+            sessionMesg = new SessionMesg();
+            sessionMesg.SetStartTime(new DateTime(System.DateTime.Now));
+
+            currentLapMesg = new LapMesg();
+            currentLapMesg.SetStartTime(new DateTime(System.DateTime.Now));
         }
 
         public static void AddRecord()
         {
-            var newTimeStamp = new DateTime(System.DateTime.Now).GetTimeStamp();
-            if (records.Count > 0)
+            var now = new DateTime(System.DateTime.Now);
+            if (lastRecordTimeStamp == now.GetTimeStamp())
             {
-                var oldTimeStamp = records.Last().GetTimestamp().GetTimeStamp();
-
-                if (newTimeStamp == oldTimeStamp)
-                {
-                    return; // do not record twice with same timestamp ?
-                }
+                return; // do not record twice with same timestamp
             }
 
             try
             {
                 var newRecord = new RecordMesg();
-                if (AntManagerState.GetInstance().CyclistHeartRate > 0)
-                {
-                    newRecord.SetHeartRate((byte)AntManagerState.GetInstance().CyclistHeartRate);
-                }
-                if (AntManagerState.GetInstance().BikeCadence > 0)
-                {
-                    newRecord.SetCadence((byte)AntManagerState.GetInstance().BikeCadence);
-                }
-                
-                newRecord.SetPower((ushort)AntManagerState.GetInstance().CyclistPower);
-                newRecord.SetGrade(AntManagerState.GetInstance().BikeIncline);
-                newRecord.SetDistance(AntManagerState.GetInstance().TripTotalKm * 1000);
-                newRecord.SetSpeed(AntManagerState.GetInstance().BikeSpeedKmh / 3.6f);
+                var hr = State.CyclistHeartRate > 0 ? (byte?)State.CyclistHeartRate : null;
+                var cad = State.BikeCadence > 0 ? (byte?)State.BikeCadence : null;
+
+                newRecord.SetTimestamp(now);
+
+                newRecord.SetHeartRate(hr);
+                newRecord.SetCadence(cad);
+                newRecord.SetPower((ushort)State.CyclistPower);
+                newRecord.SetGrade(State.BikeIncline);
+                newRecord.SetDistance(State.TripTotalKm * 1000);
+                newRecord.SetSpeed(State.BikeSpeedKmh / 3.6f);
                 newRecord.SetAltitude(RaceState.GetInstance().CarPositions[0].Y);
-                newRecord.SetTimestamp(new DateTime(System.DateTime.Now));
+                
                 records.Add(newRecord);
+
+                lastRecordTimeStamp = now.GetTimeStamp();
 
             } catch (Exception e)
             {
                 Console.Write("Failed to write record.");
                 Console.WriteLine(e.Message);
             }
-
         }
 
         public static void Stop()
         {
-            // Update header datasize and file CRC
-            var sessionMesg = new SessionMesg();
-            sessionMesg.SetSport(Sport.Cycling);
-            sessionMesg.SetTotalDistance(AntManagerState.GetInstance().TripTotalKm * 1000);
-            sessionMesg.SetTotalElapsedTime(AntManagerState.GetInstance().TripTotalTime);
+            var now = new DateTime(System.DateTime.Now);
 
-            var activityMesg = new ActivityMesg();
+            currentLapMesg.SetTimestamp(now);
+            currentLapMesg.SetSport(Sport.Cycling);
+            currentLapMesg.SetTotalElapsedTime(now.GetTimeStamp() - currentLapMesg.GetStartTime().GetTimeStamp());
+            currentLapMesg.SetTotalTimerTime(now.GetTimeStamp() - currentLapMesg.GetStartTime().GetTimeStamp());
+            currentLapMesg.SetTotalDistance(State.TripTotalKm * 1000 - alreadyLappedDistance);
+            currentLapMesg.SetEvent(Event.Lap);
+            currentLapMesg.SetEventType(EventType.Stop);
+            currentLapMesg.SetEventGroup(0);
+
+            sessionMesg.SetTimestamp(now);
+            sessionMesg.SetSport(Sport.Cycling);
+            sessionMesg.SetSubSport(SubSport.VirtualActivity);
+            sessionMesg.SetTotalDistance(State.TripTotalKm * 1000);
+            sessionMesg.SetTotalElapsedTime(State.TripTotalTime);
+            sessionMesg.SetFirstLapIndex(0);
+            sessionMesg.SetNumLaps(numLaps);
+            sessionMesg.SetEvent(Event.Session);
+            sessionMesg.SetEventType(EventType.Stop);
+            sessionMesg.SetEventGroup(0);
+
+            activityMesg = new ActivityMesg();
+            activityMesg.SetTimestamp(now);
+            activityMesg.SetTotalTimerTime(State.TripTotalTime);
             activityMesg.SetNumSessions(1);
             activityMesg.SetType(Activity.Manual);
-            activityMesg.SetTotalTimerTime(AntManagerState.GetInstance().TripTotalTime);
+            activityMesg.SetEvent(Event.Activity);
+            activityMesg.SetEventType(EventType.Stop);
+            activityMesg.SetEventGroup(0);
 
             encoder.Write(records);
+            encoder.Write(currentLapMesg);
             encoder.Write(sessionMesg);
             encoder.Write(activityMesg);
 
             encoder.Close();
-            fitDest.Close();
-            
+            fitDest.Close();   
         }
 
+        public static void Lap()
+        {
+            var now = new DateTime(System.DateTime.Now);
+            currentLapMesg.SetTimestamp(now);
+            currentLapMesg.SetSport(Sport.Cycling);
+            currentLapMesg.SetTotalElapsedTime(now.GetTimeStamp() - currentLapMesg.GetStartTime().GetTimeStamp());
+            currentLapMesg.SetTotalTimerTime(now.GetTimeStamp() - currentLapMesg.GetStartTime().GetTimeStamp());
+            currentLapMesg.SetTotalDistance(State.TripTotalKm * 1000 - alreadyLappedDistance);
+            currentLapMesg.SetEvent(Event.Lap);
+            currentLapMesg.SetEventType(EventType.Stop);
+            currentLapMesg.SetEventGroup(0);
+
+            encoder.Write(records);
+            encoder.Write(currentLapMesg);
+
+            numLaps++;
+            records = new List<RecordMesg>();
+            currentLapMesg = new LapMesg();
+            alreadyLappedDistance = State.TripTotalKm * 1000;
+
+            currentLapMesg.SetStartTime(now);
+        }
     }
 }

@@ -176,7 +176,21 @@ namespace SimCycling
 
             var joyControl = new JoyControl();
             acInterface = new ACInterface(updateables, joyControl);
+            acInterface.NewLap += OnNewLap;
             bpCommander.Start();
+        }
+
+
+        public void OnNewLap(object sender, int lap)
+        {
+            if(workout != null)
+            {
+
+            }
+            else
+            {
+                FITRecorder.Lap();
+            }
         }
 
         override public void Update()

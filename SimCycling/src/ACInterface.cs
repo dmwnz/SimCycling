@@ -8,8 +8,12 @@ using SimCycling.State;
 
 namespace SimCycling
 {
+    public delegate void NewLapHandler(object sender, int lap);
+
     class ACInterface
     {
+        public event NewLapHandler NewLap;
+
         AssettoCorsa ac;
         PID pid;
         volatile bool updateLocked = false;
@@ -28,6 +32,7 @@ namespace SimCycling
 
         bool useAssistLine = true;
         AssistLineFollower assistLineFollower = new AssistLineFollower();
+        private int oldLap;
 
         public ACInterface(List<Updateable> updateables, JoyControl joyControl)
         {
@@ -105,6 +110,12 @@ namespace SimCycling
             var altitudeDiff = frontCoordinates.Y - rearCoordinates.Y;
             var distance = Consts.Norm(rearCoordinates - frontCoordinates);
 
+            var newLap = e.Graphics.CompletedLaps;
+            if(newLap > oldLap)
+            {
+                NewLap(this, newLap);
+            }
+            oldLap = newLap;
 
             var newPitch = (float)Math.Round(altitudeDiff * 1000.0f / distance) / 10.0f;
             if (float.IsNaN(newPitch))
