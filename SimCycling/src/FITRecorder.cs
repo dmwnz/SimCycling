@@ -26,24 +26,19 @@ namespace SimCycling
     {
         private static Encode encoder;
         private static FileStream fitDest;
-        private static List<RecordMesg> records;
 
-        private static uint lastRecordTimeStamp;
-
-        private static SessionMesg sessionMesg;
-
-        private static float alreadyLappedDistance = 0.0f;
         private static LapMesg currentLapMesg;
-
+        private static SessionMesg sessionMesg;
         private static ActivityMesg activityMesg;
-        private static ushort numLaps = 1;
+        
+        private static uint lastRecordTimeStamp;
+        private static float alreadyLappedDistance = 0.0f;
+        private static ushort numLaps = 0;
 
         private static AntManagerState State => AntManagerState.GetInstance();
 
         static public void Start()
         {
-            records = new List<RecordMesg>();
-
             var assettoFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Assetto Corsa\\SimCyclingActivities";
             if (!Directory.Exists(assettoFolder))
             {
@@ -52,6 +47,7 @@ namespace SimCycling
 
             var filepath = assettoFolder + "\\" + System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".fit";
 
+            var now = new DateTime(System.DateTime.Now);
 
             // Create file encode object
             encoder = new Encode(ProtocolVersion.V20);
@@ -65,16 +61,16 @@ namespace SimCycling
             fileIdMesg.SetManufacturer(Manufacturer.Dynastream);  // Types defined in the profile are available
             fileIdMesg.SetProduct(22);
             fileIdMesg.SetSerialNumber(1234);
-            fileIdMesg.SetTimeCreated(new DateTime(System.DateTime.Now));
+            fileIdMesg.SetTimeCreated(now);
 
             // Encode each message, a definition message is automatically generated and output if necessary
             encoder.Write(fileIdMesg);
 
             sessionMesg = new SessionMesg();
-            sessionMesg.SetStartTime(new DateTime(System.DateTime.Now));
+            sessionMesg.SetStartTime(now);
 
             currentLapMesg = new LapMesg();
-            currentLapMesg.SetStartTime(new DateTime(System.DateTime.Now));
+            currentLapMesg.SetStartTime(now);
         }
 
         public static void AddRecord()
@@ -100,8 +96,8 @@ namespace SimCycling
                 newRecord.SetDistance(State.TripTotalKm * 1000);
                 newRecord.SetSpeed(State.BikeSpeedKmh / 3.6f);
                 newRecord.SetAltitude(RaceState.GetInstance().CarPositions[0].Y);
-                
-                records.Add(newRecord);
+
+                encoder.Write(newRecord);
 
                 lastRecordTimeStamp = now.GetTimeStamp();
 
@@ -116,14 +112,7 @@ namespace SimCycling
         {
             var now = new DateTime(System.DateTime.Now);
 
-            currentLapMesg.SetTimestamp(now);
-            currentLapMesg.SetSport(Sport.Cycling);
-            currentLapMesg.SetTotalElapsedTime(now.GetTimeStamp() - currentLapMesg.GetStartTime().GetTimeStamp());
-            currentLapMesg.SetTotalTimerTime(now.GetTimeStamp() - currentLapMesg.GetStartTime().GetTimeStamp());
-            currentLapMesg.SetTotalDistance(State.TripTotalKm * 1000 - alreadyLappedDistance);
-            currentLapMesg.SetEvent(Event.Lap);
-            currentLapMesg.SetEventType(EventType.Stop);
-            currentLapMesg.SetEventGroup(0);
+            Lap();
 
             sessionMesg.SetTimestamp(now);
             sessionMesg.SetSport(Sport.Cycling);
@@ -145,8 +134,6 @@ namespace SimCycling
             activityMesg.SetEventType(EventType.Stop);
             activityMesg.SetEventGroup(0);
 
-            encoder.Write(records);
-            encoder.Write(currentLapMesg);
             encoder.Write(sessionMesg);
             encoder.Write(activityMesg);
 
@@ -166,11 +153,9 @@ namespace SimCycling
             currentLapMesg.SetEventType(EventType.Stop);
             currentLapMesg.SetEventGroup(0);
 
-            encoder.Write(records);
             encoder.Write(currentLapMesg);
 
             numLaps++;
-            records = new List<RecordMesg>();
             currentLapMesg = new LapMesg();
             alreadyLappedDistance = State.TripTotalKm * 1000;
 
