@@ -175,8 +175,7 @@ namespace SimCycling
             }
 
             var joyControl = new JoyControl();
-            string acLocation = ConfigurationManager.AppSettings["aclocation"];
-            acInterface = new ACInterface(updateables, joyControl, acLocation);
+            acInterface = new ACInterface(updateables, joyControl);
             bpCommander.Start();
         }
 
