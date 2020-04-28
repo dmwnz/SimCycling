@@ -62,11 +62,15 @@ namespace SimCycling
 
         public static void AddRecord()
         {
-            var oldTimeStamp = records.Last().GetTimestamp().GetTimeStamp();
             var newTimeStamp = new DateTime(System.DateTime.Now).GetTimeStamp();
-            if (newTimeStamp == oldTimeStamp)
+            if (records.Count > 0)
             {
-                return; // do not record twice with same timestamp ?
+                var oldTimeStamp = records.Last().GetTimestamp().GetTimeStamp();
+
+                if (newTimeStamp == oldTimeStamp)
+                {
+                    return; // do not record twice with same timestamp ?
+                }
             }
 
             try
