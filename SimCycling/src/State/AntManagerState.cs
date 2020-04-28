@@ -8,6 +8,9 @@ using System.Runtime.Serialization.Json;
 
 namespace SimCycling.State
 {
+    /// <summary>
+    /// Singleton class representing the current state (shared with Assetto Corsa via a memory-mapped file)
+    /// </summary>
     [DataContract]
     class AntManagerState
     {

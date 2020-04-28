@@ -40,6 +40,9 @@ namespace SimCycling.State
         }
     }
 
+    /// <summary>
+    /// Singleton class representing the current state exposed by Assetto Corsa python app
+    /// </summary>
     [DataContract]
     public class RaceState
     {
