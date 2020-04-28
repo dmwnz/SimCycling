@@ -37,26 +37,24 @@ namespace SimCycling
             }
         }
 
-        private double GravityAcceleration()
-        {
-            return AntManagerState.GetInstance().BikeIncline / 100.0 * gravitationAcceleration;
-        }
+        private double GravityAcceleration =>  AntManagerState.GetInstance().BikeIncline / 100.0 * gravitationAcceleration;
 
-        private double BikeSpeed() => AntManagerState.GetInstance().BikeSpeedKmh / 3.6;
+        private double BikeSpeed => AntManagerState.GetInstance().BikeSpeedKmh / 3.6;
 
-        private double Resistance() => 0.5 * AntManagerState.GetInstance().AirDensity *CdA * BikeSpeed() * BikeSpeed() + riderMass * Cxx * gravitationAcceleration;
+        private double Resistance => 0.5 * AntManagerState.GetInstance().AirDensity *CdA * BikeSpeed * BikeSpeed + riderMass * Cxx * gravitationAcceleration;
 
         private double DeltaV(double dt)
         {
-            double acceleration = Resistance() / riderMass + GravityAcceleration();
-            double a = 1; double b = BikeSpeed() - acceleration * dt;
+            double acceleration = Resistance / riderMass + GravityAcceleration;
+            double a = 1; 
+            double b = BikeSpeed - acceleration * dt;
             double p = AntManagerState.GetInstance().CyclistPower;
             if (p == 0) { p = -10; } // brake when power is 0;
-            double c = - AntManagerState.GetInstance().CyclistPower * dt / riderMass + acceleration * BikeSpeed() * dt;
+            double c = - p * dt / riderMass + acceleration * BikeSpeed * dt;
             double delta = b * b - 4 * a * c;
             if (delta < 0)
             {
-                return -BikeSpeed();
+                return -BikeSpeed;
             }
             return (-b + Math.Sqrt(delta)) / 2 / a;
         }
