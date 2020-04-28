@@ -43,8 +43,6 @@ namespace SimCycling.State
     [DataContract]
     public class RaceState
     {
-        // Singleton instance
-        private static RaceState raceState = new RaceState();
         private static MemoryMappedFile mm;
 
         [DataMember(Name = "car_positions")]
@@ -57,10 +55,7 @@ namespace SimCycling.State
         public List<float> NormalizedCarPositions { get; set; } = new List<float>();
 
 
-        public static RaceState GetInstance()
-        {
-            return raceState;
-        }
+        public static RaceState Instance { get; private set; } = new RaceState();
 
 
         public static byte[] TrimEnd(byte[] array)
@@ -89,7 +84,7 @@ namespace SimCycling.State
                     try
                     {
                         newState = (RaceState)serializer.ReadObject(new MemoryStream(array));
-                        raceState = newState;
+                        Instance = newState;
                     }
                     catch (Exception e)
                     {

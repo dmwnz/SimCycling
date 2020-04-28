@@ -95,7 +95,7 @@ namespace SimCycling
                 newRecord.SetGrade(State.BikeIncline);
                 newRecord.SetDistance(State.TripTotalKm * 1000);
                 newRecord.SetSpeed(State.BikeSpeedKmh / 3.6f);
-                newRecord.SetAltitude(RaceState.GetInstance().CarPositions[0].Y);
+                newRecord.SetAltitude(RaceState.Instance.CarPositions[0].Y);
 
                 encoder.Write(newRecord);
 

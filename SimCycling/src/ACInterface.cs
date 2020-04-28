@@ -134,12 +134,12 @@ namespace SimCycling
         {
             RaceState.ReadFromMemory();
 
-            if (RaceState.GetInstance().CarVelocities == null || RaceState.GetInstance().CarVelocities.Count == 0)
+            if (RaceState.Instance.CarVelocities == null || RaceState.Instance.CarVelocities.Count == 0)
             {
                 return;
             }
 
-            if (RaceState.GetInstance().CarPositions == null || RaceState.GetInstance().CarPositions.Count == 0)
+            if (RaceState.Instance.CarPositions == null || RaceState.Instance.CarPositions.Count == 0)
             {
                 return;
             }
@@ -166,7 +166,7 @@ namespace SimCycling
 
             if (useAssistLine)
             {
-                if (RaceState.GetInstance().CarPositions.Count == 0 || RaceState.GetInstance().NormalizedCarPositions.Count == 0)
+                if (RaceState.Instance.CarPositions.Count == 0 || RaceState.Instance.NormalizedCarPositions.Count == 0)
                 {
                     Console.WriteLine("No car positions..");
                     return;
@@ -174,10 +174,10 @@ namespace SimCycling
                 var orientation = frontCoordinates - rearCoordinates;
                 orientation = Vector3.Normalize(orientation);
                 assistLineFollower.CarOrientation = orientation;
-                assistLineFollower.CarPosition = RaceState.GetInstance().CarPositions[0];
-                assistLineFollower.CarVelocity = RaceState.GetInstance().CarVelocities[0];
-                assistLineFollower.NormalizedCarPosition = RaceState.GetInstance().NormalizedCarPositions[0];
-                assistLineFollower.Update(RaceState.GetInstance());
+                assistLineFollower.CarPosition = RaceState.Instance.CarPositions[0];
+                assistLineFollower.CarVelocity = RaceState.Instance.CarVelocities[0];
+                assistLineFollower.NormalizedCarPosition = RaceState.Instance.NormalizedCarPositions[0];
+                assistLineFollower.Update(RaceState.Instance);
                 if (AntManagerState.Instance.BikeSpeedKmh > assistLineFollower.SpeedLimit)
                 {
                     AntManagerState.Instance.BikeSpeedKmh = assistLineFollower.SpeedLimit;
