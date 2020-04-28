@@ -108,14 +108,17 @@ namespace SimCycling
             CultureInfo cul = new CultureInfo("en-US", false);
             var bikeWeight = float.Parse(ConfigurationManager.AppSettings["bikeweight"], cul.NumberFormat);
             var riderWeight = float.Parse(ConfigurationManager.AppSettings["riderweight"], cul.NumberFormat);
+            var wheelDiameter = int.Parse(ConfigurationManager.AppSettings["wheelsize"], cul.NumberFormat);
+
 
             // 170//8.5kg
             // 6250//62.5kg
+            // 672//67
             var command = new UserConfigurationPage
             {
                 BikeWeight = (ushort)(bikeWeight*20), 
                 UserWeight = (ushort)(riderWeight*100), 
-                WheelDiameter = 62
+                WheelDiameter = (byte)(wheelDiameter/10)
             };
             simulator.SendUserConfiguration(command);
         }
