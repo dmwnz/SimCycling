@@ -27,6 +27,7 @@ namespace SimCycling
     class FITRecorder
     {
         static Encode encoder;
+        static FileStream fitDest;
         static List<RecordMesg> records;
 
         static public void Start()
@@ -45,7 +46,7 @@ namespace SimCycling
             // Create file encode object
             encoder = new Encode(ProtocolVersion.V20);
 
-            var fitDest = new FileStream(filepath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+            fitDest = new FileStream(filepath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
             encoder.Open(fitDest);
 
             var fileIdMesg = new FileIdMesg(); // Every FIT file MUST contain a 'File ID' message as the first message
@@ -115,6 +116,7 @@ namespace SimCycling
             encoder.Write(activityMesg);
 
             encoder.Close();
+            fitDest.Close();
             
         }
 
