@@ -106,7 +106,7 @@ namespace SimCycling.Workout
         }
     }
 
-    public class Ramp : WorkoutItem
+    public abstract class Ramp : WorkoutItem
     {
         [XmlAttribute]
         public float PowerLow;
@@ -115,8 +115,8 @@ namespace SimCycling.Workout
 
         private static readonly int RAMP_RESOLUTION = 60; //sec
 
-        protected float StartPower => Math.Min(PowerLow, PowerHigh);
-        protected float EndPower => Math.Max(PowerLow, PowerHigh);
+        protected abstract float StartPower { get; }
+        protected abstract float EndPower { get; }
 
         internal override List<Segment> GetSegments(float previousSegmentEndTime)
         {
@@ -156,10 +156,14 @@ namespace SimCycling.Workout
 
     public class Cooldown : Ramp
     {
-        protected new float StartPower => Math.Max(PowerLow, PowerHigh);
-        protected new float EndPower => Math.Min(PowerLow, PowerHigh);
+        protected override float StartPower => Math.Max(PowerLow, PowerHigh);
+        protected override float EndPower => Math.Min(PowerLow, PowerHigh);
     }
-    public class Warmup : Ramp { }
+    public class Warmup : Ramp
+    {
+        protected override float StartPower => Math.Min(PowerLow, PowerHigh);
+        protected override float EndPower => Math.Min(PowerHigh, PowerLow);
+    }
 
     public class FreeRide : WorkoutItem
     {
