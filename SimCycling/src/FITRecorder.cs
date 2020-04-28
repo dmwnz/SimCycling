@@ -112,7 +112,7 @@ namespace SimCycling
         {
             var now = new DateTime(System.DateTime.Now);
 
-            Lap();
+            TerminateLap();
 
             sessionMesg.SetTimestamp(now);
             sessionMesg.SetSport(Sport.Cycling);
@@ -141,7 +141,11 @@ namespace SimCycling
             fitDest.Close();   
         }
 
-        public static void Lap()
+        /// <summary>
+        /// Terminates the current lap in the FIT recording.
+        /// Use cases : ingame lap (if no workout in progress), start/end of workout, end of activity.
+        /// </summary>
+        public static void TerminateLap()
         {
             var now = new DateTime(System.DateTime.Now);
             currentLapMesg.SetTimestamp(now);

@@ -84,9 +84,11 @@ namespace SimCycling
             AntManagerState.Instance.RemainingTotalTime = 0;
             AntManagerState.Instance.WorkoutElapsedTime = 0;
             AntManagerState.WriteToMemory();
+
+            FITRecorder.TerminateLap();
         }
 
-        internal void SetWorkout(string filename)
+        internal void StartWorkout(string filename)
         {
             try
             {
@@ -98,6 +100,7 @@ namespace SimCycling
                 AntManagerState.Instance.WorkoutElapsedTime = 0;
 
                 workout = GenericWorkout.Factory(AntManagerState.Instance.WorkoutName);
+                FITRecorder.TerminateLap();
             }
             catch (Exception e)
             {
@@ -183,13 +186,9 @@ namespace SimCycling
 
         public void OnNewLap(object sender, int lap)
         {
-            if(workout != null)
+            if(workout == null)
             {
-
-            }
-            else
-            {
-                FITRecorder.Lap();
+                FITRecorder.TerminateLap();
             }
         }
 
@@ -215,6 +214,7 @@ namespace SimCycling
                 else
                 {
                     workout = null;
+                    FITRecorder.TerminateLap();
                 }
             }
             else

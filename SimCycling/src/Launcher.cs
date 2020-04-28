@@ -62,7 +62,7 @@ namespace SimCycling
                     string filename = LoadWorkoutFile();
                     if (filename != null)
                     {
-                        manager.SetWorkout(filename);
+                        manager.StartWorkout(filename);
                     }
                     break;
                 case Signal.STOP_WORKOUT:
