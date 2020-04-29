@@ -204,22 +204,14 @@ namespace SimCycling
 
             Console.WriteLine("update");
 
-            if (workout != null)
+            workout?.Update();
+            if (workout?.IsFinished == false)
             {
-                workout.Update();
-                if (!workout.IsFinished)
-                {
-                    AntManagerState.Instance.WorkoutElapsedTime += (float)dt;
-                }
-                else
-                {
-                    workout = null;
-                    FITRecorder.TerminateLap();
-                }
+                AntManagerState.Instance.WorkoutElapsedTime += (float)dt;
             }
-            else
+            else if (workout?.IsFinished == true)
             {
-                AntManagerState.Instance.WorkoutElapsedTime = 0;
+                StopWorkout();
             }
         }
 
