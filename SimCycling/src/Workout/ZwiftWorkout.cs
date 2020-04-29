@@ -62,7 +62,20 @@ namespace SimCycling.Workout
         [XmlElement("textevent")]
         public List<TextEventItem> textevents;
 
+        static readonly int MESSAGE_DURATION = 5;
 
+        internal List<SegmentMessage> GetSegmentMessages(float startTime)
+        {
+            return textevents
+                .Select(te =>
+                    new SegmentMessage() {
+                        MessageText = te.message,
+                        StartDisplayTime =  startTime + te.timeoffset,
+                        EndDisplayTime = startTime + te.timeoffset + MESSAGE_DURATION
+                    })
+                .ToList();
+        }
+        
         internal abstract List<Segment> GetSegments(float lastEndTime);
     }
 
@@ -127,14 +140,19 @@ namespace SimCycling.Workout
             var lastEndTime = previousSegmentEndTime;
             if (rampDiscretePoints == 1)
             {
-                return new List<Segment> { new Segment(lastEndTime, Duration, StartPower, Cadence, GetType()) };
+                return new List<Segment> { new Segment(lastEndTime, Duration, StartPower, Cadence, GetType(), GetSegmentMessages(lastEndTime)) };
             }
             var res = new List<Segment>();
             for (int i = 0; i < rampDiscretePoints; i++)
             {
-                var lerpFactor = (float)i / (float)(rampDiscretePoints - 1);
+                var lerpFactor = (float)i / (rampDiscretePoints - 1);
                 var lerpPower = StartPower + lerpFactor * (EndPower - StartPower);
-                var segment = new Segment(lastEndTime, RAMP_RESOLUTION, lerpPower, Cadence, GetType());
+
+                var messages = GetSegmentMessages(lastEndTime)
+                    .Where(m => m.StartDisplayTime >= lastEndTime && m.StartDisplayTime < lastEndTime + RAMP_RESOLUTION)
+                    .ToList();
+
+                var segment = new Segment(lastEndTime, RAMP_RESOLUTION, lerpPower, Cadence, GetType(), messages);
                 res.Add(segment);
                 lastEndTime = segment.EndTimeSeconds;
             }
@@ -150,7 +168,7 @@ namespace SimCycling.Workout
 
         internal override List<Segment> GetSegments(float lastEndTime)
         {
-            return new List<Segment> { new Segment(lastEndTime, Duration, Power, Cadence, GetType()) };
+            return new List<Segment> { new Segment(lastEndTime, Duration, Power, Cadence, GetType(), GetSegmentMessages(lastEndTime)) };
         }
     }
 
@@ -172,7 +190,7 @@ namespace SimCycling.Workout
 
         internal override List<Segment> GetSegments(float lastEndTime)
         {
-            return new List<Segment> { new Segment(lastEndTime, Duration, 0, Cadence, GetType()) };
+            return new List<Segment> { new Segment(lastEndTime, Duration, 0, Cadence, GetType(), GetSegmentMessages(lastEndTime)) };
         }
     }
 

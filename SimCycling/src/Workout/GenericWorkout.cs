@@ -17,14 +17,26 @@ namespace SimCycling.Workout
         public int TargetCadence;
         public float EndTimeSeconds => StartTimeSeconds + DurationSeconds;
         public string Type;
-        public Segment(float lastEndTimeSeconds, float durationSeconds, float powerIntensity, int cadence, Type type)
+
+        public List<SegmentMessage> Messages;
+
+        public Segment(float startTimeSeconds, float durationSeconds, float powerIntensity, int cadence, Type type, List<SegmentMessage> messages = null)
         {
-            StartTimeSeconds = lastEndTimeSeconds;
+            StartTimeSeconds = startTimeSeconds;
             DurationSeconds = durationSeconds;
             TargetRelativePowerIntensity = powerIntensity;
             TargetCadence = cadence;
             Type = type.ToString();
+            Messages = messages;
         }
+    }
+
+    public class SegmentMessage
+    {
+        public string MessageText;
+
+        public float StartDisplayTime { get; internal set; }
+        public float EndDisplayTime { get; internal set; }
     }
 
     public abstract class GenericWorkout
@@ -54,6 +66,19 @@ namespace SimCycling.Workout
             }
         }
 
+        protected String CurrentMessage
+        {
+            get
+            {
+                return CurrentSegment
+                    ?.Messages
+                    ?.FirstOrDefault(
+                        m => AntManagerState.Instance.WorkoutElapsedTime >= m.StartDisplayTime 
+                          && AntManagerState.Instance.WorkoutElapsedTime <  m.EndDisplayTime)
+                    ?.MessageText;
+            }
+        }
+
         public static GenericWorkout Factory(string filename)
         {
             if (filename.EndsWith(".js"))
@@ -80,28 +105,28 @@ namespace SimCycling.Workout
 
         public void Update()
         {
-            AntManagerState state = AntManagerState.Instance;
-            var secondsSinceStart = state.WorkoutElapsedTime;
+            var secondsSinceStart = AntManagerState.Instance.WorkoutElapsedTime;
 
             var currentSegment = CurrentSegment;
             var nextSegment = NextSegment;
 
             if (currentSegment == null)
             {
-                state.TargetPower = 0;
+                AntManagerState.Instance.TargetPower = 0;
             }
             else
             {
                 Console.WriteLine("Target power : {0}", currentSegment.TargetRelativePowerIntensity);
-                state.TargetPower = currentSegment.TargetRelativePowerIntensity * state.CriticalPower;
-                state.RemainingIntervalTime = currentSegment.EndTimeSeconds - secondsSinceStart;
-                state.RemainingTotalTime = Segments.Last().EndTimeSeconds - secondsSinceStart;
+                AntManagerState.Instance.TargetPower = currentSegment.TargetRelativePowerIntensity * AntManagerState.Instance.CriticalPower;
+                AntManagerState.Instance.RemainingIntervalTime = currentSegment.EndTimeSeconds - secondsSinceStart;
+                AntManagerState.Instance.RemainingTotalTime = Segments.Last().EndTimeSeconds - secondsSinceStart;
+                AntManagerState.Instance.WorkoutMessage = CurrentMessage;
                 if (nextSegment != null)
                 {
-                    state.NextTargetPower = nextSegment.TargetRelativePowerIntensity * state.CriticalPower;
+                    AntManagerState.Instance.NextTargetPower = nextSegment.TargetRelativePowerIntensity * AntManagerState.Instance.CriticalPower;
                 } else
                 {
-                    state.NextTargetPower = 0;
+                    AntManagerState.Instance.NextTargetPower = 0;
                 }
             }
         }

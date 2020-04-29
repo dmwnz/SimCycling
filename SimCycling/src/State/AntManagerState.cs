@@ -61,6 +61,9 @@ namespace SimCycling.State
         public string WorkoutName { get; set; }
 
         [DataMember()]
+        public string WorkoutMessage { get; set; }
+
+        [DataMember()]
         public float WorkoutElapsedTime { get; set; }
 
         public static AntManagerState Instance { get; } = new AntManagerState();

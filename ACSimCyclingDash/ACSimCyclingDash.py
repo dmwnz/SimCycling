@@ -83,6 +83,7 @@ class AntManagerState:
         self.RemainingIntervalTime = 0.0
         self.RemainingTotalTime = 0.0
         self.WorkoutElapsedTime = 0.0
+        self.WorkoutMessage = ""
         self.LapPosition = 0.0
 
     def _instanciateFromDict(self, dictionary):
@@ -175,7 +176,7 @@ def stopExecutable():
     sendSignal(SIGNAL_EXIT)
 
 class UIElement():
-    def __init__(self, valueName, appWindow, x, y, fontSize=48, unit="", format=None, title=None):
+    def __init__(self, valueName, appWindow, x, y, fontSize=48, unit="", format=None, title=None, alignment="right"):
         self.valueName = valueName
         self.unit = unit
         self.label = ac.addLabel(appWindow, "0")
@@ -185,13 +186,14 @@ class UIElement():
         self.y = y
         self.fontSize = fontSize
         self.title = title
+        self.alignment = alignment
         if self.title is not None:
             self.titleLabel = ac.addLabel(appWindow, self.title)
 
 
     def setup(self):
         ac.setFontSize(self.label, self.fontSize)
-        ac.setFontAlignment(self.label, "right")
+        ac.setFontAlignment(self.label, self.alignment)
         ac.setFontSize(self.unitLabel, self.fontSize//2)
         ac.setPosition(self.label, self.x, self.y)  
         ac.setPosition(self.unitLabel, self.x+self.fontSize//10, self.y+self.fontSize//2)
@@ -206,7 +208,11 @@ class UIElement():
         if self.format is not None:
             ac.setText(self.label, ("{0:" + self.format + "}").format(value))
         else:
-            ac.setText(self.label, "{0}".format(getattr(state, self.valueName)))
+            attrValue = getattr(state, self.valueName)
+            if attrValue is not None:
+                ac.setText(self.label, "{0}".format(attrValue))
+            else:
+                ac.setText(self.label, "")
 
 class TimerUIElement(UIElement):
     def setup(self):
@@ -276,6 +282,7 @@ class WorkoutUI:
         self.uiElements.append(UIElement("NextTargetPower", appWindow, 250, 10, 48, 'W', ".0f", title="Next"))
         self.uiElements.append(TimerUIElement("RemainingIntervalTime", appWindow, 400, 10, 48))
         self.uiElements.append(TimerUIElement("RemainingTotalTime", appWindow, 650 , 10, 48))
+        self.uiElements.append(UIElement("WorkoutMessage", appWindow, 400, 215, 36, alignment="center"))
 
         self.graph = ac.addGraph(appWindow, "0")
         ac.addSerieToGraph(self.graph, 0.0, 1.0, 0.0) # current power : green
@@ -328,6 +335,7 @@ def onRender(*args):
                 ac.setText(uiElements.btn1, "load workout")
             else:
                 ac.setText(uiElements.btn1, "stop workout")
+                ac.console("Workout message : " + repr(antManagerState.WorkoutMessage))
         elif not stateFound and ac.getText(uiElements.btn1) != "starting...":
             ac.setText(uiElements.btn1, "start")
     except Exception as e:

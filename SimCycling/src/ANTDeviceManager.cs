@@ -83,6 +83,7 @@ namespace SimCycling
             AntManagerState.Instance.RemainingIntervalTime = 0;
             AntManagerState.Instance.RemainingTotalTime = 0;
             AntManagerState.Instance.WorkoutElapsedTime = 0;
+            AntManagerState.Instance.WorkoutMessage = null;
             AntManagerState.WriteToMemory();
 
             FITRecorder.TerminateLap();
