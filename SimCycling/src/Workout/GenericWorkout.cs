@@ -99,6 +99,9 @@ namespace SimCycling.Workout
                 if (nextSegment != null)
                 {
                     state.NextTargetPower = nextSegment.TargetRelativePowerIntensity * state.CriticalPower;
+                } else
+                {
+                    state.NextTargetPower = 0;
                 }
             }
         }
