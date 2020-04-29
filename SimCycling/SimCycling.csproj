@@ -139,7 +139,6 @@
     <Compile Include="src\HRMCommander.cs" />
     <Compile Include="src\Utils.cs" />
     <Compile Include="src\Launcher.cs" />
-    <Compile Include="src\PID.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

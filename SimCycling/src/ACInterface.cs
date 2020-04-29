@@ -15,7 +15,6 @@ namespace SimCycling
         public event NewLapHandler NewLap;
 
         AssettoCorsa ac;
-        PID pid;
         volatile bool updateLocked = false;
 
         Vector3 frontCoordinates = new Vector3(0, 0, 0);
@@ -69,19 +68,11 @@ namespace SimCycling
             ac.GraphicsUpdated += OnACGraphics;
             ac.StaticInfoUpdated += OnACInfo;
 
-
             ac.Start();
             isSpeedInit = false;
             Log("AC Is running : " + ac.IsRunning);
-
-
-            var P = 0.3f;
-            var I = 0.005f;
-            var D = 0.0f;
-
-            pid = new PID(P, I, D);
-            pid.Clear();
         }
+
         private void OnACInfo(object sender, StaticInfoEventArgs e)
         {
             if (e.StaticInfo.Track != track || e.StaticInfo.TrackConfiguration != layout)

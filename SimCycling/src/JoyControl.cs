@@ -20,9 +20,6 @@ namespace SimCycling
         vJoy joystick;
         bool acquired;
 
-
-        List<Updateable> updateables;
-
         public JoyControl()
         {
             Start();
