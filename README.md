@@ -1,5 +1,8 @@
 # SimCycling
-Use your bike and your home trainer as a controller in racing simulation games.
+Use your bike and your home trainer as a controller in racing simulation games.  
+
+Short demo video  
+[![Simcycling Video](https://img.youtube.com/vi/5hiM_qTmGkw/0.jpg)](https://www.youtube.com/watch?v=5hiM_qTmGkw)
 
 ## Prerequisites:
 - Software
