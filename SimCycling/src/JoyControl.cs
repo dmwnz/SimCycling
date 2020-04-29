@@ -73,6 +73,8 @@ namespace SimCycling
         {
             if (acquired)
             {
+                Throttle(0);
+                Direction(0);
                 joystick.RelinquishVJD(idVJoy);
             }
         }

@@ -47,10 +47,10 @@ namespace SimCycling
 
         public void Stop()
         {
-
             ac.PhysicsUpdated -= OnACPhysics;
             ac.GraphicsUpdated -= OnACGraphics;
             ac.StaticInfoUpdated -= OnACInfo;
+            joyControl.Stop();
             ac.Stop();
         }
 
