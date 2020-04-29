@@ -99,7 +99,7 @@ namespace SimCycling.Workout
                 res.Add(onSegment);
 
                 var offSegment = new Segment(lastEndTime, OffDuration, OffPower, Cadence, GetType());
-                lastEndTime = onSegment.EndTimeSeconds;
+                lastEndTime = offSegment.EndTimeSeconds;
                 res.Add(offSegment);
             }
             return res;
