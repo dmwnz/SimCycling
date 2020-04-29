@@ -180,7 +180,7 @@ namespace SimCycling
             Vector3 sideVector = new Vector3(-forwardVector.Z, 0, forwardVector.X);
             sideVector = Vector3.Normalize(sideVector);
             Vector3 position = Consts.FromArray(point.Position);
-            Console.WriteLine("forwards = {0}", forwardVector);
+            // Console.WriteLine("forwards = {0}", forwardVector);
 
 
             SpeedLimit = float.MaxValue;
@@ -188,13 +188,13 @@ namespace SimCycling
 
             var leftDistance = targetSide + pointExtra.SideLeft;
             leftDistance = Math.Max(leftDistance, minDistance);
-            Console.WriteLine("left force = {0}", (sideRepulsionIntensity / leftDistance / leftDistance));
+            // Console.WriteLine("left force = {0}", (sideRepulsionIntensity / leftDistance / leftDistance));
             force += sideRepulsionIntensity / leftDistance / leftDistance;
 
             var rightDistance = targetSide - pointExtra.SideRight;
             rightDistance = Math.Min(rightDistance, -minDistance);
             force += sideRepulsionIntensity / rightDistance / Math.Abs(rightDistance);
-            Console.WriteLine("right force = {0}", sideRepulsionIntensity / rightDistance / Math.Abs(rightDistance));
+            // Console.WriteLine("right force = {0}", sideRepulsionIntensity / rightDistance / Math.Abs(rightDistance));
 
 
             for (int i = 1; i < state.CarPositions.Count; i++)
@@ -203,12 +203,12 @@ namespace SimCycling
                 var v = state.CarPositions[i] + anticipationTime * (Vector3) (state.CarVelocities[i]) - position - targetSide * sideVector;
                 var d_cut = Math.Max(Consts.Norm(v), minDistance);
                 force += - carRepulsionIntensity / d_cut / d_cut * Math.Sign(Vector3.Dot(v, sideVector));
-                Console.WriteLine("car {0} force = {1}", i, -carRepulsionIntensity / d_cut / d_cut * Vector3.Dot(v, sideVector));
+                // Console.WriteLine("car {0} force = {1}", i, -carRepulsionIntensity / d_cut / d_cut * Vector3.Dot(v, sideVector));
             }
 
             var targetSide_th = Math.Max(Math.Abs(targetSide), minDistance);
             force += (- attractionIntensity / targetSide_th / targetSide_th * targetSide);
-            Console.WriteLine("force = {0}", force);
+            // Console.WriteLine("force = {0}", force);
             targetSide += force * targetVelocity;
 
             if (targetSide < -pointExtra.SideLeft)
@@ -223,7 +223,7 @@ namespace SimCycling
 
 
             var targetPoint = position + targetSide * sideVector;
-            Console.WriteLine("target = {0}", targetSide);
+            // Console.WriteLine("target = {0}", targetSide);
 
             var toLine = targetPoint - CarPosition;
             var carOrientationAngle = (float)Math.Atan2(CarOrientation.Z, CarOrientation.X);
@@ -239,7 +239,7 @@ namespace SimCycling
             {
                 angle += 2 * (float)Math.PI;
             }
-            Console.WriteLine("angle = {0}", 180 / (float)Math.PI * angle);
+            // Console.WriteLine("angle = {0}", 180 / (float)Math.PI * angle);
 
             if (!float.IsNaN(angle))
             {
