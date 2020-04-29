@@ -162,7 +162,7 @@ namespace SimCycling.Workout
     public class Warmup : Ramp
     {
         protected override float StartPower => Math.Min(PowerLow, PowerHigh);
-        protected override float EndPower => Math.Min(PowerHigh, PowerLow);
+        protected override float EndPower => Math.Max(PowerHigh, PowerLow);
     }
 
     public class FreeRide : WorkoutItem
