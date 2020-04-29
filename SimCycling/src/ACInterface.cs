@@ -8,7 +8,7 @@ using SimCycling.State;
 
 namespace SimCycling
 {
-    public delegate void NewLapHandler(object sender, int lap);
+    public delegate void NewLapHandler();
 
     class ACInterface
     {
@@ -31,7 +31,7 @@ namespace SimCycling
 
         bool useAssistLine = true;
         AssistLineFollower assistLineFollower = new AssistLineFollower();
-        private int oldLap;
+        private float previousNormalizedCarPosition;
 
         public ACInterface(List<Updateable> updateables, JoyControl joyControl)
         {
@@ -98,15 +98,21 @@ namespace SimCycling
 
             updateLocked = true;
 
+            if (RaceState.Instance.NormalizedCarPositions.Count > 0)
+            {
+                // Hack to detect new lap
+                // NormalizedCarPosition ranges from [0 ; 1]
+                // If it goes from >0.9 to <0.1 then surely it's a new lap
+                if (RaceState.Instance.NormalizedCarPositions[0] < previousNormalizedCarPosition - 0.975)
+                {
+                    Console.WriteLine("New Lap !");
+                    NewLap();
+                }
+                previousNormalizedCarPosition = RaceState.Instance.NormalizedCarPositions[0];
+            }
+
             var altitudeDiff = frontCoordinates.Y - rearCoordinates.Y;
             var distance = Consts.Norm(rearCoordinates - frontCoordinates);
-
-            var newLap = e.Graphics.CompletedLaps;
-            if(newLap > oldLap)
-            {
-                NewLap(this, newLap);
-            }
-            oldLap = newLap;
 
             var newPitch = (float)Math.Round(altitudeDiff * 1000.0f / distance) / 10.0f;
             if (float.IsNaN(newPitch))

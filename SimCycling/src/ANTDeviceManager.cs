@@ -184,7 +184,7 @@ namespace SimCycling
         }
 
 
-        public void OnNewLap(object sender, int lap)
+        public void OnNewLap()
         {
             if(workout == null)
             {
