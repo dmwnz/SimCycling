@@ -18,7 +18,7 @@ Short demo video
 
 ## Usage: 
 1. Extract archive in assettocorsa install directory
-1. Make sure settings in apps/python/ACSimCyclingDash/bin/SimCycling.exe.config are correct (cp = FTP)
+1. Make sure settings in `apps/python/ACSimCyclingDash/bin/SimCycling.exe.config` are correct (cp = FTP)
 1. Launch Assetto Corsa 
 1. Configure controls to bind vJoy axis 3 to steering & axis 1 to throttle (example config supplied)
 1. Enable ACSimCyclingDash python app in the game settings
@@ -28,6 +28,25 @@ Short demo video
 1. Start pedalling to make the car move 😎  
 Load up a workout file if you want to follow a structured workout.
 
+
+## Frequently Asked Questions (most common issues)
+**Q**: *When I click start, nothing happens*  
+**A**: Make sure you have all the prerequisites matched. Make sure your antivirus is not blocking `SimCycling.exe` in `apps/python/ACSimCyclingDash/bin`
+
+**Q**: *When I pedal, I can see the power and speed update in the app but the car doesn't move*  
+**A**: Check your control bindings. Use Vjoy feeder in the settings menu to see if the axis are properly mapped. Also make sure the driving aid "automatic gears" is enabled, otherwise the car will stay in neutral
+
+**Q**: *What workout file formats are supported?*  
+**A**: ZWO (Zwift Work Out), ERG/MRC
+
+**Q**: *Are my virtual activities recorded and where?*  
+**A**: Yes, output FIT files are recorded in `My Documents/Assetto Corsa/SimCyclingActivities`
+
+**Q**: *Can I upload my activities to Strava?*  
+**A**: Yes
+
+**Q**: *After I upload my activity to Strava, the map isn't showing*  
+**A**: This is normal. There is no conversion of ingame positions (X, Y, Z) to WGS coordinates (Longitude, Latitude, Altitude) yet.
 
 ## How it works
 In-Game Python App launches a compiled executable whose job is
