@@ -14,20 +14,23 @@ namespace SimCycling
     class FECCommander : Updateable
     {
         DateTime lastTransmittedGradeTime;
-        
-        readonly bool useAsModel;
-
+       
         readonly float minSimulatedGrade = float.Parse(ConfigurationManager.AppSettings["minsimulatedgrade"], CultureInfo.InvariantCulture.NumberFormat);
         readonly float maxSimulatedGrade = float.Parse(ConfigurationManager.AppSettings["maxsimulatedgrade"], CultureInfo.InvariantCulture.NumberFormat);
 
-        float speedKmh;
-
         readonly FitnessEquipmentDisplay simulator;
 
-        public FECCommander(FitnessEquipmentDisplay simulator, bool useAsModel=true)
+        public bool IsFound { get; set; }
+        public float LastPower { get; set; }
+        public float SpeedKmh { get; set; }
+
+        public FECCommander(FitnessEquipmentDisplay simulator, UInt16 deviceNumber=0)
         {
             this.simulator = simulator;
-            this.useAsModel = useAsModel;
+            if (deviceNumber > 0)
+            {
+                this.simulator.ChannelParameters.DeviceNumber = deviceNumber;
+            }
         }
         
         public static void Log(String s, params object[] parms)
@@ -63,28 +66,20 @@ namespace SimCycling
 
         private void Found(ushort a, byte b)
         {
-            Log("Bkool found !");
-
+            Log("FEC found ! ({0})", a);
+            IsFound = true;
             RequestCommandStatus();
         }
 
         private void OnPageGeneralFE(GeneralFePage page, uint counter)
         {            
-            if (useAsModel)
-            {
-                speedKmh = page.Speed * 0.0036f;
-                AntManagerState.Instance.BikeSpeedKmh = speedKmh;
-                AntManagerState.WriteToMemory();
-            }
+            SpeedKmh = page.Speed * 0.0036f;
         }
 
         private void OnPageSpecificTrainer(SpecificTrainerPage page, uint counter)
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-
-            AntManagerState.Instance.CyclistPower = page.InstantaneousPower;
-            AntManagerState.WriteToMemory();
-            
+            LastPower = page.InstantaneousPower;
         }
 
         private void OnPageFeCapabilities(FeCapabilitiesPage page, uint counter)

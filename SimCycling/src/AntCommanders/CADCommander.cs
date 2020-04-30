@@ -7,10 +7,16 @@ namespace SimCycling
     class CADCommander
     {
         readonly BikeCadenceDisplay simulator;
+        public float LastCadence { get; set; }
+        public bool IsFound { get; set; }
 
-        public CADCommander(BikeCadenceDisplay simulator)
+        public CADCommander(BikeCadenceDisplay simulator, UInt16 deviceNumber = 0)
         {
             this.simulator = simulator;
+            if (deviceNumber > 0)
+            {
+                this.simulator.ChannelParameters.DeviceNumber = deviceNumber;
+            }
         }
 
         public void Start()
@@ -29,15 +35,13 @@ namespace SimCycling
 
         private void Found(ushort a, byte b)
         {
-            Console.WriteLine("Cadence sensor Found !");
+            Console.WriteLine("Cadence sensor Found ! (%i)", a);
+            IsFound = true;
         }
 
         private void OnPageBikeCadence(BikeCadenceData page, uint a)
         {
-            var cad = page.Cadence;
-            Console.WriteLine("CAD : " + cad);
-            AntManagerState.Instance.BikeCadence = (int)Math.Round(cad);
-            AntManagerState.WriteToMemory();
+            LastCadence = (float) page.Cadence;
         }
     }
 }

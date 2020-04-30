@@ -121,6 +121,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="src\AssistLineFollower.cs" />
+    <Compile Include="src\AntCommanders\SCCommander.cs" />
     <Compile Include="src\State\RaceState.cs" />
     <Compile Include="src\State\AntManagerState.cs" />
     <Compile Include="src\Workout\ErgMrcWorkout.cs" />
@@ -130,12 +131,12 @@
     <Compile Include="src\FITRecorder.cs" />
     <Compile Include="src\JoyControl.cs" />
     <Compile Include="src\ANTDeviceManager.cs" />
-    <Compile Include="src\CADCommander.cs" />
+    <Compile Include="src\AntCommanders\CADCommander.cs" />
     <Compile Include="src\BikePhysics.cs" />
-    <Compile Include="src\BPCommander.cs" />
+    <Compile Include="src\AntCommanders\BPCommander.cs" />
     <Compile Include="src\ACInterface.cs" />
-    <Compile Include="src\FECCommander.cs" />
-    <Compile Include="src\HRMCommander.cs" />
+    <Compile Include="src\AntCommanders\FECCommander.cs" />
+    <Compile Include="src\AntCommanders\HRMCommander.cs" />
     <Compile Include="src\Utils.cs" />
     <Compile Include="src\Launcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

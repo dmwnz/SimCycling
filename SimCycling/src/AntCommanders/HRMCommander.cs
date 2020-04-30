@@ -7,10 +7,16 @@ namespace SimCycling
     class HRMCommander
     {
         readonly HeartRateDisplay simulator;
+        public int LastBPM { get; set; }
+        public bool IsFound { get; set; }
 
-        public HRMCommander(HeartRateDisplay simulator)
+        public HRMCommander(HeartRateDisplay simulator, UInt16 deviceNumber = 0)
         {
             this.simulator = simulator;
+            if (deviceNumber > 0)
+            {
+                this.simulator.ChannelParameters.DeviceNumber = deviceNumber;
+            }
         }
 
         public void Start()
@@ -29,16 +35,14 @@ namespace SimCycling
 
         private void Found(ushort a, byte b)
         {
-            Console.WriteLine("HRM Found !");
+            Console.WriteLine("HRM Found ! ({0})", a);
+            IsFound = true;
         } 
 
 
         private void OnPageHeartRate(HeartRateData page, uint a)
         {
-            var hr = page.HeartRate;
-            Console.WriteLine("HRM : " + hr);
-            AntManagerState.Instance.CyclistHeartRate = hr;
-            AntManagerState.WriteToMemory();
+            LastBPM = page.HeartRate;
         }
 
     }

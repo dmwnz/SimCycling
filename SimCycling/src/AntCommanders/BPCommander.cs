@@ -7,14 +7,21 @@ namespace SimCycling
 {
     class BPCommander
     {
-        // bool acquiredVJoy = false;
-        int lastPower = 0;
+
+        public float LastPower { get; set; }
+        public float LastCadence { get; set; }
+        public bool IsFound { get; set; }
+
 
         readonly BikePowerDisplay simulator;
 
-        public BPCommander(BikePowerDisplay simulator)
+        public BPCommander(BikePowerDisplay simulator, UInt16 deviceNumber=0)
         {
             this.simulator = simulator;
+            if (deviceNumber > 0)
+            {
+                this.simulator.ChannelParameters.DeviceNumber = deviceNumber;
+            }
         }
         
         public static void Log(String s, params object[] parms)
@@ -39,17 +46,15 @@ namespace SimCycling
 
         private void Found(ushort a, byte b)
         {
-            Log("Power found !");
+            Log("Power found ! ({0})", a);
+            IsFound = true;
             RequestCommandStatus();
         }
 
         private void OnPowerPage(StandardPowerOnlyPage page, uint counter)
         {
-            lastPower = page.InstantaneousPower;
-            var cad = page.InstantaneousCadence;
-            AntManagerState.Instance.CyclistPower = lastPower;
-            AntManagerState.Instance.BikeCadence = (int)Math.Round((double) cad);
-            AntManagerState.WriteToMemory();
+            LastPower = page.InstantaneousPower;
+            LastCadence = page.InstantaneousCadence;
         }
         private void RequestCommandStatus()
         {
