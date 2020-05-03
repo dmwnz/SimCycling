@@ -129,20 +129,20 @@ namespace SimCycling
 
         void InitHRM(int channelNumber)
         {
-            UInt16 deviceNumber = UInt16.Parse(ConfigurationManager.AppSettings["hrm_device"]);
+            Int32 deviceNumber = Int32.Parse(ConfigurationManager.AppSettings["hrm_device"]);
             if (deviceNumber < 0)
             {
                 return;
             }
             var channelHrm = usbDevice.getChannel(channelNumber);
             var heartRateDisplay = new HeartRateDisplay(channelHrm, network);
-            hrmCommander = new HRMCommander(heartRateDisplay, deviceNumber) ;
+            hrmCommander = new HRMCommander(heartRateDisplay, (UInt16) deviceNumber) ;
             hrmCommander.Start();
         }
 
         void InitFEC(int channelNumber)
         {
-            UInt16 deviceNumber = UInt16.Parse(ConfigurationManager.AppSettings["fec_device"]);
+            Int32 deviceNumber = Int32.Parse(ConfigurationManager.AppSettings["fec_device"]);
             if (deviceNumber < 0)
             {
                 return;
@@ -150,26 +150,26 @@ namespace SimCycling
             var channelFec = usbDevice.getChannel(channelNumber);
             var fitnessEquipmentDisplay = new FitnessEquipmentDisplay(channelFec, network);
             var useAsModel = false;
-            fecCommander = new FECCommander(fitnessEquipmentDisplay, deviceNumber);
+            fecCommander = new FECCommander(fitnessEquipmentDisplay, (UInt16) deviceNumber);
             fecCommander.Start();
         }
 
         void InitCAD(int channelNumber)
         {
-            UInt16 deviceNumber = UInt16.Parse(ConfigurationManager.AppSettings["cadence_device"]);
+            Int32 deviceNumber = Int32.Parse(ConfigurationManager.AppSettings["cadence_device"]);
             if (deviceNumber < 0)
             {
                 return;
             }
             var channelCad = usbDevice.getChannel(channelNumber);
             var bikeCadenceDisplay = new BikeCadenceDisplay(channelCad, network);
-            cadCommander = new CADCommander(bikeCadenceDisplay, deviceNumber);
+            cadCommander = new CADCommander(bikeCadenceDisplay, (UInt16) deviceNumber);
             cadCommander.Start();
         }
 
         void InitBP(int channelNumber)
         {
-            UInt16 deviceNumber = UInt16.Parse(ConfigurationManager.AppSettings["bike_power_device"]);
+            Int32 deviceNumber = Int32.Parse(ConfigurationManager.AppSettings["bike_power_device"]);
             if (deviceNumber < 0)
             {
                 return;
@@ -177,13 +177,13 @@ namespace SimCycling
             AntManagerState.Instance.TripTotalKm = 0;
             var channelCad = usbDevice.getChannel(channelNumber);
             var bikePowerDisplay = new BikePowerDisplay(channelCad, network);
-            bpCommander = new BPCommander(bikePowerDisplay, deviceNumber);
+            bpCommander = new BPCommander(bikePowerDisplay, (UInt16) deviceNumber);
             bpCommander.Start();
         }
 
         void InitSC(int channelNumber)
         {
-            UInt16 deviceNumber = UInt16.Parse(ConfigurationManager.AppSettings["speed_cadence_device"]);
+            Int32 deviceNumber = Int32.Parse(ConfigurationManager.AppSettings["speed_cadence_device"]);
             if (deviceNumber < 0)
             {
                 return;
@@ -191,7 +191,7 @@ namespace SimCycling
             AntManagerState.Instance.TripTotalKm = 0;
             var channelCad = usbDevice.getChannel(channelNumber);
             var speedCadenceDisplay = new BikeSpeedCadenceDisplay(channelCad, network);
-            scCommander = new SCCommander(speedCadenceDisplay, deviceNumber);
+            scCommander = new SCCommander(speedCadenceDisplay, (UInt16) deviceNumber);
             scCommander.Start();
         }
 
