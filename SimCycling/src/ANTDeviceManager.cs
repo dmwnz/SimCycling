@@ -198,7 +198,10 @@ namespace SimCycling
         void InitAC()
         {
             List<Updateable> updateables = new List<Updateable>();
-            updateables.Add(fecCommander);
+            if (fecCommander != null)
+            {
+                updateables.Add(fecCommander);
+            }
             updateables.Add(this);
 
             if (bikeModel == BikeModel.BikePhysics)
