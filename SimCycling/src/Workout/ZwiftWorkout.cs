@@ -119,7 +119,7 @@ namespace SimCycling.Workout
         }
     }
 
-    public abstract class Ramp : WorkoutItem
+    public class Ramp : WorkoutItem
     {
         [XmlAttribute]
         public float PowerLow;
@@ -128,8 +128,8 @@ namespace SimCycling.Workout
 
         private static readonly int RAMP_RESOLUTION = 60; //sec
 
-        protected abstract float StartPower { get; }
-        protected abstract float EndPower { get; }
+        protected virtual float StartPower => PowerLow;
+        protected virtual float EndPower => PowerHigh;
 
         internal override List<Segment> GetSegments(float previousSegmentEndTime)
         {
