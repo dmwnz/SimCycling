@@ -3,6 +3,7 @@ using ANT_Managed_Library;
 using AntPlus.Profiles.HeartRate;
 using AntPlus.Profiles.FitnessEquipment;
 using AntPlus.Profiles.BikeCadence;
+using AntPlus.Profiles.BikeSpeedCadence;
 using AntPlus.Profiles.BikePower;
 using System.Collections.Generic;
 using System.Configuration;
@@ -29,6 +30,7 @@ namespace SimCycling
         FECCommander fecCommander;
         CADCommander cadCommander;
         BPCommander bpCommander;
+        SCCommander scCommander;
 
         ACInterface acInterface;
         System.DateTime previousFrameTimestamp = System.DateTime.Now;
@@ -66,10 +68,12 @@ namespace SimCycling
             }
             
             AntManagerState.Instance.CriticalPower = Single.Parse(ConfigurationManager.AppSettings["cp"]);
+
             InitHRM(0);
             InitCAD(1);
             InitFEC(2);
             InitBP(3);
+            InitSC(4);
             InitAC();
             InitFIT();
         }
@@ -125,46 +129,79 @@ namespace SimCycling
 
         void InitHRM(int channelNumber)
         {
+            Int32 deviceNumber = Int32.Parse(ConfigurationManager.AppSettings["hrm_device"]);
+            if (deviceNumber < 0)
+            {
+                return;
+            }
             var channelHrm = usbDevice.getChannel(channelNumber);
             var heartRateDisplay = new HeartRateDisplay(channelHrm, network);
-            hrmCommander = new HRMCommander(heartRateDisplay);
+            hrmCommander = new HRMCommander(heartRateDisplay, (UInt16) deviceNumber) ;
             hrmCommander.Start();
         }
 
         void InitFEC(int channelNumber)
         {
+            Int32 deviceNumber = Int32.Parse(ConfigurationManager.AppSettings["fec_device"]);
+            if (deviceNumber < 0)
+            {
+                return;
+            }
             var channelFec = usbDevice.getChannel(channelNumber);
             var fitnessEquipmentDisplay = new FitnessEquipmentDisplay(channelFec, network);
             var useAsModel = false;
-            if (bikeModel == BikeModel.FEC)
-            {
-                useAsModel = true;
-            }
-            fecCommander = new FECCommander(fitnessEquipmentDisplay, useAsModel);
+            fecCommander = new FECCommander(fitnessEquipmentDisplay, (UInt16) deviceNumber);
             fecCommander.Start();
         }
 
         void InitCAD(int channelNumber)
         {
+            Int32 deviceNumber = Int32.Parse(ConfigurationManager.AppSettings["cadence_device"]);
+            if (deviceNumber < 0)
+            {
+                return;
+            }
             var channelCad = usbDevice.getChannel(channelNumber);
             var bikeCadenceDisplay = new BikeCadenceDisplay(channelCad, network);
-            cadCommander = new CADCommander(bikeCadenceDisplay);
+            cadCommander = new CADCommander(bikeCadenceDisplay, (UInt16) deviceNumber);
             cadCommander.Start();
         }
 
         void InitBP(int channelNumber)
         {
+            Int32 deviceNumber = Int32.Parse(ConfigurationManager.AppSettings["bike_power_device"]);
+            if (deviceNumber < 0)
+            {
+                return;
+            }
             AntManagerState.Instance.TripTotalKm = 0;
             var channelCad = usbDevice.getChannel(channelNumber);
             var bikePowerDisplay = new BikePowerDisplay(channelCad, network);
-            bpCommander = new BPCommander(bikePowerDisplay);
+            bpCommander = new BPCommander(bikePowerDisplay, (UInt16) deviceNumber);
             bpCommander.Start();
+        }
+
+        void InitSC(int channelNumber)
+        {
+            Int32 deviceNumber = Int32.Parse(ConfigurationManager.AppSettings["speed_cadence_device"]);
+            if (deviceNumber < 0)
+            {
+                return;
+            }
+            AntManagerState.Instance.TripTotalKm = 0;
+            var channelCad = usbDevice.getChannel(channelNumber);
+            var speedCadenceDisplay = new BikeSpeedCadenceDisplay(channelCad, network);
+            scCommander = new SCCommander(speedCadenceDisplay, (UInt16) deviceNumber);
+            scCommander.Start();
         }
 
         void InitAC()
         {
             List<Updateable> updateables = new List<Updateable>();
-            updateables.Add(fecCommander);
+            if (fecCommander != null)
+            {
+                updateables.Add(fecCommander);
+            }
             updateables.Add(this);
 
             if (bikeModel == BikeModel.BikePhysics)
@@ -202,6 +239,54 @@ namespace SimCycling
             FITRecorder.AddRecord();
             AntManagerState.Instance.TripTotalKm += (float)(AntManagerState.Instance.BikeSpeedKmh / 1000 / 3.6 * dt);
             AntManagerState.Instance.TripTotalTime += (float)dt;
+
+            // Take power from PM first, then smart trainer if unavailable
+            if (bpCommander.IsFound)
+            {
+                AntManagerState.Instance.CyclistPower = bpCommander.LastPower;
+            }
+            else if (fecCommander.IsFound)
+            {
+                AntManagerState.Instance.CyclistPower = bpCommander.LastPower;
+            }
+            else
+            {
+                AntManagerState.Instance.CyclistPower = 0;
+            }
+
+            // Take cadence from cadence, then speed/cadence, then PM
+            if (cadCommander.IsFound)
+            {
+                AntManagerState.Instance.BikeCadence = (int) Math.Round(cadCommander.LastCadence);
+            }
+            else if (scCommander.IsFound)
+            {
+                AntManagerState.Instance.BikeCadence = (int)Math.Round(scCommander.LastCadence);
+            }
+            else if (bpCommander.IsFound)
+            {
+                AntManagerState.Instance.BikeCadence = (int)Math.Round(bpCommander.LastCadence);
+            }
+            else
+            {
+                AntManagerState.Instance.BikeCadence = 0;
+            }
+
+            if (hrmCommander.IsFound)
+            {
+                AntManagerState.Instance.CyclistHeartRate = hrmCommander.LastBPM;
+            }
+            else
+            {
+                AntManagerState.Instance.CyclistHeartRate = 0;
+            }
+
+            if (fecCommander.IsFound && bikeModel == BikeModel.FEC)
+            {
+                AntManagerState.Instance.BikeSpeedKmh = fecCommander.SpeedKmh;
+            }
+
+            AntManagerState.WriteToMemory();
 
             Console.WriteLine("update");
 
