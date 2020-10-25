@@ -121,10 +121,10 @@ namespace SimCycling
             StopWorkout();
             acInterface.Stop();
             FITRecorder.Stop();
-            hrmCommander.Stop();
-            cadCommander.Stop();
-            fecCommander.Stop();
-            bpCommander.Stop();            
+            hrmCommander?.Stop();
+            cadCommander?.Stop();
+            fecCommander?.Stop();
+            bpCommander?.Stop();            
         }
 
         void InitHRM(int channelNumber)
@@ -149,7 +149,6 @@ namespace SimCycling
             }
             var channelFec = usbDevice.getChannel(channelNumber);
             var fitnessEquipmentDisplay = new FitnessEquipmentDisplay(channelFec, network);
-            var useAsModel = false;
             fecCommander = new FECCommander(fitnessEquipmentDisplay, (UInt16) deviceNumber);
             fecCommander.Start();
         }
@@ -218,7 +217,6 @@ namespace SimCycling
             var joyControl = new JoyControl();
             acInterface = new ACInterface(updateables, joyControl);
             acInterface.NewLap += OnNewLap;
-            bpCommander.Start();
         }
 
 
@@ -241,13 +239,13 @@ namespace SimCycling
             AntManagerState.Instance.TripTotalTime += (float)dt;
 
             // Take power from PM first, then smart trainer if unavailable
-            if (bpCommander.IsFound)
+            if (bpCommander?.IsFound ?? false)
             {
                 AntManagerState.Instance.CyclistPower = bpCommander.LastPower;
             }
-            else if (fecCommander.IsFound)
+            else if (fecCommander?.IsFound ?? false)
             {
-                AntManagerState.Instance.CyclistPower = bpCommander.LastPower;
+                AntManagerState.Instance.CyclistPower = fecCommander.LastPower;
             }
             else
             {
@@ -263,7 +261,7 @@ namespace SimCycling
             {
                 AntManagerState.Instance.BikeCadence = (int)Math.Round(scCommander.LastCadence);
             }
-            else if (bpCommander.IsFound)
+            else if (bpCommander?.IsFound ?? false)
             {
                 AntManagerState.Instance.BikeCadence = (int)Math.Round(bpCommander.LastCadence);
             }

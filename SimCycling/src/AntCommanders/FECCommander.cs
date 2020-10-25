@@ -154,16 +154,8 @@ namespace SimCycling
         private void SendTrackResistance(float grade)
         {
             UInt16 gradeToTransmit;
-
-            if (!useAsModel)
-            {
-                var boundedGrade = Math.Min(Math.Max(grade, minSimulatedGrade), maxSimulatedGrade);
-                gradeToTransmit = Consts.ConvertGrade(boundedGrade);
-            }
-            else
-            {
-                gradeToTransmit = Consts.ConvertGrade(grade);
-            }
+            var boundedGrade = Math.Min(Math.Max(grade, minSimulatedGrade), maxSimulatedGrade);
+            gradeToTransmit = Consts.ConvertGrade(boundedGrade);
             
             var command = new ControlTrackResistancePage
             {
