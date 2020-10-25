@@ -10,17 +10,18 @@ namespace SimCycling
     class BikePhysics : Updateable
     {
         double gravitationAcceleration = 9.81;
-        double CdA, Cxx, riderMass;
+        double CdA, Cxx, riderMass, drivetrainEfficiency;
         DateTime previousFrameTimestamp;
         public static void Log(String s, params object[] parms)
         {
             Console.WriteLine(s, parms);
         }
-        public BikePhysics(double CdA, double Cxx, double riderMass)
+        public BikePhysics(double CdA, double Cxx, double riderMass, double drivetrainEfficiency)
         {
             this.CdA = CdA;
             this.Cxx = Cxx;
             this.riderMass = riderMass;
+            this.drivetrainEfficiency = drivetrainEfficiency;
             previousFrameTimestamp = DateTime.Now;
         }
 
@@ -48,7 +49,7 @@ namespace SimCycling
             double acceleration = Resistance / riderMass + GravityAcceleration;
             double a = 1; 
             double b = BikeSpeed - acceleration * dt;
-            double p = AntManagerState.Instance.CyclistPower;
+            double p = AntManagerState.Instance.CyclistPower * drivetrainEfficiency;
             if (p == 0) { p = -10; } // brake when power is 0;
             double c = - p * dt / riderMass + acceleration * BikeSpeed * dt;
             double delta = b * b - 4 * a * c;

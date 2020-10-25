@@ -210,7 +210,8 @@ namespace SimCycling
                 var Cxx = float.Parse(ConfigurationManager.AppSettings["cxx"], cul.NumberFormat);
                 var bikeweight = float.Parse(ConfigurationManager.AppSettings["bikeweight"], cul.NumberFormat);
                 var riderweight = float.Parse(ConfigurationManager.AppSettings["riderweight"], cul.NumberFormat);
-                var bikePhysics = new BikePhysics(CdA, Cxx, bikeweight + riderweight);
+                var drivetrainEfficiency = float.Parse(ConfigurationManager.AppSettings["drivetrain_efficiency"], cul.NumberFormat);
+                var bikePhysics = new BikePhysics(CdA, Cxx, bikeweight + riderweight, drivetrainEfficiency);
                 updateables.Add(bikePhysics);
             }
 
