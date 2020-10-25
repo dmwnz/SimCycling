@@ -238,8 +238,10 @@ namespace SimCycling
             AntManagerState.Instance.TripTotalKm += (float)(AntManagerState.Instance.BikeSpeedKmh / 1000 / 3.6 * dt);
             AntManagerState.Instance.TripTotalTime += (float)dt;
 
-            // Take power from PM first, then smart trainer if unavailable
-            if (bpCommander?.IsFound ?? false)
+            bool takePowerFromBP = ConfigurationManager.AppSettings["power_source"].Equals("bp");
+            takePowerFromBP = takePowerFromBP || (ConfigurationManager.AppSettings["power_source"].Equals("fec") && !(fecCommander?.IsFound ?? false));
+            takePowerFromBP = takePowerFromBP && (bpCommander?.IsFound ?? false);
+            if (takePowerFromBP)
             {
                 AntManagerState.Instance.CyclistPower = bpCommander.LastPower;
             }
