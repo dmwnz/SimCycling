@@ -7,11 +7,14 @@ import acsys
 import os
 import threading
 import time
+import random
 
 antManagerExecutable = None
 antManagerState      = None
 uiElements           = None
 workoutUi            = None
+otherCyclists        = dict()
+otherCyclistsMaxCount= 4
 
 SIGNAL_LOAD_WORKOUT  = b'\x01'
 SIGNAL_STOP_WORKOUT  = b'\x02'
@@ -84,14 +87,27 @@ class AntManagerState:
         self.RemainingTotalTime = 0.0
         self.WorkoutElapsedTime = 0.0
         self.WorkoutMessage = ""
+        self.WorkoutName = ""
         self.LapPosition = 0.0
+        self.AirDensity = 0.0
+
+        self._onUpdated = []
 
     def _instanciateFromDict(self, dictionary):
         for k, v in dictionary.items():
             setattr(self, k, v)
 
+    def _isSameAsDict(self, dictionary):
+        for k, v in dictionary.items():
+            if getattr(self, k) != v:
+                return False
+        return True
+
     def _getMemoryMap(self):
         return mmap.mmap(0, 1024, "SimCycling")
+
+    def addUpdateCallback(self, callback):
+        self._onUpdated.append(callback)
 
     def updateFromMemory(self):
         memoryMap = self._getMemoryMap()
@@ -108,7 +124,10 @@ class AntManagerState:
         readString = readBytes.decode("utf-8").rstrip("\0")
         #ac.console(readString)
         dictData   = json.loads(readString)
-        self._instanciateFromDict(dictData)
+        if not self._isSameAsDict(dictData):
+            self._instanciateFromDict(dictData)
+            for callback in self._onUpdated:
+                callback(self)
         return True
 
     def eraseMemory(self):
@@ -204,6 +223,10 @@ class UIElement():
 
 
     def update(self, state):
+        if state is None:
+            ac.setText(self.label, "-")
+            return
+
         value = getattr(state, self.valueName)
         if self.format is not None:
             ac.setText(self.label, ("{0:" + self.format + "}").format(value))
@@ -290,7 +313,7 @@ class WorkoutUI:
         ac.addSerieToGraph(self.graph, 1.0, 0.0, 0.0) # current heart rate : red
 
     def setup(self):
-        ac.addRenderCallback(self.appWindow, onRender)
+        # ac.addRenderCallback(self.appWindow, onRender)
         ac.setSize(self.appWindow,800,100)
         ac.drawBorder(self.appWindow,0)
         ac.drawBackground(self.appWindow, 0)
@@ -309,13 +332,55 @@ class WorkoutUI:
         x = ac.addValueToGraph(self.graph, 1, antManagerState.TargetPower)
         x = ac.addValueToGraph(self.graph, 2, (antManagerState.CyclistHeartRate - 10) * 3)
 
+class OtherCyclistData:
+    def __init__(self, name="Cyclist", distance=0, power=0):
+        self.Name = name
+        self.Distance = distance
+        self.Power = power
+
+class OtherCyclistsUI:
+    def __init__(self, appWindow):
+        self.appWindow = appWindow
+
+        self.uiElements = []
+        for cyclist in range(otherCyclistsMaxCount+1):
+            uiElementsPerCyclist = []
+            yPos = 25 + 30*cyclist
+            # name and distance are only useful for other cyclists (not self which is at midpoint)
+            if cyclist != int(otherCyclistsMaxCount/2): 
+                uiElementsPerCyclist.append(UIElement("Name"    , appWindow,  10, yPos, 24, alignment="left"))
+                uiElementsPerCyclist.append(UIElement("Distance", appWindow, 175, yPos, 24, 'm', '.0f'))
+            uiElementsPerCyclist.append(UIElement("Power"   , appWindow, 250, yPos, 24, 'W', '.0f'))
+            self.uiElements.append(uiElementsPerCyclist)
+        self.airDensity = UIElement("AirDensity" , appWindow,  175, 25+30*int(otherCyclistsMaxCount/2), 24, unit="bar", format=".2f")
+
+       
+    def setup(self):
+        ac.setSize(self.appWindow,270, 30 + 30*(otherCyclistsMaxCount+1))
+        ac.drawBorder(self.appWindow,0)
+        ac.drawBackground(self.appWindow, 0)
+
+        for uiElements in self.uiElements:
+            for uiElementsPerCyclist in uiElements:
+                uiElementsPerCyclist.setup()
+        self.airDensity.setup()
+
+    def update(self, otherCyclistsList: list):
+        self.airDensity.update(antManagerState)
+        for cyclist, uiElementsPerCyclist in enumerate(self.uiElements):
+            for uiElement in uiElementsPerCyclist:
+                uiElement.update(otherCyclistsList[cyclist])
+
+
+
 def acMain(ac_version):
-    global uiElements, antManagerState, workoutUi
+    global uiElements, antManagerState, workoutUi, otherCyclistsUI
     appWindow=ac.newApp("ACSimCyclingDash")
 
 
     antManagerState = AntManagerState()
     antManagerState.eraseMemory()
+    antManagerState.addUpdateCallback(sendStateToChat)
 
     uiElements = UIElements(appWindow)
     uiElements.setup()
@@ -324,10 +389,15 @@ def acMain(ac_version):
     workoutUi = WorkoutUI(workoutAppWindow)
     workoutUi.setup()
     
+    otherCyclistsAppWindow=ac.newApp("Other SimCyclists")
+    otherCyclistsUI = OtherCyclistsUI(otherCyclistsAppWindow)
+    otherCyclistsUI.setup()
+
+    ac.addOnChatMessageListener(appWindow, onChatMessage)
+
     return "ACSimCyclingDash"
 
 def onRender(*args):
-    global antManagerExecutable, antManagerState, uiElements
     try:
         stateFound = antManagerState.updateFromMemory()
         if stateFound:
@@ -350,3 +420,54 @@ def onRender(*args):
 def acShutdown():
     ac.log("BIKEDASH acShutdown")
     sendSignal(SIGNAL_EXIT)
+
+
+def sendStateToChat(*args):
+    # ac.console("Send chat message !")
+    ac.sendChatMessage("SIMCYCLING {} {}".format(antManagerState.LapPosition, antManagerState.CyclistPower))
+
+    # uncomment for offline testing purposes
+    #friends = ['Damien', 'Paul', 'Samuel', 'Tim', 'Aline']
+    #friend = friends[random.randint(0,len(friends)-1)]
+    #onChatMessage("SIMCYCLING {} {}".format(random.random()*antManagerState.TrackLength, random.random()*350), friend)
+
+def onChatMessage(message:str, author:str):
+    ac.console("onChatMessage !" + author + " " + message)
+    if message.startswith("SIMCYCLING"):
+        position, power = message.split(' ')[1:]
+        position = float(position)
+        # moi   :  5 | 5.5| 2 |  2
+        # autre : 5.5| 0.5| 0 | 5.5
+        # dist  :-0.5|-1.0| 2 | 2.5
+        
+        my_pos = antManagerState.LapPosition + antManagerState.TrackLength
+
+        dist = my_pos - position
+        if dist >= 0.5 * antManagerState.TrackLength:
+            dist -= antManagerState.TrackLength
+
+        data = OtherCyclistData(author, dist*1000, float(power))
+        updateCyclists(data)
+
+def updateCyclists(data: OtherCyclistData):
+    otherCyclists[data.Name] = data
+    otherCyclistsList = sorted(otherCyclists.values(), key=lambda c : c.Distance)
+
+    # center the list around self
+    targetSelfIndex = int(otherCyclistsMaxCount/2)
+    currentSelfIndex = 0
+    for i in range(len(otherCyclistsList)):
+        if otherCyclistsList[i].Name == ac.getDriverName(0):
+            currentSelfIndex = i
+            break
+    
+    renderList = otherCyclistsList
+    if targetSelfIndex - currentSelfIndex > 0: # need to move data to the right (pad with None)
+        renderList = [None] * (targetSelfIndex - currentSelfIndex) + otherCyclistsList
+    elif targetSelfIndex - currentSelfIndex < 0: # need to move data to the left (=truncate)
+        renderList = otherCyclistsList[currentSelfIndex-targetSelfIndex:]
+
+    if len(renderList) < otherCyclistsMaxCount+1:
+        renderList = renderList + [None] * (otherCyclistsMaxCount+1 - len(renderList))
+
+    otherCyclistsUI.update(renderList)
