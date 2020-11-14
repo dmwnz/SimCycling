@@ -67,7 +67,7 @@ namespace SimCycling
                 bikeModel = BikeModel.BikePhysics;
             }
             
-            AntManagerState.Instance.CriticalPower = Single.Parse(ConfigurationManager.AppSettings["cp"]);
+            AntManagerState.Initialize(Single.Parse(ConfigurationManager.AppSettings["cp"]));
 
             InitHRM(0);
             InitCAD(1);
@@ -173,7 +173,6 @@ namespace SimCycling
             {
                 return;
             }
-            AntManagerState.Instance.TripTotalKm = 0;
             var channelCad = usbDevice.getChannel(channelNumber);
             var bikePowerDisplay = new BikePowerDisplay(channelCad, network);
             bpCommander = new BPCommander(bikePowerDisplay, (UInt16) deviceNumber);
@@ -187,7 +186,6 @@ namespace SimCycling
             {
                 return;
             }
-            AntManagerState.Instance.TripTotalKm = 0;
             var channelCad = usbDevice.getChannel(channelNumber);
             var speedCadenceDisplay = new BikeSpeedCadenceDisplay(channelCad, network);
             scCommander = new SCCommander(speedCadenceDisplay, (UInt16) deviceNumber);
@@ -239,10 +237,9 @@ namespace SimCycling
             AntManagerState.Instance.TripTotalKm += (float)(AntManagerState.Instance.BikeSpeedKmh / 1000 / 3.6 * dt);
             AntManagerState.Instance.TripTotalTime += (float)dt;
 
+            // we take the power from power meter (bike power) if the settings tells us so
             bool takePowerFromBP = ConfigurationManager.AppSettings["power_source"].Equals("bp");
-            takePowerFromBP = takePowerFromBP || (ConfigurationManager.AppSettings["power_source"].Equals("fec") && !(fecCommander?.IsFound ?? false));
-            takePowerFromBP = takePowerFromBP && (bpCommander?.IsFound ?? false);
-            if (takePowerFromBP)
+            if (takePowerFromBP && (bpCommander?.IsFound ?? false))
             {
                 AntManagerState.Instance.CyclistPower = bpCommander.LastPower;
             }
@@ -256,11 +253,11 @@ namespace SimCycling
             }
 
             // Take cadence from cadence, then speed/cadence, then PM
-            if (cadCommander.IsFound)
+            if (cadCommander?.IsFound ?? false)
             {
                 AntManagerState.Instance.BikeCadence = (int) Math.Round(cadCommander.LastCadence);
             }
-            else if (scCommander.IsFound)
+            else if (scCommander?.IsFound ?? false)
             {
                 AntManagerState.Instance.BikeCadence = (int)Math.Round(scCommander.LastCadence);
             }
@@ -273,7 +270,7 @@ namespace SimCycling
                 AntManagerState.Instance.BikeCadence = 0;
             }
 
-            if (hrmCommander.IsFound)
+            if (hrmCommander?.IsFound ?? false)
             {
                 AntManagerState.Instance.CyclistHeartRate = hrmCommander.LastBPM;
             }
@@ -282,14 +279,12 @@ namespace SimCycling
                 AntManagerState.Instance.CyclistHeartRate = 0;
             }
 
-            if (fecCommander.IsFound && bikeModel == BikeModel.FEC)
+            if (fecCommander?.IsFound ?? false && bikeModel == BikeModel.FEC)
             {
                 AntManagerState.Instance.BikeSpeedKmh = fecCommander.SpeedKmh;
             }
 
             AntManagerState.WriteToMemory();
-
-            Console.WriteLine("update");
 
             workout?.Update();
             if (workout?.IsFinished == false)

@@ -68,6 +68,26 @@ namespace SimCycling.State
 
         public static AntManagerState Instance { get; } = new AntManagerState();
 
+        public static void Initialize(float criticalPower)
+        {
+            Instance.AirDensity = 0;
+            Instance.BikeCadence = 0;
+            Instance.BikeIncline = 0;
+            Instance.BikeSpeedKmh = 0;
+            Instance.CriticalPower = criticalPower;
+            Instance.CyclistHeartRate = 0;
+            Instance.CyclistPower = 0;
+            Instance.NextTargetPower = 0;
+            Instance.RemainingIntervalTime = 0;
+            Instance.RemainingTotalTime = 0;
+            Instance.TargetPower = 0;
+            Instance.TripTotalKm = 0;
+            Instance.TripTotalTime = 0;
+            Instance.WorkoutElapsedTime = 0;
+            Instance.WorkoutMessage = null;
+            Instance.WorkoutName = null;
+        }
+
         public static void WriteToMemory()
         {
             if (WriteInProgress)
