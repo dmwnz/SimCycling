@@ -432,19 +432,24 @@ def sendStateToChat(*args):
     #onChatMessage("SIMCYCLING {} {}".format(random.random()*antManagerState.TrackLength, random.random()*350), friend)
 
 def onChatMessage(message:str, author:str):
-    ac.console("onChatMessage !" + author + " " + message)
+    # ac.console("onChatMessage !" + author + " " + message)
     if message.startswith("SIMCYCLING"):
         position, power = message.split(' ')[1:]
-        position = float(position)
         # moi   :  5 | 5.5| 2 |  2
         # autre : 5.5| 0.5| 0 | 5.5
         # dist  :-0.5|-1.0| 2 | 2.5
-        
-        my_pos = antManagerState.LapPosition + antManagerState.TrackLength
 
-        dist = my_pos - position
-        if dist >= 0.5 * antManagerState.TrackLength:
+        track_len = antManagerState.TrackLength
+        friend_pos = float(position)
+        my_pos = antManagerState.LapPosition
+
+        dist = my_pos - friend_pos
+        
+        # assuming the track is circular 
+        if dist > track_len/2: 
             dist -= antManagerState.TrackLength
+        elif dist < -1 * track_len/2:
+            dist += antManagerState.TrackLength
 
         data = OtherCyclistData(author, dist*1000, float(power))
         updateCyclists(data)
