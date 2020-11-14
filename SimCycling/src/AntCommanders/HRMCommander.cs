@@ -4,11 +4,16 @@ using System;
 
 namespace SimCycling
 {
-    class HRMCommander
+    class HRMCommander : AbstractANTCommander
     {
         readonly HeartRateDisplay simulator;
-        public int LastBPM { get; set; }
-        public bool IsFound { get; set; }
+
+        private int _lastBPM;
+        public int LastBPM
+        {
+            get => IsLastValueOutdated ? 0 : _lastBPM;
+            set { _lastBPM = value; LastMessageReceivedTime = DateTime.Now; }
+        }
 
         public HRMCommander(HeartRateDisplay simulator, UInt16 deviceNumber = 0)
         {

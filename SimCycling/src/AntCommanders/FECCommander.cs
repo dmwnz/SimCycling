@@ -11,7 +11,7 @@ using SimCycling.State;
 
 namespace SimCycling
 {
-    class FECCommander : Updateable
+    class FECCommander : AbstractANTCommander, IUpdateable
     {
         DateTime lastTransmittedGradeTime;
        
@@ -20,9 +20,19 @@ namespace SimCycling
 
         readonly FitnessEquipmentDisplay simulator;
 
-        public bool IsFound { get; set; }
-        public float LastPower { get; set; }
-        public float SpeedKmh { get; set; }
+
+        private float _lastPower;
+        public float LastPower
+        {
+            get => IsLastValueOutdated ? 0.0f : _lastPower;
+            set { _lastPower = value; LastMessageReceivedTime = DateTime.Now; }
+        }
+        private float _speedKmh;
+        public float SpeedKmh
+        {
+            get => IsLastValueOutdated ? 0.0f : _speedKmh;
+            set { _speedKmh = value; LastMessageReceivedTime = DateTime.Now; }
+        }
 
         public FECCommander(FitnessEquipmentDisplay simulator, UInt16 deviceNumber=0)
         {
@@ -182,7 +192,7 @@ namespace SimCycling
             simulator.SendDataPageRequest(request);
         }
 
-        public override void Update()
+        public void Update()
         {
             var targetPower = AntManagerState.Instance.TargetPower;
             var t = DateTime.Now;

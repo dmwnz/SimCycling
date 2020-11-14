@@ -4,11 +4,15 @@ using System;
 
 namespace SimCycling
 {
-    class CADCommander
+    class CADCommander : AbstractANTCommander
     {
         readonly BikeCadenceDisplay simulator;
-        public float LastCadence { get; set; }
-        public bool IsFound { get; set; }
+        private float _lastCadence;
+        public float LastCadence
+        {
+            get => IsLastValueOutdated ? 0.0f : _lastCadence;
+            set { _lastCadence = value; LastMessageReceivedTime = DateTime.Now; }
+        }
 
         public CADCommander(BikeCadenceDisplay simulator, UInt16 deviceNumber = 0)
         {

@@ -19,7 +19,7 @@ namespace SimCycling
         BikePhysics = 1,
     }
 
-    class ANTDeviceManager : Updateable
+    class ANTDeviceManager : IUpdateable
     {
         static readonly byte[] NETWORK_KEY = { 0xB9, 0xA5, 0x21, 0xFB, 0xBD, 0x72, 0xC3, 0x45 }; // ANT+ Managed network key
         static readonly byte CHANNEL_FREQUENCY = 0x39;
@@ -194,7 +194,7 @@ namespace SimCycling
 
         void InitAC()
         {
-            List<Updateable> updateables = new List<Updateable>();
+            List<IUpdateable> updateables = new List<IUpdateable>();
             if (fecCommander != null)
             {
                 updateables.Add(fecCommander);
@@ -227,7 +227,7 @@ namespace SimCycling
             }
         }
 
-        override public void Update()
+        public void Update()
         {
             var time = System.DateTime.Now;
             double dt = time.Subtract(previousFrameTimestamp).TotalSeconds;

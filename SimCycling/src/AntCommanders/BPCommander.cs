@@ -5,14 +5,22 @@ using SimCycling.State;
 
 namespace SimCycling
 {
-    class BPCommander
+    class BPCommander : AbstractANTCommander
     {
 
-        public float LastPower { get; set; }
-        public float LastCadence { get; set; }
-        public bool IsFound { get; set; }
-
-
+        private float _lastPower;
+        public float LastPower
+        {
+            get => IsLastValueOutdated ? 0.0f : _lastPower;
+            set { _lastPower = value; LastMessageReceivedTime = DateTime.Now; }
+        }
+        private float _lastCadence;
+        public float LastCadence
+        {
+            get => IsLastValueOutdated ? 0.0f : _lastCadence;
+            set { _lastCadence = value; LastMessageReceivedTime = DateTime.Now; }
+        }
+        
         readonly BikePowerDisplay simulator;
 
         public BPCommander(BikePowerDisplay simulator, UInt16 deviceNumber=0)
@@ -32,7 +40,6 @@ namespace SimCycling
         public void Start()
         {
             simulator.SensorFound += Found;
-
             simulator.StandardPowerOnlyPageReceived += OnPowerPage;
             simulator.TurnOn();
         }
