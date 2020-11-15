@@ -150,13 +150,13 @@ namespace SimCycling
 
             AiPoint[] points; AiPointExtra[] pointsExtra;
             if (isInFastLane || Vector3.Distance(ptPits, CarPosition) > maxPitDistance) {
-                Console.WriteLine("In fast lane.");
+                // Console.WriteLine("In fast lane.");
                 points = aiSpline.Points;
                 pointsExtra = aiSpline.PointsExtra;
             }
             else
             {
-                Console.WriteLine("In pit lane.");
+                // Console.WriteLine("In pit lane.");
                 index = indexPits;
                 points = aiSplinePits.Points;
                 pointsExtra = aiSplinePits.PointsExtra;

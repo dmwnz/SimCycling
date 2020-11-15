@@ -26,14 +26,14 @@ namespace SimCycling
         float trackLength;
         bool isSpeedInit;
 
-        List<Updateable> updateables;
+        List<IUpdateable> updateables;
         JoyControl joyControl;
 
         bool useAssistLine = true;
         AssistLineFollower assistLineFollower = new AssistLineFollower();
         private float previousNormalizedCarPosition;
 
-        public ACInterface(List<Updateable> updateables, JoyControl joyControl)
+        public ACInterface(List<IUpdateable> updateables, JoyControl joyControl)
         {
             this.updateables = updateables;
             this.joyControl = joyControl;
@@ -121,7 +121,7 @@ namespace SimCycling
             }
             AntManagerState.Instance.BikeIncline = newPitch;
 
-            foreach (Updateable updateable in updateables)
+            foreach (IUpdateable updateable in updateables)
             {
                 updateable.Update();
             }

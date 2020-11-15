@@ -3,14 +3,14 @@ using SimCycling.State;
 
 namespace SimCycling
 {
-    abstract class Updateable
+    public interface IUpdateable
     {
-        abstract public void Update();
+        void Update();
     }
-    class BikePhysics : Updateable
+    class BikePhysics : IUpdateable
     {
-        double gravitationAcceleration = 9.81;
-        double CdA, Cxx, riderMass, drivetrainEfficiency;
+        readonly double gravitationAcceleration = 9.81;
+        readonly double CdA, Cxx, riderMass, drivetrainEfficiency;
         DateTime previousFrameTimestamp;
         public static void Log(String s, params object[] parms)
         {
@@ -25,7 +25,7 @@ namespace SimCycling
             previousFrameTimestamp = DateTime.Now;
         }
 
-        override public void Update()
+        public void Update()
         {
             var time = DateTime.Now;
             double dt = time.Subtract(previousFrameTimestamp).TotalSeconds;
