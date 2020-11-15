@@ -90,8 +90,11 @@ class AntManagerState:
         self.WorkoutName = ""
         self.LapPosition = 0.0
         self.AirDensity = 0.0
+        self.DraftingCoefficient = 1.0
+        self.DraftingReduction = 0
 
         self._onUpdated = []
+
 
     def _instanciateFromDict(self, dictionary):
         for k, v in dictionary.items():
@@ -338,6 +341,7 @@ class OtherCyclistData:
         self.Distance = distance
         self.Power = power
 
+
 class OtherCyclistsUI:
     def __init__(self, appWindow):
         self.appWindow = appWindow
@@ -352,7 +356,7 @@ class OtherCyclistsUI:
                 uiElementsPerCyclist.append(UIElement("Distance", appWindow, 175, yPos, 24, 'm', '.0f'))
             uiElementsPerCyclist.append(UIElement("Power"   , appWindow, 250, yPos, 24, 'W', '.0f'))
             self.uiElements.append(uiElementsPerCyclist)
-        self.airDensity = UIElement("AirDensity" , appWindow,  175, 25+30*int(otherCyclistsMaxCount/2), 24, unit="bar", format=".2f")
+        self.draftingReduction = UIElement("DraftingReduction" , appWindow,  175, 25+30*int(otherCyclistsMaxCount/2), 24, unit="%", format=".1f")
 
        
     def setup(self):
@@ -366,11 +370,13 @@ class OtherCyclistsUI:
         self.airDensity.setup()
 
     def update(self, otherCyclistsList: list):
-        self.airDensity.update(antManagerState)
+        self.draftingReduction.update(antManagerState)
         for cyclist, uiElementsPerCyclist in enumerate(self.uiElements):
             for uiElement in uiElementsPerCyclist:
                 uiElement.update(otherCyclistsList[cyclist])
 
+def updateDrafting(state):
+    state.DraftingReduction = 100 * (1-state.DraftingCoefficient)
 
 
 def acMain(ac_version):
@@ -381,6 +387,7 @@ def acMain(ac_version):
     antManagerState = AntManagerState()
     antManagerState.eraseMemory()
     antManagerState.addUpdateCallback(sendStateToChat)
+    antManagerState.addUpdateCallback(updateDrafting)
 
     uiElements = UIElements(appWindow)
     uiElements.setup()

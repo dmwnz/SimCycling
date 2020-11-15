@@ -11,6 +11,7 @@ namespace SimCycling
     {
         readonly double gravitationAcceleration = 9.81;
         readonly double CdA, Cxx, riderMass, drivetrainEfficiency;
+
         DateTime previousFrameTimestamp;
         public static void Log(String s, params object[] parms)
         {
@@ -42,7 +43,7 @@ namespace SimCycling
 
         private double BikeSpeed => AntManagerState.Instance.BikeSpeedKmh / 3.6;
 
-        private double Resistance => 0.5 * AntManagerState.Instance.AirDensity *CdA * BikeSpeed * BikeSpeed + riderMass * Cxx * gravitationAcceleration;
+        private double Resistance => 0.5 * AntManagerState.Instance.DraftingCoefficient * AntManagerState.Instance.AirDensity *CdA * BikeSpeed * BikeSpeed + riderMass * Cxx * gravitationAcceleration;
 
         private double DeltaV(double dt)
         {
@@ -59,6 +60,7 @@ namespace SimCycling
             }
             return (-b + Math.Sqrt(delta)) / 2 / a;
         }
+
 
     }
 }

@@ -43,6 +43,9 @@ namespace SimCycling.State
         public float AirDensity { get; set; }
 
         [DataMember()]
+        public float DraftingCoefficient { get; set; }
+
+        [DataMember()]
         public float TargetPower { get; set; }
 
         [DataMember()]

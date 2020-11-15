@@ -17,6 +17,9 @@ namespace SimCycling
         AssettoCorsa ac;
         volatile bool updateLocked = false;
 
+        DraftingPhysics draftingPhysics = new DraftingPhysics();
+        double draftingCoefficient;
+
         Vector3 frontCoordinates = new Vector3(0, 0, 0);
         Vector3 rearCoordinates = new Vector3(0, 0, 0);
 
@@ -159,7 +162,8 @@ namespace SimCycling
                 isSpeedInit = true;
             }
            
-            AntManagerState.Instance.AirDensity = e.Physics.AirDensity;
+            AntManagerState.Instance.AirDensity =  e.Physics.AirDensity;
+            AntManagerState.Instance.DraftingCoefficient = (float) draftingPhysics.DraftingCoefficient(RaceState.Instance);
 
             if (useAssistLine)
             {
