@@ -18,7 +18,6 @@ namespace SimCycling
         volatile bool updateLocked = false;
 
         DraftingPhysics draftingPhysics = new DraftingPhysics();
-        double draftingCoefficient;
 
         Vector3 frontCoordinates = new Vector3(0, 0, 0);
         Vector3 rearCoordinates = new Vector3(0, 0, 0);
