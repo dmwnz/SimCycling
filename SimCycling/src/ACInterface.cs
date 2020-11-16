@@ -195,11 +195,8 @@ namespace SimCycling
 
             var targetSpeed = AntManagerState.Instance.BikeSpeedKmh;
 
-            if (targetSpeed > 1)
-            {
-                var throttle = 10 * (targetSpeed - acSpeed) / (10 + targetSpeed);
-                joyControl.Throttle(Math.Max(0, throttle));
-            }
+            var throttle = 10 * (targetSpeed - acSpeed) / (10 + targetSpeed);
+            joyControl.Throttle(Math.Max(0, throttle));
         }
     }
 }
