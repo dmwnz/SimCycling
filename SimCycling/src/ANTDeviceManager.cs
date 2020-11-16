@@ -279,7 +279,7 @@ namespace SimCycling
                 AntManagerState.Instance.CyclistHeartRate = 0;
             }
 
-            if (fecCommander?.IsFound ?? false && bikeModel == BikeModel.FEC)
+            if ((fecCommander?.IsFound ?? false) && bikeModel == BikeModel.FEC)
             {
                 AntManagerState.Instance.BikeSpeedKmh = fecCommander.SpeedKmh;
             }
