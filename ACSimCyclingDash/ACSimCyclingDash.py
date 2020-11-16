@@ -146,7 +146,6 @@ def sendSignal(signal):
     memoryMap.close()
 
 def btn1_clicked(*args):
-    global antManagerExecutable
     if ac.getText(uiElements.btn1) != "starting..." and ( antManagerExecutable is None or antManagerExecutable.poll() is not None ):
         startExecutable()
     elif not workoutInProgress():
@@ -155,12 +154,13 @@ def btn1_clicked(*args):
         stopWorkout()
  
 def btn2_clicked(*args):
-    global antManagerExecutable
+    if ac.getText(uiElements.btn1) == "starting...":
+        antManagerExecutable.kill()
+        ac.setText(uiElements.btn1, "start")
     if antManagerExecutable is not None and antManagerExecutable.poll() is None:
         stopExecutable()
 
 def workoutInProgress():
-    global antManagerState
     return antManagerState is not None and antManagerState.RemainingTotalTime > 0
 
 class ExecutableStarter(threading.Thread):
