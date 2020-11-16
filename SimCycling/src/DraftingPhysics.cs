@@ -52,7 +52,11 @@ namespace SimCycling
             for (int i = 1; i < state.CarPositions.Count; i++)
             {
                 Vector3 carVector = state.CarVelocities[i];
-                carVector = Vector3.Normalize(carVector);
+                if (Consts.Norm(carVector) != 0)
+                {
+                    carVector = Vector3.Normalize(carVector);
+                }
+                
                 Vector3 sideVector = new Vector3(-carVector.Z, 0, carVector.X);
                 Vector3 relativePosition = state.CarPositions[i] - Vector3.Multiply(0.5f * riderLength, carVector) - riderFrontPosition;
                 result = result * (1 - SingleRiderDraftingReduction(carVector, sideVector, relativePosition, state.CarVelocities[i]));
