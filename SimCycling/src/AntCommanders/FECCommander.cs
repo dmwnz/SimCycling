@@ -136,8 +136,9 @@ namespace SimCycling
             simulator.SendTargetPower(command);
         }
 
-        private void SendWindResistance()
+        private void SendWindResistance(float draftingCoefficient)
         {
+            byte draftingFactor = (byte)Math.Round(draftingCoefficient * 100);
             var command = new ControlWindResistancePage
             {
                 // Product of Frontal Surface Area, Drag Coefficient and Air Density.
@@ -154,7 +155,7 @@ namespace SimCycling
                 // Use default value: 0xFF
                 // Unit 0.01
                 // Range 0 – 1.00
-                DraftingFactor = 0xFF //# 0.1
+                DraftingFactor = draftingFactor
             };
             simulator.SendWindResistance(command);
         }
@@ -201,7 +202,7 @@ namespace SimCycling
             }
             else if (t.Subtract(lastTransmittedGradeTime).TotalSeconds > 2)
             {
-                SendWindResistance();
+                SendWindResistance(AntManagerState.Instance.DraftingCoefficient);
                 SendTrackResistance(AntManagerState.Instance.BikeIncline);
                 lastTransmittedGradeTime = t;
             }
