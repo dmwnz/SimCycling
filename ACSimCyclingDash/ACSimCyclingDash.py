@@ -91,7 +91,7 @@ class AntManagerState:
         self.LapPosition = 0.0
         self.AirDensity = 0.0
         self.DraftingCoefficient = 1.0
-        self.DraftingReduction = 0
+        self.DraftPercentage = 0
 
         self._onUpdated = []
 
@@ -356,7 +356,7 @@ class OtherCyclistsUI:
                 uiElementsPerCyclist.append(UIElement("Distance", appWindow, 175, yPos, 24, 'm', '.0f'))
             uiElementsPerCyclist.append(UIElement("Power"   , appWindow, 250, yPos, 24, 'W', '.0f'))
             self.uiElements.append(uiElementsPerCyclist)
-        self.draftingReduction = UIElement("DraftingReduction" , appWindow,  175, 25+30*int(otherCyclistsMaxCount/2), 24, unit="%", format=".1f")
+        self.draftPercentage = UIElement("DraftPercentage" , appWindow,  175, 25+30*int(otherCyclistsMaxCount/2), 24, unit="%", format=".1f")
 
        
     def setup(self):
@@ -367,16 +367,16 @@ class OtherCyclistsUI:
         for uiElements in self.uiElements:
             for uiElementsPerCyclist in uiElements:
                 uiElementsPerCyclist.setup()
-        self.airDensity.setup()
+        self.draftPercentage.setup()
 
     def update(self, otherCyclistsList: list):
-        self.draftingReduction.update(antManagerState)
+        self.draftPercentage.update(antManagerState)
         for cyclist, uiElementsPerCyclist in enumerate(self.uiElements):
             for uiElement in uiElementsPerCyclist:
                 uiElement.update(otherCyclistsList[cyclist])
 
 def updateDrafting(state):
-    state.DraftingReduction = 100 * (1-state.DraftingCoefficient)
+    state.DraftPercentage = 100 * (1-state.DraftingCoefficient)
 
 
 def acMain(ac_version):

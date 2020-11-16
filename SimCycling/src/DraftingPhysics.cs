@@ -10,10 +10,10 @@ namespace SimCycling
 
     class DraftingPhysics
     {
-        readonly double draftingDuration = 2;
+        readonly double draftingDuration = 1.5;
         readonly double maxReduction = 0.5;
         readonly double maxSideDistance = 2;
-        readonly float carLength = 2.0f;
+        readonly float riderLength = 2.0f;
 
         public static void Log(String s, params object[] parms)
         {
@@ -48,16 +48,17 @@ namespace SimCycling
             double result = 1.0;
             Vector3 riderCarVector = state.CarVelocities[0];
             riderCarVector = Vector3.Normalize(riderCarVector);
-            Vector3 riderFrontPosition = state.CarPositions[0] + Vector3.Multiply(0.5f * carLength, riderCarVector);
+            Vector3 riderFrontPosition = state.CarPositions[0] + Vector3.Multiply(0.5f * riderLength, riderCarVector);
             for (int i = 1; i < state.CarPositions.Count; i++)
             {
                 Vector3 carVector = state.CarVelocities[i];
                 carVector = Vector3.Normalize(carVector);
                 Vector3 sideVector = new Vector3(-carVector.Z, 0, carVector.X);
-                Vector3 relativePosition = state.CarPositions[i] - Vector3.Multiply(0.5f * carLength, carVector) - riderFrontPosition;
+                Vector3 relativePosition = state.CarPositions[i] - Vector3.Multiply(0.5f * riderLength, carVector) - riderFrontPosition;
                 result = result * (1 - SingleRiderDraftingReduction(carVector, sideVector, relativePosition, state.CarVelocities[i]));
             }
-            if (result > 1 - maxReduction)
+            Console.WriteLine("result = {0}", result);
+            if (result < 1 - maxReduction)
             {
                 result = 1 - maxReduction;
             }
