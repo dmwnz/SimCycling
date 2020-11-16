@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AntPlus.Profiles.Components;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
@@ -14,8 +15,33 @@ namespace SimCycling
 
         public bool IsFound { get; set; }
 
-        public DateTime LastMessageReceivedTime { get; set; }
+        /// <summary>
+        /// Last time we received a new message (different from the previous one)
+        /// </summary>
+        protected DateTime LastNewMessageReceivedTime { get; set; }
 
-        protected bool IsLastValueOutdated => DateTime.Now > LastMessageReceivedTime.AddSeconds(SensorValueLifespan);
+        /// <summary>
+        /// Last time we received a message
+        /// </summary>
+        protected DateTime LastMessageReceivedTime { get; set; }
+
+        protected bool IsLastValueOutdated => DateTime.Now > LastNewMessageReceivedTime.AddSeconds(SensorValueLifespan);
+        protected bool NoMessageSinceALongTime => DateTime.Now > LastMessageReceivedTime.AddSeconds(SensorValueLifespan * 2);
+
+        private ulong _lastUniqueEvent;
+        protected ulong LastUniqueEvent
+        {
+            get { return _lastUniqueEvent; }
+            set
+            {
+                LastMessageReceivedTime = DateTime.Now;
+                if (value != _lastUniqueEvent)
+                {
+                    _lastUniqueEvent = value;
+                    LastNewMessageReceivedTime = DateTime.Now;
+                }
+            }
+        }
+
     }
 }

@@ -11,8 +11,8 @@ namespace SimCycling
         private int _lastBPM;
         public int LastBPM
         {
-            get => IsLastValueOutdated ? 0 : _lastBPM;
-            set { _lastBPM = value; LastMessageReceivedTime = DateTime.Now; }
+            get => IsLastValueOutdated || NoMessageSinceALongTime ? 0 : _lastBPM;
+            set { _lastBPM = value; }
         }
 
         public HRMCommander(HeartRateDisplay simulator, UInt16 deviceNumber = 0)
@@ -48,6 +48,7 @@ namespace SimCycling
         private void OnPageHeartRate(HeartRateData page, uint a)
         {
             LastBPM = page.HeartRate;
+            base.LastUniqueEvent = page.TotalHeartBeatCount;
         }
 
     }

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Text;
 using SimCycling.Utils;
-
-using System.IO;
 using AntPlus.Profiles.Common;
 using System.Globalization;
 using AntPlus.Profiles.FitnessEquipment;
@@ -24,14 +21,14 @@ namespace SimCycling
         private float _lastPower;
         public float LastPower
         {
-            get => IsLastValueOutdated ? 0.0f : _lastPower;
-            set { _lastPower = value; LastMessageReceivedTime = DateTime.Now; }
+            get => IsLastValueOutdated || NoMessageSinceALongTime ? 0.0f : _lastPower;
+            set { _lastPower = value; }
         }
         private float _speedKmh;
         public float SpeedKmh
         {
-            get => IsLastValueOutdated ? 0.0f : _speedKmh;
-            set { _speedKmh = value; LastMessageReceivedTime = DateTime.Now; }
+            get => IsLastValueOutdated || NoMessageSinceALongTime ? 0.0f : _speedKmh;
+            set { _speedKmh = value; }
         }
 
         public FECCommander(FitnessEquipmentDisplay simulator, UInt16 deviceNumber=0)
@@ -84,12 +81,13 @@ namespace SimCycling
         private void OnPageGeneralFE(GeneralFePage page, uint counter)
         {            
             SpeedKmh = page.Speed * 0.0036f;
+            base.LastUniqueEvent += 1;
         }
 
         private void OnPageSpecificTrainer(SpecificTrainerPage page, uint counter)
         {
-            System.Threading.Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             LastPower = page.InstantaneousPower;
+            base.LastUniqueEvent = page.EventCount;
         }
 
         private void OnPageFeCapabilities(FeCapabilitiesPage page, uint counter)

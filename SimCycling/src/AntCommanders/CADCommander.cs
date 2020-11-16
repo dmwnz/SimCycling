@@ -1,5 +1,4 @@
 ﻿using AntPlus.Profiles.BikeCadence;
-using SimCycling.State;
 using System;
 
 namespace SimCycling
@@ -10,8 +9,8 @@ namespace SimCycling
         private float _lastCadence;
         public float LastCadence
         {
-            get => IsLastValueOutdated ? 0.0f : _lastCadence;
-            set { _lastCadence = value; LastMessageReceivedTime = DateTime.Now; }
+            get => IsLastValueOutdated || NoMessageSinceALongTime ? 0.0f : _lastCadence;
+            set { _lastCadence = value; }
         }
 
         public CADCommander(BikeCadenceDisplay simulator, UInt16 deviceNumber = 0)
@@ -46,6 +45,7 @@ namespace SimCycling
         private void OnPageBikeCadence(BikeCadenceData page, uint a)
         {
             LastCadence = (float) page.Cadence;
+            base.LastUniqueEvent = page.TotalCrankEventCount;
         }
     }
 }

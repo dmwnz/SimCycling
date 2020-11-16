@@ -12,8 +12,8 @@ namespace SimCycling
         private float _lastCadence;
         public float LastCadence
         {
-            get => IsLastValueOutdated ? 0.0f : _lastCadence;
-            set { _lastCadence = value; LastMessageReceivedTime = DateTime.Now; }
+            get => IsLastValueOutdated || NoMessageSinceALongTime ? 0.0f : _lastCadence;
+            set { _lastCadence = value; }
         }
 
         public SCCommander(BikeSpeedCadenceDisplay simulator, UInt16 deviceNumber = 0)
@@ -53,6 +53,7 @@ namespace SimCycling
         private void OnCadencePage(BikeCadenceData page, uint counter)
         {
             LastCadence = (float) page.Cadence;
+            base.LastUniqueEvent = page.TotalCrankEventCount;
         }
     }
 }

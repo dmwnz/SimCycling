@@ -1,7 +1,6 @@
 ﻿using System;
 using AntPlus.Profiles.Common;
 using AntPlus.Profiles.BikePower;
-using SimCycling.State;
 
 namespace SimCycling
 {
@@ -11,14 +10,14 @@ namespace SimCycling
         private float _lastPower;
         public float LastPower
         {
-            get => IsLastValueOutdated ? 0.0f : _lastPower;
-            set { _lastPower = value; LastMessageReceivedTime = DateTime.Now; }
+            get => IsLastValueOutdated || NoMessageSinceALongTime ? 0.0f : _lastPower;
+            set { _lastPower = value; }
         }
         private float _lastCadence;
         public float LastCadence
         {
-            get => IsLastValueOutdated ? 0.0f : _lastCadence;
-            set { _lastCadence = value; LastMessageReceivedTime = DateTime.Now; }
+            get => IsLastValueOutdated || NoMessageSinceALongTime ? 0.0f : _lastCadence;
+            set { _lastCadence = value; }
         }
         
         readonly BikePowerDisplay simulator;
@@ -62,6 +61,7 @@ namespace SimCycling
         {
             LastPower = page.InstantaneousPower;
             LastCadence = page.InstantaneousCadence;
+            base.LastUniqueEvent = page.EventCount;
         }
         private void RequestCommandStatus()
         {
