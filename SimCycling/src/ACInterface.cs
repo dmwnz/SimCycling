@@ -165,7 +165,7 @@ namespace SimCycling
             AntManagerState.Instance.AirDensity =  e.Physics.AirDensity;
             AntManagerState.Instance.DraftingCoefficient = (float) draftingPhysics.DraftingCoefficient(RaceState.Instance);
 
-            Console.WriteLine("Drafting : {0}", AntManagerState.Instance.DraftingCoefficient);
+            // Console.WriteLine("Drafting : {0}", AntManagerState.Instance.DraftingCoefficient);
 
             if (useAssistLine)
             {

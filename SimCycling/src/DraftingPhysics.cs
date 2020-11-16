@@ -61,7 +61,7 @@ namespace SimCycling
                 Vector3 relativePosition = state.CarPositions[i] - Vector3.Multiply(0.5f * riderLength, carVector) - riderFrontPosition;
                 result = result * (1 - SingleRiderDraftingReduction(carVector, sideVector, relativePosition, state.CarVelocities[i]));
             }
-            Console.WriteLine("result = {0}", result);
+            // Console.WriteLine("result = {0}", result);
             if (result < 1 - maxReduction)
             {
                 result = 1 - maxReduction;
