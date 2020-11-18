@@ -16,7 +16,7 @@ namespace SimCycling.State
     {
         private static MemoryMappedFile mm;
         private static volatile bool WriteInProgress = false;
-        private const int MEMORY_MAP_SIZE = 1024;
+        private const int MEMORY_MAP_SIZE = 2048;
 
         [DataMember()]
         public int BikeCadence { get; set; }

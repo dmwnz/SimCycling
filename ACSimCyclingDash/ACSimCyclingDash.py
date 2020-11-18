@@ -20,10 +20,12 @@ SIGNAL_LOAD_WORKOUT  = b'\x01'
 SIGNAL_STOP_WORKOUT  = b'\x02'
 SIGNAL_EXIT          = b'\x03'
 
+MMAP_SIZE_RS = 2048
+MMAP_SIZE_AS = 2048
 
 class RaceState:
     def _getMemoryMap(self):
-        return mmap.mmap(0, 1024, "SimCyclingRaceState")
+        return mmap.mmap(0, MMAP_SIZE_RS, "SimCyclingRaceState")
 
     def updateToMemory(self, stop=True):
         
@@ -65,7 +67,7 @@ class RaceState:
         }
         memoryMap = self._getMemoryMap()
         memoryMap.seek(0)
-        memoryMap.write(1024 * b"\0")
+        memoryMap.write(MMAP_SIZE_RS * b"\0")
         memoryMap.seek(0)
         memoryMap.write(json.dumps(dict).encode())
         memoryMap.close()
@@ -107,7 +109,7 @@ class AntManagerState:
         return True
 
     def _getMemoryMap(self):
-        return mmap.mmap(0, 1024, "SimCycling")
+        return mmap.mmap(0, MMAP_SIZE_AS, "SimCycling")
 
     def addUpdateCallback(self, callback):
         self._onUpdated.append(callback)
@@ -136,7 +138,7 @@ class AntManagerState:
     def eraseMemory(self):
         memoryMap = self._getMemoryMap()
         memoryMap.seek(0)
-        memoryMap.write(bytes(1024))
+        memoryMap.write(bytes(MMAP_SIZE_AS))
         memoryMap.close()
 
 def sendSignal(signal):

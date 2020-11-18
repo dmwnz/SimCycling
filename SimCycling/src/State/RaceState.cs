@@ -47,6 +47,7 @@ namespace SimCycling.State
     public class RaceState
     {
         private static MemoryMappedFile mm;
+        private const int MEMORY_MAP_SIZE = 2048;
 
         [DataMember(Name = "car_positions")]
         public List<SerializableVector3> CarPositions { get; set; } = new List<SerializableVector3>(); // Position of all cars in the race, 0 is the player
@@ -72,13 +73,13 @@ namespace SimCycling.State
 
         public static void ReadFromMemory()
         {
-            mm = MemoryMappedFile.CreateOrOpen("SimCyclingRaceState", 1024);
+            mm = MemoryMappedFile.CreateOrOpen("SimCyclingRaceState", MEMORY_MAP_SIZE);
 
             using (var mmAccessor = mm.CreateViewAccessor())
             {
                 DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(RaceState));
-                byte[] array = Enumerable.Repeat((byte)0x0, 1024).ToArray();
-                mmAccessor.ReadArray<byte>(0, array, 0, 1024);
+                byte[] array = Enumerable.Repeat((byte)0x0, MEMORY_MAP_SIZE).ToArray();
+                mmAccessor.ReadArray<byte>(0, array, 0, MEMORY_MAP_SIZE);
                 array = TrimEnd(array);
                 string json = Encoding.UTF8.GetString(array);
                 RaceState newState;
